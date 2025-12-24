@@ -15,7 +15,7 @@
 ///|
 /// Create a new reader from a string
 pub fn Reader::from_string(input : String) -> Reader {
-  { input: input.to_array(), pos: 0, line: 1, column: 1 }
+  { input: input.to_array(), pos: 0, line: 1, column: 1, entities: {} }
 }
 
 ///|
@@ -249,9 +249,9 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
     self.skip_whitespace()
     // Check for internal subset
     if self.peek() is Some('[') {
-      // Skip internal subset [...]
+      // Parse internal subset [...] and extract entities
       let _ = self.advance() // consume '['
-      self.skip_internal_subset()
+      self.parse_internal_subset()
     }
     // Skip rest until >
     while self.peek() is Some(c) && c != '>' {
@@ -378,9 +378,16 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
         match self.peek() {
           Some(';') => {
             let _ = self.advance()
-            let entity = "&" + entity_name + ";"
-            let decoded = unescape(entity)
-            buf.write_string(decoded)
+            // Check custom entities first
+            match self.entities.get(entity_name) {
+              Some(value) => buf.write_string(value)
+              None => {
+                // Try built-in entities
+                let entity = "&" + entity_name + ";"
+                let decoded = unescape(entity)
+                buf.write_string(decoded)
+              }
+            }
           }
           _ => {
             // Not a valid entity, treat as text
@@ -401,64 +408,129 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
 }
 
 ///|
-/// Skip DTD internal subset content until ]
-fn Reader::skip_internal_subset(self : Reader) -> Unit {
-  let mut depth = 0
+/// Parse DTD internal subset content until ]
+/// Extracts entity declarations and stores them
+fn Reader::parse_internal_subset(self : Reader) -> Unit {
   while not(self.is_eof()) {
+    self.skip_whitespace()
     match self.peek() {
-      Some(']') if depth == 0 => {
+      Some(']') => {
         let _ = self.advance()
         return
       }
       Some('<') => {
         let _ = self.advance()
-        // Check for nested declarations
         if self.peek() is Some('!') {
           let _ = self.advance()
-          if self.peek() is Some('[') {
-            depth += 1
-          }
-        }
-      }
-      Some(']') => {
-        let _ = self.advance()
-        if self.peek() is Some(']') {
-          let _ = self.advance()
-          if self.peek() is Some('>') {
-            // End of nested CDATA-like section
-            depth -= 1
+          if self.check_string("ENTITY") {
+            // Parse entity declaration
+            let _ = self.skip_string("ENTITY")
+            self.skip_whitespace()
+            // Check for parameter entity (skip those)
+            if self.peek() is Some('%') {
+              // Parameter entity - skip to >
+              while self.peek() is Some(c) && c != '>' {
+                let _ = self.advance()
+              }
+              let _ = self.advance()
+            } else {
+              // General entity
+              let name = self.read_name()
+              self.skip_whitespace()
+              // Check if it's an internal entity (quoted value) or external
+              match self.peek() {
+                Some('"') => {
+                  let _ = self.advance()
+                  let value = self.read_entity_value('"')
+                  let _ = self.advance() // closing quote
+                  self.entities.set(name, value)
+                  // Skip to >
+                  while self.peek() is Some(c) && c != '>' {
+                    let _ = self.advance()
+                  }
+                  let _ = self.advance()
+                }
+                Some('\'') => {
+                  let _ = self.advance()
+                  let value = self.read_entity_value('\'')
+                  let _ = self.advance() // closing quote
+                  self.entities.set(name, value)
+                  // Skip to >
+                  while self.peek() is Some(c) && c != '>' {
+                    let _ = self.advance()
+                  }
+                  let _ = self.advance()
+                }
+                _ => {
+                  // External entity (SYSTEM/PUBLIC) - skip
+                  while self.peek() is Some(c) && c != '>' {
+                    let _ = self.advance()
+                  }
+                  let _ = self.advance()
+                }
+              }
+            }
+          } else {
+            // Other declarations (ELEMENT, ATTLIST, etc.) - skip to >
+            while self.peek() is Some(c) && c != '>' {
+              // Handle quoted strings
+              if c == '"' {
+                let _ = self.advance()
+                while self.peek() is Some(c2) && c2 != '"' {
+                  let _ = self.advance()
+                }
+                let _ = self.advance()
+              } else if c == '\'' {
+                let _ = self.advance()
+                while self.peek() is Some(c2) && c2 != '\'' {
+                  let _ = self.advance()
+                }
+                let _ = self.advance()
+              } else {
+                let _ = self.advance()
+              }
+            }
             let _ = self.advance()
-
           }
+        } else if self.peek() is Some('?') {
+          // Processing instruction in DTD - skip to ?>
+          while not(self.is_eof()) {
+            if self.check_string("?>") {
+              let _ = self.skip_string("?>")
+              break
+            }
+            let _ = self.advance()
+          }
+        } else {
+          // Unknown - skip
+          let _ = self.advance()
         }
       }
-      Some('\'') => {
-        // Skip single-quoted string
+      Some('%') => {
+        // Parameter entity reference - skip
         let _ = self.advance()
-        while self.peek() is Some(c) && c != '\'' {
+        while self.peek() is Some(c) && c != ';' {
           let _ = self.advance()
-
         }
         let _ = self.advance()
-
-      }
-      Some('"') => {
-        // Skip double-quoted string
-        let _ = self.advance()
-        while self.peek() is Some(c) && c != '"' {
-          let _ = self.advance()
-
-        }
-        let _ = self.advance()
-
       }
       Some(_) => {
         let _ = self.advance()
-
       }
       None => return
     }
   }
+}
+
+///|
+/// Read entity value (handles nested entity references)
+fn Reader::read_entity_value(self : Reader, quote : Char) -> String {
+  let buf = StringBuilder::new()
+  while self.peek() is Some(c) && c != quote {
+    buf.write_char(c)
+    let _ = self.advance()
+  }
+  buf.to_string()
 }
 
 ///|

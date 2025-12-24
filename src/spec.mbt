@@ -30,6 +30,7 @@ pub struct Reader {
   mut pos : Int
   mut line : Int
   mut column : Int
+  entities : Map[String, String] // Custom entities from DTD
 }
 
 ///|

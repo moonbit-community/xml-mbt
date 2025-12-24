@@ -46,7 +46,7 @@ while true {
 
 This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/).
 
-**Current status: 756 tests passing (100%)**
+**Current status: 827 tests passing (100%)**
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
@@ -70,16 +70,17 @@ moon test --target all
 
 ### Excluded Tests
 
-The following test categories are skipped (not applicable to non-validating parsers):
+The following test categories are skipped:
 - External entity references (require file I/O)
-- DTD-defined custom entities (require DTD processing)
+- XML 1.1 documents (we only support XML 1.0)
 - DTD validation tests (`invalid` type)
 
 ## Limitations
 
 - **Non-validating** - Does not validate against DTD
-- **No external entities** - Does not resolve external entity references
-- **UTF-8/UTF-16 only** - Other encodings not supported
+- **No external entities** - Does not resolve external entity references (SYSTEM/PUBLIC)
+- **UTF-8 only** - Other encodings not supported
+- **XML 1.0 only** - XML 1.1 not supported
 
 ## License
 

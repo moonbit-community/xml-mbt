@@ -231,13 +231,13 @@ def main():
             skipped += 1
             continue
 
-        # Skip very large files (>5KB)
-        if len(content) > 5000:
+        # Skip very large files (>50KB)
+        if len(content) > 50000:
             skipped += 1
             continue
 
-        # Skip files with entity declarations (we don't process DTDs)
-        if '<!ENTITY' in content:
+        # Skip files with external entity references (SYSTEM/PUBLIC)
+        if '<!ENTITY' in content and ('SYSTEM' in content or 'PUBLIC' in content):
             skipped += 1
             continue
 
