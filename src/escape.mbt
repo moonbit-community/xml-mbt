@@ -122,6 +122,8 @@ fn parse_hex_chars(
   end : Int,
 ) -> Int raise XmlError {
   let mut result = 0
+  // Maximum valid Unicode code point is 0x10FFFF
+  let max_code_point = 0x10FFFF
   for i = start; i < end; i = i + 1 {
     let c = chars[i]
     let digit = match c {
@@ -144,6 +146,10 @@ fn parse_hex_chars(
       _ => raise InvalidEntity(substring_chars(chars, 0, chars.length()))
     }
     result = result * 16 + digit
+    // Check for overflow - if result exceeds max code point, it's invalid
+    if result > max_code_point {
+      raise InvalidEntity(substring_chars(chars, 0, chars.length()))
+    }
   }
   result
 }
@@ -155,6 +161,8 @@ fn parse_decimal_chars(
   end : Int,
 ) -> Int raise XmlError {
   let mut result = 0
+  // Maximum valid Unicode code point is 0x10FFFF (1114111 decimal)
+  let max_code_point = 0x10FFFF
   for i = start; i < end; i = i + 1 {
     let c = chars[i]
     let digit = match c {
@@ -171,6 +179,10 @@ fn parse_decimal_chars(
       _ => raise InvalidEntity(substring_chars(chars, 0, chars.length()))
     }
     result = result * 10 + digit
+    // Check for overflow - if result exceeds max code point, it's invalid
+    if result > max_code_point {
+      raise InvalidEntity(substring_chars(chars, 0, chars.length()))
+    }
   }
   result
 }
