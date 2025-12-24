@@ -1,0 +1,76 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/xml/src"
+
+// Values
+pub fn escape(String) -> String
+
+pub fn unescape(String) -> String raise XmlError
+
+// Errors
+pub(all) suberror XmlError {
+  UnexpectedEof
+  InvalidSyntax(String)
+  UnmatchedTag(expected~ : String, found~ : String)
+  InvalidAttribute(String)
+  InvalidEntity(String)
+}
+pub impl Eq for XmlError
+pub impl Show for XmlError
+
+// Types and methods
+pub(all) enum Event {
+  Start(XmlElement)
+  End(String)
+  Empty(XmlElement)
+  Text(String)
+  CData(String)
+  Comment(String)
+  PI(target~ : String, data~ : String)
+  Decl(version~ : String, encoding~ : String?, standalone~ : String?)
+  DocType(String)
+  Eof
+}
+pub impl Eq for Event
+pub impl Show for Event
+
+pub struct Reader {
+  input : Array[Char]
+  mut pos : Int
+  mut line : Int
+  mut column : Int
+}
+pub fn Reader::column(Self) -> Int
+pub fn Reader::from_string(String) -> Self
+pub fn Reader::is_eof(Self) -> Bool
+pub fn Reader::line(Self) -> Int
+pub fn Reader::read_event(Self) -> Event raise XmlError
+
+pub struct Writer {
+  buffer : StringBuilder
+  indent_level : Int
+  pretty : Bool
+}
+pub fn Writer::cdata(Self, String) -> Unit
+pub fn Writer::comment(Self, String) -> Unit
+pub fn Writer::empty_element(Self, String, Array[(String, String)]) -> Unit
+pub fn Writer::end_element(Self, String) -> Unit
+pub fn Writer::new() -> Self
+pub fn Writer::start_element(Self, String, Array[(String, String)]) -> Unit
+pub fn Writer::text(Self, String) -> Unit
+pub fn Writer::to_string(Self) -> String
+pub fn Writer::write_event(Self, Event) -> Unit
+
+pub struct XmlElement {
+  name : String
+  attributes : Array[(String, String)]
+}
+pub fn XmlElement::get(Self, String) -> String?
+pub fn XmlElement::new(String) -> Self
+pub fn XmlElement::with_attrs(String, Array[(String, String)]) -> Self
+pub impl Eq for XmlElement
+pub impl Show for XmlElement
+
+// Type aliases
+
+// Traits
+
