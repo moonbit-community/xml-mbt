@@ -31,12 +31,20 @@ pub struct Reader {
   mut line : Int
   mut column : Int
   entities : Map[String, String] // Custom entities from DTD
+  base_path : String // Base path for resolving external entities
 }
 
 ///|
 /// Create a new reader from a string
 #declaration_only
 pub fn Reader::from_string(input : String) -> Reader {
+  ...
+}
+
+///|
+/// Create a new reader from a file path
+#declaration_only
+pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
   ...
 }
 

@@ -15,7 +15,36 @@
 ///|
 /// Create a new reader from a string
 pub fn Reader::from_string(input : String) -> Reader {
-  { input: input.to_array(), pos: 0, line: 1, column: 1, entities: {} }
+  { input: input.to_array(), pos: 0, line: 1, column: 1, entities: {}, base_path: "" }
+}
+
+///|
+/// Create a new reader from a file path
+pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
+  let content = @fs.read_file_to_string(path)
+  let base_path = get_directory(path)
+  { input: content.to_array(), pos: 0, line: 1, column: 1, entities: {}, base_path }
+}
+
+///|
+/// Get the directory part of a path
+fn get_directory(path : String) -> String {
+  let chars = path.to_array()
+  let mut last_sep = -1
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '/' || chars[i] == '\\' {
+      last_sep = i
+    }
+  }
+  if last_sep >= 0 {
+    let buf = StringBuilder::new()
+    for i = 0; i <= last_sep; i = i + 1 {
+      buf.write_char(chars[i])
+    }
+    buf.to_string()
+  } else {
+    ""
+  }
 }
 
 ///|
@@ -462,7 +491,42 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
                   let _ = self.advance()
                 }
                 _ => {
-                  // External entity (SYSTEM/PUBLIC) - skip
+                  // External entity (SYSTEM/PUBLIC)
+                  // Try to read SYSTEM "path" or PUBLIC "..." "path"
+                  let keyword = self.read_name()
+                  self.skip_whitespace()
+                  if keyword == "SYSTEM" {
+                    // SYSTEM "path"
+                    match self.peek() {
+                      Some('"') => {
+                        let _ = self.advance()
+                        let path = self.read_entity_value('"')
+                        let _ = self.advance()
+                        // Try to read the external entity file
+                        if self.base_path.length() > 0 {
+                          let full_path = self.base_path + path
+                          let content = @fs.read_file_to_string(full_path) catch { _ => "" }
+                          if content.length() > 0 {
+                            self.entities.set(name, content)
+                          }
+                        }
+                      }
+                      Some('\'') => {
+                        let _ = self.advance()
+                        let path = self.read_entity_value('\'')
+                        let _ = self.advance()
+                        if self.base_path.length() > 0 {
+                          let full_path = self.base_path + path
+                          let content = @fs.read_file_to_string(full_path) catch { _ => "" }
+                          if content.length() > 0 {
+                            self.entities.set(name, content)
+                          }
+                        }
+                      }
+                      _ => ()
+                    }
+                  }
+                  // Skip rest to >
                   while self.peek() is Some(c) && c != '>' {
                     let _ = self.advance()
                   }
