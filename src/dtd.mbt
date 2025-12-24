@@ -20,7 +20,21 @@ pub fn validate_entity_value(value : String) -> Unit raise XmlError {
   let chars = value.to_array()
   let len = chars.length()
   let mut i = 0
+
+  // Check for text declaration (<?xml) - not allowed in internal parsed entities
+  if len >= 5 && chars[0] == '<' && chars[1] == '?' && chars[2] == 'x' && chars[3] == 'm' && chars[4] == 'l' {
+    raise InvalidEntity("text declaration not allowed in internal parsed entity")
+  }
+
   while i < len {
+    // Check for parameter entity reference - not allowed in entity values in internal subset
+    if chars[i] == '%' {
+      // Check if it looks like a PE reference
+      let j = i + 1
+      if j < len && is_name_start_char(chars[j]) {
+        raise InvalidEntity("parameter entity reference not allowed in entity value")
+      }
+    }
     if chars[i] == '&' {
       // Must be followed by valid reference
       i += 1

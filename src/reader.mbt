@@ -479,10 +479,12 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
       let _ = self.advance() // consume '['
       self.parse_internal_subset()
     }
-    // Skip rest until >
+    // Skip rest until >, but reject PE references (not allowed outside internal subset)
     while self.peek() is Some(c) && c != '>' {
+      if c == '%' {
+        raise InvalidSyntax("parameter entity reference not allowed outside internal subset")
+      }
       let _ = self.advance()
-
     }
     let _ = self.advance() // consume '>'
     DocType(name)
