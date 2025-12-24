@@ -119,6 +119,25 @@ fn Reader::skip_whitespace(self : Reader) -> Unit {
 }
 
 ///|
+/// Skip whitespace and control characters (for lenient tag parsing)
+fn Reader::skip_ws_and_control(self : Reader) -> Unit {
+  while true {
+    match self.peek() {
+      Some(c) => {
+        let code = c.to_int()
+        // Skip whitespace or control characters (< 0x20, except we keep meaningful ones)
+        if is_whitespace(c) || (code < 0x20 && c != '\t' && c != '\n' && c != '\r') {
+          let _ = self.advance()
+        } else {
+          break
+        }
+      }
+      None => break
+    }
+  }
+}
+
+///|
 /// Read characters while predicate is true
 fn Reader::read_while(self : Reader, pred : (Char) -> Bool) -> String {
   let buf = StringBuilder::new()
@@ -221,7 +240,8 @@ fn Reader::read_tag(self : Reader) -> Event raise XmlError {
 fn Reader::read_end_tag(self : Reader) -> Event raise XmlError {
   let _ = self.advance() // consume '/'
   let name = self.read_name()
-  self.skip_whitespace()
+  // Skip whitespace and control characters
+  self.skip_ws_and_control()
   match self.peek() {
     Some('>') => {
       let _ = self.advance()
@@ -236,10 +256,13 @@ fn Reader::read_end_tag(self : Reader) -> Event raise XmlError {
 fn Reader::read_start_tag(self : Reader) -> Event raise XmlError {
   let name = self.read_name()
   let attributes = self.read_attributes()
-  self.skip_whitespace()
+  // Skip whitespace and control characters before tag end
+  self.skip_ws_and_control()
   match self.peek() {
     Some('/') => {
       let _ = self.advance() // consume '/'
+      // Skip any control characters between / and >
+      self.skip_ws_and_control()
       match self.peek() {
         Some('>') => {
           let _ = self.advance()
@@ -372,10 +395,24 @@ fn Reader::read_attributes(self : Reader) -> Array[(String, String)] {
           Some('=') => {
             let _ = self.advance()
             self.skip_whitespace()
-            let value = self.read_attr_value() catch { _ => "" }
-            attrs.push((name, value))
+            // If value isn't properly quoted, skip this attribute (matches quick-xml)
+            match (try? self.read_attr_value()) {
+              Ok(value) => attrs.push((name, value))
+              Err(_) => ()
+            }
           }
           _ => () // Skip attribute without value (matches quick-xml)
+        }
+      }
+      // Skip orphaned quoted values (e.g., "value" without name=)
+      Some('"') | Some('\'') => {
+        let quote = self.advance().unwrap()
+        // Skip until closing quote
+        while self.peek() is Some(c) && c != quote {
+          let _ = self.advance()
+        }
+        if self.peek() is Some(_) {
+          let _ = self.advance() // consume closing quote
         }
       }
       _ => break
