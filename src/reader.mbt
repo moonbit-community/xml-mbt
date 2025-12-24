@@ -446,18 +446,25 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
     let name = self.read_while(fn(c) {
       c != '>' && c != '[' && not(is_whitespace(c))
     })
-    // Skip everything until we find '[' or '>', properly handling quoted strings
-    // Also check for SGML-style comments
+    // Parse external ID if present (SYSTEM or PUBLIC)
+    self.skip_whitespace()
+    if self.check_string("SYSTEM") {
+      let _ = self.skip_string("SYSTEM")
+      self.skip_whitespace()
+      // Skip system literal
+      self.skip_quoted_string()
+    } else if self.check_string("PUBLIC") {
+      let _ = self.skip_string("PUBLIC")
+      self.skip_whitespace()
+      // Validate and skip public ID literal
+      self.read_and_validate_public_id()
+      self.skip_whitespace()
+      // Skip system literal
+      self.skip_quoted_string()
+    }
+    // Skip everything else until we find '[' or '>'
     while self.peek() is Some(c) && c != '[' && c != '>' {
-      if c == '"' || c == '\'' {
-        // Skip quoted string
-        let quote = c
-        let _ = self.advance() // consume opening quote
-        while self.peek() is Some(qc) && qc != quote {
-          let _ = self.advance()
-        }
-        let _ = self.advance() // consume closing quote (if present)
-      } else if c == '-' && self.check_string("--") {
+      if c == '-' && self.check_string("--") {
         // SGML-style comments are not allowed in XML
         raise InvalidSyntax(
           "SGML-style comments (--) not allowed in XML declarations",
@@ -1034,6 +1041,67 @@ fn is_valid_encoding_name(name : String) -> Bool {
 }
 
 ///|
+/// Skip a quoted string (single or double quotes)
+fn Reader::skip_quoted_string(self : Reader) -> Unit raise XmlError {
+  match self.peek() {
+    Some('"') => {
+      let _ = self.advance()
+      while self.peek() is Some(c) && c != '"' {
+        let _ = self.advance()
+      }
+      if self.peek() == Some('"') {
+        let _ = self.advance()
+      }
+    }
+    Some('\'') => {
+      let _ = self.advance()
+      while self.peek() is Some(c) && c != '\'' {
+        let _ = self.advance()
+      }
+      if self.peek() == Some('\'') {
+        let _ = self.advance()
+      }
+    }
+    _ => ()
+  }
+}
+
+///|
+/// Read and validate a Public ID literal
+/// PubidChar ::= #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
+fn Reader::read_and_validate_public_id(self : Reader) -> Unit raise XmlError {
+  let quote = match self.peek() {
+    Some('"') => '"'
+    Some('\'') => '\''
+    _ => return
+  }
+  let _ = self.advance() // consume opening quote
+  while self.peek() is Some(c) && c != quote {
+    if not(is_pubid_char(c)) {
+      raise InvalidSyntax("invalid character in public ID: '" + c.to_string() + "'")
+    }
+    let _ = self.advance()
+  }
+  if self.peek() == Some(quote) {
+    let _ = self.advance()
+  }
+}
+
+///|
+/// Check if a character is valid in a Public ID
+fn is_pubid_char(c : Char) -> Bool {
+  // PubidChar ::= #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
+  c == ' ' || c == '\r' || c == '\n' ||
+  (c >= 'a' && c <= 'z') ||
+  (c >= 'A' && c <= 'Z') ||
+  (c >= '0' && c <= '9') ||
+  c == '-' || c == '\'' || c == '(' || c == ')' || c == '+' ||
+  c == ',' || c == '.' || c == '/' || c == ':' || c == '=' ||
+  c == '?' || c == ';' || c == '!' || c == '*' || c == '#' ||
+  c == '@' || c == '$' || c == '_' || c == '%'
+}
+
+///|
 /// Parse DTD internal subset content until ]
 /// Extracts entity declarations and stores them
 fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
@@ -1199,8 +1267,29 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
               }
               let _ = self.advance()
             }
+          } else if self.check_string("NOTATION") {
+            // NOTATION declaration - validate PUBLIC ID if present
+            let _ = self.skip_string("NOTATION")
+            self.skip_whitespace()
+            let _ = self.read_name() // notation name
+            self.skip_whitespace()
+            if self.check_string("PUBLIC") {
+              let _ = self.skip_string("PUBLIC")
+              self.skip_whitespace()
+              self.read_and_validate_public_id()
+              self.skip_whitespace()
+              // Optional system literal
+              if self.peek() is Some('"') || self.peek() is Some('\'') {
+                self.skip_quoted_string()
+              }
+            } else if self.check_string("SYSTEM") {
+              let _ = self.skip_string("SYSTEM")
+              self.skip_whitespace()
+              self.skip_quoted_string()
+            }
+            self.skip_to_char_strict('>')
           } else {
-            // Other declarations (NOTATION, etc.) - skip to >
+            // Other declarations - skip to >
             self.skip_declaration()
           }
         } else if self.peek() is Some('?') {
@@ -1245,12 +1334,21 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
         }
       }
       Some('%') => {
-        // Parameter entity reference - skip
-        let _ = self.advance()
-        while self.peek() is Some(c) && c != ';' {
-          let _ = self.advance()
+        // Parameter entity reference - must be %Name; with no whitespace
+        let _ = self.advance() // consume %
+        // Name must start immediately after %
+        match self.peek() {
+          Some(c) if is_name_start_char(c) => {
+            // Read the name
+            let _ = self.read_name()
+            // Must be immediately followed by ;
+            match self.peek() {
+              Some(';') => { let _ = self.advance() }
+              _ => raise InvalidSyntax("parameter entity reference must end with ';'")
+            }
+          }
+          _ => raise InvalidSyntax("invalid parameter entity reference")
         }
-        let _ = self.advance()
       }
       Some(_) => {
         let _ = self.advance()

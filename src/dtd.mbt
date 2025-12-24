@@ -693,7 +693,7 @@ fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlError {
 
   // Parse children content model
   // First, check for element name or nested group
-  let mut first = true
+  let mut need_connector = false // true if we need a connector before next element
   let mut connector : Char = ' ' // ' ' means not set yet
   let mut paren_depth = 1
 
@@ -707,11 +707,15 @@ fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlError {
           // After closing paren, check for occurrence indicator
           skip_occurrence(reader)
         }
+        need_connector = true
       }
       Some('(') => {
+        if need_connector {
+          raise InvalidSyntax("expected connector (',' or '|') before '('")
+        }
         let _ = reader.advance()
         paren_depth += 1
-        first = true
+        need_connector = false
       }
       Some('|') | Some(',') => {
         let c = reader.peek().unwrap()
@@ -721,15 +725,15 @@ fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlError {
         } else if connector != c {
           raise InvalidSyntax("cannot mix ',' and '|' in content model at same level")
         }
-        first = false
+        need_connector = false
       }
       Some(c) if is_name_start_char(c) => {
-        if not(first) && connector == ' ' {
+        if need_connector {
           raise InvalidSyntax("expected connector (',' or '|') between elements")
         }
         skip_name(reader)
         skip_occurrence(reader)
-        first = false
+        need_connector = true
       }
       _ => {
         // Check for mismatched parentheses
