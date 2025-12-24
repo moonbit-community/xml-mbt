@@ -376,7 +376,7 @@ fn Reader::read_attributes(self : Reader) -> Array[(String, String)] {
             let value = self.read_attr_value() catch { _ => "" }
             attrs.push((name, value))
           }
-          _ => attrs.push((name, "")) // boolean attribute
+          _ => () // Skip attribute without value (matches quick-xml)
         }
       }
       _ => break
