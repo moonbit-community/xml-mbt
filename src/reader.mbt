@@ -467,11 +467,36 @@ fn is_whitespace(c : Char) -> Bool {
 }
 
 ///|
+/// XML 1.0 NameStartChar production (5th edition)
 fn is_name_start_char(c : Char) -> Bool {
-  (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == ':'
+  let code = c.to_int()
+  c == ':' ||
+  c == '_' ||
+  (c >= 'A' && c <= 'Z') ||
+  (c >= 'a' && c <= 'z') ||
+  (code >= 0xC0 && code <= 0xD6) ||
+  (code >= 0xD8 && code <= 0xF6) ||
+  (code >= 0xF8 && code <= 0x2FF) ||
+  (code >= 0x370 && code <= 0x37D) ||
+  (code >= 0x37F && code <= 0x1FFF) ||
+  (code >= 0x200C && code <= 0x200D) ||
+  (code >= 0x2070 && code <= 0x218F) ||
+  (code >= 0x2C00 && code <= 0x2FEF) ||
+  (code >= 0x3001 && code <= 0xD7FF) ||
+  (code >= 0xF900 && code <= 0xFDCF) ||
+  (code >= 0xFDF0 && code <= 0xFFFD) ||
+  (code >= 0x10000 && code <= 0xEFFFF)
 }
 
 ///|
+/// XML 1.0 NameChar production (5th edition)
 fn is_name_char(c : Char) -> Bool {
-  is_name_start_char(c) || (c >= '0' && c <= '9') || c == '-' || c == '.'
+  let code = c.to_int()
+  is_name_start_char(c) ||
+  c == '-' ||
+  c == '.' ||
+  (c >= '0' && c <= '9') ||
+  code == 0xB7 ||
+  (code >= 0x0300 && code <= 0x036F) ||
+  (code >= 0x203F && code <= 0x2040)
 }

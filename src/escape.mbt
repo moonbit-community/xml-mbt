@@ -92,11 +92,27 @@ fn decode_entity(entity : String) -> String raise XmlError {
           // Decimal
           parse_decimal_chars(chars, inner_start, inner_end)
         }
-        Int::unsafe_to_char(code_point).to_string()
+        // Validate Unicode code point (XML 1.0 Char production)
+        // Valid: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+        if is_valid_xml_char(code_point) {
+          Int::unsafe_to_char(code_point).to_string()
+        } else {
+          raise InvalidEntity(entity)
+        }
       } else {
         raise InvalidEntity(entity)
       }
   }
+}
+
+///|
+fn is_valid_xml_char(code : Int) -> Bool {
+  code == 0x9 ||
+  code == 0xA ||
+  code == 0xD ||
+  (code >= 0x20 && code <= 0xD7FF) ||
+  (code >= 0xE000 && code <= 0xFFFD) ||
+  (code >= 0x10000 && code <= 0x10FFFF)
 }
 
 ///|
