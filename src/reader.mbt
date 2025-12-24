@@ -405,7 +405,8 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
       }
       Some('&') => {
         let _ = self.advance()
-        let entity_name = self.read_while(fn(c) { c != ';' })
+        // Stop at ';' or quote (don't consume past attribute value)
+        let entity_name = self.read_while(fn(c) { c != ';' && c != quote })
         match self.peek() {
           Some(';') => {
             let _ = self.advance()
@@ -416,6 +417,8 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
             }
           }
           _ => {
+            // Not a valid entity reference
+            has_unknown_entity = true
             buf.write_char('&')
             buf.write_string(entity_name)
           }
@@ -424,12 +427,11 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
       Some(c) => {
         buf.write_char(c)
         let _ = self.advance()
-
       }
       None => break
     }
   }
-  // If any entity was unknown, return empty (matching quick-xml)
+  // If any entity was unknown/malformed, return empty (matching quick-xml)
   if has_unknown_entity {
     ""
   } else {
@@ -449,7 +451,8 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
       Some('&') => {
         // Read entity
         let _ = self.advance() // consume '&'
-        let entity_name = self.read_while(fn(c) { c != ';' })
+        // Stop at ';' or '<' (don't consume into next tag)
+        let entity_name = self.read_while(fn(c) { c != ';' && c != '<' })
         match self.peek() {
           Some(';') => {
             let _ = self.advance()
@@ -460,7 +463,9 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
             }
           }
           _ => {
-            // Not a valid entity, treat as text
+            // Not a valid entity reference, treat as text
+            // Mark as unknown so we return empty (matching quick-xml)
+            has_unknown_entity = true
             buf.write_char('&')
             buf.write_string(entity_name)
           }
@@ -469,12 +474,11 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
       Some(c) => {
         buf.write_char(c)
         let _ = self.advance()
-
       }
       None => break
     }
   }
-  // If any entity was unknown, return empty (matching quick-xml)
+  // If any entity was unknown/malformed, return empty (matching quick-xml)
   if has_unknown_entity {
     Text("")
   } else {
