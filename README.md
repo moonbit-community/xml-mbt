@@ -55,8 +55,8 @@ This library is tested against the [W3C XML Conformance Test Suite](https://www.
 | Category | Tests | Description |
 |----------|-------|-------------|
 | Valid | 454 | Parser does not error on valid XML |
-| Not-well-formed (strict) | 28 | Parser correctly rejects malformed XML |
-| Not-well-formed (lenient) | 253 | Parser accepts (like quick-xml) |
+| Not-well-formed (strict) | 28 | Parser correctly rejects (same as libxml2) |
+| Not-well-formed (lenient) | 253 | Parser accepts (libxml2 rejects) |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
