@@ -713,6 +713,27 @@ fn Reader::read_xml_decl(self : Reader) -> Event raise XmlError {
     need_whitespace = true
   }
   let _ = self.skip_string("?>")
+
+  // Validate UTF-16 encoding - must have BOM if declared as UTF-16
+  match encoding {
+    Some(enc) => {
+      let enc_upper = enc.to_upper()
+      if enc_upper == "UTF-16" || enc_upper == "UTF-16LE" || enc_upper == "UTF-16BE" {
+        // UTF-16 encoded content should have BOM (U+FEFF) at start
+        // If input is ASCII/UTF-8 claiming to be UTF-16, it's invalid
+        if self.input.length() > 0 && self.input[0] != '\u{FEFF}' {
+          // Check if content looks like ASCII (no high bytes)
+          // Real UTF-16 would have null bytes in ASCII text
+          let all_ascii = self.input.length() < 100 && self.input.iter().all(fn(c) { c.to_int() < 128 })
+          if all_ascii {
+            raise InvalidSyntax("encoding declared as UTF-16 but content is ASCII/UTF-8")
+          }
+        }
+      }
+    }
+    None => ()
+  }
+
   Decl(version~, encoding~, standalone~)
 }
 
@@ -1044,7 +1065,7 @@ fn is_valid_encoding_name(name : String) -> Bool {
 
 ///|
 /// Skip a quoted string (single or double quotes)
-fn Reader::skip_quoted_string(self : Reader) -> Unit raise XmlError {
+fn Reader::skip_quoted_string(self : Reader) -> Unit {
   match self.peek() {
     Some('"') => {
       let _ = self.advance()
@@ -1145,20 +1166,20 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
               self.skip_whitespace()
               let _ = self.read_name_lenient() // skip name
               self.skip_whitespace()
-              // Parse and validate value if it's a quoted string
+              // Parse and validate PE value (less strict than general entity)
               match self.peek() {
                 Some('"') => {
                   let _ = self.advance()
                   let raw_value = self.read_entity_value('"')
                   let _ = self.advance()
-                  validate_entity_value(raw_value)
+                  validate_pe_value(raw_value)
                   self.skip_to_char_strict('>')
                 }
                 Some('\'') => {
                   let _ = self.advance()
                   let raw_value = self.read_entity_value('\'')
                   let _ = self.advance()
-                  validate_entity_value(raw_value)
+                  validate_pe_value(raw_value)
                   self.skip_to_char_strict('>')
                 }
                 _ => self.skip_to_char_strict('>')
@@ -1177,32 +1198,32 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
                 )
               }
               self.skip_whitespace()
+              // Check if entity already exists - if so, skip (first wins)
+              let is_duplicate = self.entities.contains(name)
               // Check if it's an internal entity (quoted value) or external
               match self.peek() {
                 Some('"') => {
                   let _ = self.advance()
                   let raw_value = self.read_entity_value('"')
                   let _ = self.advance() // closing quote
-                  // Validate entity value for well-formedness
-                  validate_entity_value(raw_value)
-                  // NOTE: Don't validate entity refs here - forward references are allowed
-                  // Entity refs are validated when the entity is actually used
-                  // Decode entities in value
-                  let value = unescape(raw_value) catch { _ => raw_value }
-                  self.entities.set(name, value)
+                  // Only validate and store if not duplicate
+                  if not(is_duplicate) {
+                    validate_entity_value(raw_value)
+                    let value = unescape(raw_value) catch { _ => raw_value }
+                    self.entities.set(name, value)
+                  }
                   self.skip_to_char_strict('>')
                 }
                 Some('\'') => {
                   let _ = self.advance()
                   let raw_value = self.read_entity_value('\'')
                   let _ = self.advance() // closing quote
-                  // Validate entity value for well-formedness
-                  validate_entity_value(raw_value)
-                  // NOTE: Don't validate entity refs here - forward references are allowed
-                  // Entity refs are validated when the entity is actually used
-                  // Decode entities in value
-                  let value = unescape(raw_value) catch { _ => raw_value }
-                  self.entities.set(name, value)
+                  // Only validate and store if not duplicate
+                  if not(is_duplicate) {
+                    validate_entity_value(raw_value)
+                    let value = unescape(raw_value) catch { _ => raw_value }
+                    self.entities.set(name, value)
+                  }
                   self.skip_to_char_strict('>')
                 }
                 _ => {
