@@ -265,8 +265,7 @@ fn Reader::read_start_tag(self : Reader) -> Event raise XmlError {
   match self.peek() {
     Some('/') => {
       let _ = self.advance() // consume '/'
-      // Skip any control characters between / and >
-      self.skip_ws_and_control()
+      // No whitespace allowed between / and > per XML spec
       match self.peek() {
         Some('>') => {
           let _ = self.advance()
@@ -368,7 +367,8 @@ fn Reader::read_xml_decl(self : Reader) -> Event raise XmlError {
       _ => raise InvalidSyntax("expected '=' in XML declaration")
     }
     self.skip_whitespace()
-    let value = self.read_attr_value()
+    // Use raw attribute value (no entity decoding) for XML declaration
+    let value = self.read_raw_attr_value()
     match attr_name {
       "version" => version = value
       "encoding" => encoding = Some(value)
@@ -431,6 +431,33 @@ fn Reader::read_attributes(self : Reader) -> Array[(String, String)] {
     }
   }
   attrs
+}
+
+///|
+/// Read raw attribute value (quoted) without entity decoding
+/// Used for XML declaration attributes where entities should be kept as-is
+fn Reader::read_raw_attr_value(self : Reader) -> String raise XmlError {
+  let quote = match self.peek() {
+    Some('"') => '"'
+    Some('\'') => '\''
+    _ => raise InvalidSyntax("expected quoted attribute value")
+  }
+  let _ = self.advance() // consume opening quote
+  let buf = StringBuilder::new()
+  while not(self.is_eof()) {
+    match self.peek() {
+      Some(c) if c == quote => {
+        let _ = self.advance()
+        break
+      }
+      Some(c) => {
+        buf.write_char(c)
+        let _ = self.advance()
+      }
+      None => break
+    }
+  }
+  buf.to_string()
 }
 
 ///|
@@ -520,15 +547,8 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
         }
       }
       Some(c) => {
-        let code = c.to_int()
-        // Skip invalid C0 control characters (except tab, newline, return)
-        // This matches quick-xml's behavior of filtering invalid chars
-        if code < 0x20 && c != '\t' && c != '\n' && c != '\r' {
-          let _ = self.advance()
-        } else {
-          buf.write_char(c)
-          let _ = self.advance()
-        }
+        buf.write_char(c)
+        let _ = self.advance()
       }
       None => break
     }
