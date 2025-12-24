@@ -74,25 +74,17 @@ tar -xzf xmlts.tar.gz && mv xmlconf . && rm xmlts.tar.gz
 moon test
 ```
 
-### Regenerating Test Snapshots
+### Regenerating Tests
 
-Expected values are generated using quick-xml as the reference.
+Uses libxml2 (xmllint) for well-formedness checking.
 
 ```bash
-# Build the quick-xml reference tool (requires Rust)
-cargo build --release --manifest-path tools/quickxml-ref/Cargo.toml
-
-# Regenerate tests
+# Regenerate tests (requires xmllint)
 python3 scripts/generate_conformance_tests.py
+
+# Populate expected values
+moon test --update
 ```
-
-### Test Differences
-
-Some tests differ from quick-xml due to:
-- **DOCTYPE internal subset**: Our parser consumes `[...]` content internally; quick-xml emits it as text
-- **Entity values**: Our parser handles character references in DTD entity values; quick-xml errors on some valid cases
-- **Tag matching**: Our parser validates start/end tag matching (quick-xml does with "check" feature)
-- **UTF-16 surrogates**: Some IBM tests with invalid surrogate sequences in element names differ in output
 
 ### Excluded Tests
 

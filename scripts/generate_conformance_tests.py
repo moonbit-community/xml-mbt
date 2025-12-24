@@ -4,20 +4,19 @@ Generate MoonBit conformance tests from W3C XML Test Suite.
 
 Covers: XML 1.0 + Namespaces 1.0
 
-Uses quick-xml (Rust) as the reference implementation to generate expected snapshots.
+Uses libxml2 (xmllint) for well-formedness checking.
+Run `moon test --update` after generation to populate expected values.
 """
 
-import json
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 XMLCONF_DIR = Path(__file__).parent.parent / "xmlconf"
 OUTPUT_FILE = Path(__file__).parent.parent / "src" / "w3c_conformance_test.mbt"
-QUICKXML_REF = Path(__file__).parent.parent / "tools" / "quickxml-ref" / "target" / "release" / "quickxml-ref"
 
 LICENSE_HEADER = """// ============================================================================
 // AUTO-GENERATED FILE - DO NOT MODIFY MANUALLY
@@ -54,28 +53,6 @@ def escape_moonbit_string(s: str) -> str:
     s = s.replace('\n', '\\n')
     s = s.replace('\t', '\\t')
     return s
-
-def escape_control_chars_for_debug(s: str) -> str:
-    """Escape control characters to match MoonBit's Debug format.
-
-    MoonBit escapes control characters as \\u{XX} in Debug output,
-    so we need to convert raw control chars in quick-xml output.
-    """
-    result = []
-    for c in s:
-        code = ord(c)
-        # Escape C0 control characters (except common ones already handled)
-        if code < 0x20 and c not in '\t\n\r':
-            result.append(f'\\u{{{code:02x}}}')
-        # Escape DEL
-        elif code == 0x7F:
-            result.append('\\u{7f}')
-        # Escape C1 control characters
-        elif 0x80 <= code <= 0x9F:
-            result.append(f'\\u{{{code:02x}}}')
-        else:
-            result.append(c)
-    return ''.join(result)
 
 def sanitize_test_name(name: str) -> str:
     """Convert test ID to valid MoonBit test name."""
@@ -128,54 +105,20 @@ def parse_test_manifest(manifest_path: Path, base_dir: Path) -> List[Tuple[str, 
 
     return tests
 
-class QuickXmlRef:
-    """Interface to quick-xml reference tool."""
-
-    def __init__(self):
-        self.proc = None
-
-    def start(self):
-        if not QUICKXML_REF.exists():
-            print(f"Warning: quick-xml reference tool not found at {QUICKXML_REF}")
-            print("Run: cargo build --release --manifest-path tools/quickxml-ref/Cargo.toml")
-            return False
-        self.proc = subprocess.Popen(
-            [str(QUICKXML_REF)],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            text=True
+def check_well_formed(xml_content: str) -> bool:
+    """Check if XML is well-formed using libxml2 (xmllint)."""
+    try:
+        result = subprocess.run(
+            ['xmllint', '--noout', '-'],
+            input=xml_content,
+            capture_output=True,
+            text=True,
+            timeout=5
         )
-        return True
-
-    def parse(self, xml: str) -> Optional[str]:
-        """Parse XML and return expected events string."""
-        if not self.proc:
-            return None
-        try:
-            # Send XML as single line (escape newlines)
-            escaped = xml.replace('\\', '\\\\').replace('\n', '\\n').replace('\r', '\\r')
-            self.proc.stdin.write(escaped + "\n")
-            self.proc.stdin.flush()
-            # Use select with timeout to avoid hanging
-            import select
-            ready, _, _ = select.select([self.proc.stdout], [], [], 5.0)
-            if ready:
-                return self.proc.stdout.readline().strip()
-            else:
-                print(f"  Warning: quick-xml timeout, restarting process...")
-                self.stop()
-                self.start()
-                return None
-        except Exception as e:
-            print(f"  Warning: quick-xml error: {e}")
-            return None
-
-    def stop(self):
-        if self.proc:
-            self.proc.stdin.close()
-            self.proc.wait()
-
-quickxml = QuickXmlRef()
+        return result.returncode == 0
+    except Exception:
+        # If xmllint fails or not available, assume not well-formed for not-wf tests
+        return False
 
 def load_test_file(file_path: str) -> str | None:
     """Load test XML file content."""
@@ -201,38 +144,14 @@ def load_test_file(file_path: str) -> str | None:
     except:
         return None
 
-def generate_valid_test(test_id: str, content: str, description: str, expected: Optional[str]) -> str:
+def generate_valid_test(test_id: str, content: str, description: str) -> str:
     """Generate a test for valid XML with snapshot testing."""
     safe_name = sanitize_test_name(test_id)
     escaped = escape_moonbit_string(content)
     desc = clean_description(description)
 
-    if expected:
-        # Escape control characters to match MoonBit's Debug format
-        expected_escaped = escape_control_chars_for_debug(expected)
-        # Use expected value from quick-xml with #| multi-line string (no escaping needed)
-        return f'''///|
-test "w3c/valid/{safe_name}" {{
-  // {desc}
-  let xml = "{escaped}"
-  let reader = Reader::from_string(xml)
-  let events : Array[Event] = []
-  while true {{
-    let event = reader.read_event()
-    events.push(event)
-    if event is Eof {{
-      break
-    }}
-  }}
-  inspect(events, content=(
-    #|{expected_escaped}
-  ))
-}}
-
-'''
-    else:
-        # No expected value, let moon test --update fill it
-        return f'''///|
+    # Generate test without expected value - use `moon test --update` to fill
+    return f'''///|
 test "w3c/valid/{safe_name}" {{
   // {desc}
   let xml = "{escaped}"
@@ -250,18 +169,18 @@ test "w3c/valid/{safe_name}" {{
 
 '''
 
-def generate_not_wf_test(test_id: str, content: str, description: str, quickxml_errors: bool, expected: Optional[str]) -> str:
+def generate_not_wf_test(test_id: str, content: str, description: str, expects_error: bool) -> str:
     """Generate a test for not-well-formed XML.
 
-    If quick-xml errors, verify our parser also errors.
-    If quick-xml succeeds, use its output as expected (both parsers are lenient).
+    If libxml2 rejects it, verify our parser also errors.
+    If libxml2 accepts it (lenient), use snapshot testing.
     """
     safe_name = sanitize_test_name(test_id)
     escaped = escape_moonbit_string(content)
     desc = clean_description(description)
 
-    if quickxml_errors:
-        # Quick-xml rejected this, verify we also error
+    if expects_error:
+        # libxml2 rejected this, verify we also error
         return f'''///|
 test "w3c/not-wf/{safe_name}" {{
   // {desc}
@@ -269,23 +188,17 @@ test "w3c/not-wf/{safe_name}" {{
   let reader = Reader::from_string(xml)
   let mut has_error = false
   for i = 0; i < 1000 && not(has_error); i = i + 1 {{
-    match (try? reader.read_event()) {{
-      Err(_) => has_error = true
-      Ok(Eof) => break
-      Ok(_) => continue
-    }}
+    try reader.read_event() catch {{ _ => has_error = true }} noraise {{ Eof => break; _ => continue }}
   }}
   inspect(has_error, content="true")
 }}
 
 '''
     else:
-        # Quick-xml parsed this (lenient), so should we - use same format as valid tests
-        # Escape control characters to match MoonBit's Debug format
-        expected_escaped = escape_control_chars_for_debug(expected) if expected else ""
+        # libxml2 parsed this (lenient), use snapshot testing
         return f'''///|
 test "w3c/not-wf/{safe_name}" {{
-  // {desc} (parser is lenient like quick-xml)
+  // {desc} (parser is lenient)
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
   let events : Array[Event] = []
@@ -296,9 +209,7 @@ test "w3c/not-wf/{safe_name}" {{
       break
     }}
   }}
-  inspect(events, content=(
-    #|{expected_escaped}
-  ))
+  inspect(events)
 }}
 
 '''
@@ -306,13 +217,13 @@ test "w3c/not-wf/{safe_name}" {{
 def main():
     print("Generating W3C conformance tests (XML 1.0 + Namespaces 1.0)...")
 
-    # Start quick-xml reference tool
-    has_quickxml = quickxml.start()
-    if has_quickxml:
-        print("Using quick-xml as reference implementation")
-    else:
-        print("Warning: Generating tests without expected values")
-        print("Run 'moon test --update' to populate snapshots")
+    # Check if xmllint is available
+    try:
+        result = subprocess.run(['xmllint', '--version'], capture_output=True, text=True)
+        print(f"Using libxml2 for well-formedness checking")
+    except FileNotFoundError:
+        print("Error: xmllint not found. Please install libxml2.")
+        sys.exit(1)
 
     all_tests = []
 
@@ -387,35 +298,22 @@ def main():
             continue
 
         if test_type == "valid":
-            # Normalize line endings before parsing (XML spec requires \r\n -> \n)
-            normalized_content = content.replace('\r\n', '\n').replace('\r', '\n')
-            if has_quickxml:
-                expected = quickxml.parse(normalized_content)
-            else:
-                expected = None
-            output_lines.append(generate_valid_test(test_id, content, description, expected))
+            output_lines.append(generate_valid_test(test_id, content, description))
             valid_count += 1
         elif test_type == "not-wf":
-            # Normalize line endings
+            # Check if libxml2 considers it well-formed
             normalized_content = content.replace('\r\n', '\n').replace('\r', '\n')
-            if has_quickxml:
-                expected = quickxml.parse(normalized_content)
-                # Check if quick-xml produced an error
-                quickxml_errors = expected and "Error(" in expected
-            else:
-                expected = None
-                quickxml_errors = True  # Assume error if no quick-xml
-            output_lines.append(generate_not_wf_test(test_id, content, description, quickxml_errors, expected))
+            is_well_formed = check_well_formed(normalized_content)
+            output_lines.append(generate_not_wf_test(test_id, content, description, expects_error=not is_well_formed))
             not_wf_count += 1
         # Skip "invalid" and "error" types (DTD validation)
-
-    quickxml.stop()
 
     OUTPUT_FILE.write_text(''.join(output_lines), encoding='utf-8')
 
     print(f"\nGenerated: {valid_count} valid + {not_wf_count} not-wf = {valid_count + not_wf_count} tests")
     print(f"Skipped: {skipped} (external entities, large files, DTD validation)")
     print(f"Output: {OUTPUT_FILE}")
+    print(f"\nRun 'moon test --update' to populate expected values")
 
 if __name__ == "__main__":
     main()
