@@ -590,7 +590,7 @@ test "w3c/not-wf/not_wf_sa_029" {
 ///|
 test "w3c/not-wf/not_wf_sa_030" {
   // A form feed is not a legal XML character. (parser is lenient like quick-xml)
-  let xml = "<doc>A form feed () is not legal in data</doc>\n"
+  let xml = "<doc>A form feed () is not legal in data</doc>\n"
   let reader = Reader::from_string(xml)
   let events : Array[Event] = []
   while true {
@@ -603,7 +603,7 @@ test "w3c/not-wf/not_wf_sa_030" {
   inspect(
     events,
     content=(
-      #|[Start({name: "doc", attributes: []}), Text("A form feed () is not legal in data"), End("doc"), Text("\n"), Eof]
+      #|[Start({name: "doc", attributes: []}), Text("A form feed () is not legal in data"), End("doc"), Text("\n"), Eof]
     ),
   )
 }
@@ -611,7 +611,7 @@ test "w3c/not-wf/not_wf_sa_030" {
 ///|
 test "w3c/not-wf/not_wf_sa_031" {
   // A form feed is not a legal XML character. (parser is lenient like quick-xml)
-  let xml = "<doc><?pi a form feed () is not allowed in a pi?></doc>\n"
+  let xml = "<doc><?pi a form feed () is not allowed in a pi?></doc>\n"
   let reader = Reader::from_string(xml)
   let events : Array[Event] = []
   while true {
@@ -624,7 +624,7 @@ test "w3c/not-wf/not_wf_sa_031" {
   inspect(
     events,
     content=(
-      #|[Start({name: "doc", attributes: []}), PI(target="pi", data="a form feed () is not allowed in a pi"), End("doc"), Text("\n"), Eof]
+      #|[Start({name: "doc", attributes: []}), PI(target="pi", data="a form feed () is not allowed in a pi"), End("doc"), Text("\n"), Eof]
     ),
   )
 }
@@ -632,7 +632,7 @@ test "w3c/not-wf/not_wf_sa_031" {
 ///|
 test "w3c/not-wf/not_wf_sa_032" {
   // A form feed is not a legal XML character. (parser is lenient like quick-xml)
-  let xml = "<doc><!-- a form feed () is not allowed in a comment --></doc>\n"
+  let xml = "<doc><!-- a form feed () is not allowed in a comment --></doc>\n"
   let reader = Reader::from_string(xml)
   let events : Array[Event] = []
   while true {
@@ -645,7 +645,7 @@ test "w3c/not-wf/not_wf_sa_032" {
   inspect(
     events,
     content=(
-      #|[Start({name: "doc", attributes: []}), Comment(" a form feed () is not allowed in a comment "), End("doc"), Text("\n"), Eof]
+      #|[Start({name: "doc", attributes: []}), Comment(" a form feed () is not allowed in a comment "), End("doc"), Text("\n"), Eof]
     ),
   )
 }
@@ -653,7 +653,7 @@ test "w3c/not-wf/not_wf_sa_032" {
 ///|
 test "w3c/not-wf/not_wf_sa_033" {
   // An ESC (octal 033) is not a legal XML character. (parser is lenient like quick-xml)
-  let xml = "<doc>abcdef</doc>\n"
+  let xml = "<doc>abcdef</doc>\n"
   let reader = Reader::from_string(xml)
   let events : Array[Event] = []
   while true {
@@ -666,7 +666,7 @@ test "w3c/not-wf/not_wf_sa_033" {
   inspect(
     events,
     content=(
-      #|[Start({name: "doc", attributes: []}), Text("abcdef"), End("doc"), Text("\n"), Eof]
+      #|[Start({name: "doc", attributes: []}), Text("abcdef"), End("doc"), Text("\n"), Eof]
     ),
   )
 }
@@ -674,7 +674,7 @@ test "w3c/not-wf/not_wf_sa_033" {
 ///|
 test "w3c/not-wf/not_wf_sa_034" {
   // A form feed is not a legal XML character. (parser is lenient like quick-xml)
-  let xml = "<doc>A form-feed is not white space or a name character</doc>\n"
+  let xml = "<doc>A form-feed is not white space or a name character</doc>\n"
   let reader = Reader::from_string(xml)
   let events : Array[Event] = []
   while true {
@@ -687,7 +687,7 @@ test "w3c/not-wf/not_wf_sa_034" {
   inspect(
     events,
     content=(
-      #|[Start({name: "doc", attributes: []}), Text("A form-feed is not white space or a name character"), End("doc"), Text("\n"), Eof]
+      #|[Start({name: "doc", attributes: []}), Text("A form-feed is not white space or a name character"), End("doc"), Text("\n"), Eof]
     ),
   )
 }
@@ -2711,7 +2711,7 @@ test "w3c/not-wf/not_wf_sa_143" {
   inspect(
     events,
     content=(
-      #|[DocType("doc"), Text("\n"), Start({name: "doc", attributes: []}), Text(""), End("doc"), Text("\n"), Eof]
+      #|[DocType("doc"), Text("\n"), Start({name: "doc", attributes: []}), Text(""), End("doc"), Text("\n"), Eof]
     ),
   )
 }
@@ -9178,7 +9178,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an28_xml" {
 ///|
 test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n01_xml" {
   // Tests an element with an illegal Name containing #0x0B (parser is lenient like quick-xml)
-  let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT BadName EMPTY>\n]>\n<!-- BadName containing char 0x0B; -->\n<root>\n\t<BadName/>\t\n</root>"
+  let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT BadName EMPTY>\n]>\n<!-- BadName containing char 0x0B; -->\n<root>\n\t<BadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
   let events : Array[Event] = []
   while true {
@@ -9191,7 +9191,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n01_xml" {
   inspect(
     events,
     content=(
-      #|[DocType("root"), Text("\n"), Comment(" BadName containing char 0x0B; "), Text("\n"), Start({name: "root", attributes: []}), Text("\n\t"), Empty({name: "BadName", attributes: []}), Text("\t\n"), End("root"), Eof]
+      #|[DocType("root"), Text("\n"), Comment(" BadName containing char 0x0B; "), Text("\n"), Start({name: "root", attributes: []}), Text("\n\t"), Empty({name: "BadName", attributes: []}), Text("\t\n"), End("root"), Eof]
     ),
   )
 }

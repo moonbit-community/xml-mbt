@@ -508,8 +508,15 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
         }
       }
       Some(c) => {
-        buf.write_char(c)
-        let _ = self.advance()
+        let code = c.to_int()
+        // Skip invalid C0 control characters (except tab, newline, return)
+        // This matches quick-xml's behavior of filtering invalid chars
+        if code < 0x20 && c != '\t' && c != '\n' && c != '\r' {
+          let _ = self.advance()
+        } else {
+          buf.write_char(c)
+          let _ = self.advance()
+        }
       }
       None => break
     }
