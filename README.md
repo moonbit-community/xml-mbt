@@ -46,10 +46,11 @@ while true {
 
 This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/).
 
-**Current status: 369 tests passing (100%)**
+**Current status: 756 tests passing (100%)**
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
+- XML 1.0 Errata 2nd/3rd/4th edition
 - Namespaces 1.0
 - Sun Microsystems tests
 

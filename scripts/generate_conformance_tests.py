@@ -198,6 +198,26 @@ def main():
             print(f"  sun/{sun_file}: {len(tests)} tests")
             all_tests.extend(tests)
 
+    # 4. Errata tests (XML 1.0 errata editions)
+    errata_dirs = [
+        ("eduni/errata-2e", "errata2e.xml"),
+        ("eduni/errata-3e", "errata3e.xml"),
+        ("eduni/errata-4e", "errata4e.xml"),
+    ]
+    for errata_dir, manifest_name in errata_dirs:
+        manifest = XMLCONF_DIR / errata_dir / manifest_name
+        if manifest.exists():
+            tests = parse_test_manifest(manifest, XMLCONF_DIR / errata_dir)
+            print(f"  {errata_dir}: {len(tests)} tests")
+            all_tests.extend(tests)
+
+    # 5. Misc tests
+    misc_manifest = XMLCONF_DIR / "eduni" / "misc" / "ht-bh.xml"
+    if misc_manifest.exists():
+        tests = parse_test_manifest(misc_manifest, XMLCONF_DIR / "eduni" / "misc")
+        print(f"  eduni/misc: {len(tests)} tests")
+        all_tests.extend(tests)
+
     print(f"\nTotal tests found: {len(all_tests)}")
 
     output_lines = [LICENSE_HEADER]
@@ -218,6 +238,11 @@ def main():
 
         # Skip files with entity declarations (we don't process DTDs)
         if '<!ENTITY' in content:
+            skipped += 1
+            continue
+
+        # Skip XML 1.1 documents (we only support XML 1.0)
+        if 'version="1.1"' in content or "version='1.1'" in content:
             skipped += 1
             continue
 
