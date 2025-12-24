@@ -48,9 +48,14 @@ while true {
 
 ## W3C Conformance
 
-This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/).
+This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using [quick-xml](https://github.com/tafia/quick-xml) as the reference implementation.
 
-**Current status: 827 tests passing (100%)**
+**Current status: 728/827 tests (88%)**
+
+| Category | Passing | Total | Rate |
+|----------|---------|-------|------|
+| Valid tests | 450 | 454 | 99% |
+| Not-well-formed | 278 | 308 | 90% |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
@@ -65,24 +70,27 @@ Coverage:
 curl -L -o xmlts.tar.gz "https://www.w3.org/XML/Test/xmlts20130923.tar.gz"
 tar -xzf xmlts.tar.gz && mv xmlconf . && rm xmlts.tar.gz
 
-# Run all tests
-moon test --target all
+# Run tests
+moon test
 ```
 
 ### Regenerating Test Snapshots
 
-The conformance tests use snapshot testing to verify parsed events match the expected output. Expected values are generated using [quick-xml](https://github.com/tafia/quick-xml) as the reference implementation.
+Expected values are generated using quick-xml as the reference.
 
 ```bash
 # Build the quick-xml reference tool (requires Rust)
 cargo build --release --manifest-path tools/quickxml-ref/Cargo.toml
 
-# Regenerate tests with expected snapshots from quick-xml
+# Regenerate tests
 python3 scripts/generate_conformance_tests.py
-
-# Update snapshots
-moon test --update
 ```
+
+### Test Differences
+
+Some tests differ from quick-xml due to:
+- **DOCTYPE internal subset**: Our parser correctly processes `[...]` content; quick-xml outputs it as text
+- **Entity values**: Our parser handles character references in DTD entity values; quick-xml errors on some valid cases
 
 ### Excluded Tests
 
