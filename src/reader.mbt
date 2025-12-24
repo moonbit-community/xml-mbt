@@ -306,7 +306,10 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
     let name = self.read_while(fn(c) {
       c != '>' && c != '[' && not(is_whitespace(c))
     })
-    self.skip_whitespace()
+    // Skip everything until we find '[' or '>'
+    while self.peek() is Some(c) && c != '[' && c != '>' {
+      let _ = self.advance()
+    }
     // Check for internal subset
     if self.peek() is Some('[') {
       // Parse internal subset [...] and extract entities
@@ -316,7 +319,6 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
     // Skip rest until >
     while self.peek() is Some(c) && c != '>' {
       let _ = self.advance()
-
     }
     let _ = self.advance() // consume '>'
     DocType(name)
@@ -730,20 +732,29 @@ fn Reader::read_entity_value(self : Reader, quote : Char) -> String {
 
 ///|
 fn is_whitespace(c : Char) -> Bool {
-  c == ' ' || c == '\t' || c == '\n' || c == '\r'
+  if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
+    return true
+  }
+  let code = c.to_int()
+  // U+00A0 (NBSP - non-breaking space)
+  if code == 0xA0 {
+    return true
+  }
+  // Unicode whitespace: U+2000-U+200A (various spaces), U+3000 (ideographic space)
+  // Note: U+200B (ZWSP) is kept in names per quick-xml behavior
+  (code >= 0x2000 && code <= 0x200A) || code == 0x3000
 }
 
 ///|
 /// Lenient name character check - accepts any non-special character
 /// This matches quick-xml's lenient behavior for better compatibility
 fn is_name_char(c : Char) -> Bool {
-  let code = c.to_int()
-  // Reject control characters (0x00-0x1F, 0x7F)
-  if code < 0x20 || code == 0x7F {
+  // Reject NUL character
+  if c == '\u0000' {
     return false
   }
-  // Reject ASCII whitespace
-  if c == ' ' {
+  // Reject ASCII whitespace (space, tab, newline, carriage return)
+  if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
     return false
   }
   // Reject XML syntax characters
