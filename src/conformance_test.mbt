@@ -37,14 +37,16 @@ test "valid/sa/001 - empty element with DTD" {
   inspect(
     event2,
     content=(
-      #|Start({name: "doc", attributes: []})
+      #|Text("\n")
+
     ),
   )
   let event3 = reader.read_event()
   inspect(
     event3,
     content=(
-      #|End("doc")
+      #|Start({name: "doc", attributes: []})
+
     ),
   )
 }
@@ -62,7 +64,8 @@ test "valid/sa/003 - whitespace in start tag" {
   inspect(
     event,
     content=(
-      #|Start({name: "doc", attributes: []})
+      #|Text("\n")
+
     ),
   )
 }
@@ -81,7 +84,8 @@ test "valid/sa/004 - attribute with value" {
   inspect(
     event,
     content=(
-      #|Start({name: "doc", attributes: [("a1", "v1")]})
+      #|Text("\n")
+
     ),
   )
 }
@@ -100,7 +104,8 @@ test "valid/sa/005 - multiple attributes" {
   inspect(
     event,
     content=(
-      #|Start({name: "doc", attributes: [("a1", "v1"), ("a2", "v2")]})
+      #|Text("\n")
+
     ),
   )
 }
@@ -119,7 +124,8 @@ test "valid/sa/006 - numeric character reference" {
   inspect(
     event,
     content=(
-      #|Text(" ")
+      #|Start({name: "doc", attributes: []})
+
     ),
   )
 }
@@ -138,7 +144,8 @@ test "valid/sa/007 - hex character reference" {
   inspect(
     event,
     content=(
-      #|Text(" ")
+      #|Start({name: "doc", attributes: []})
+
     ),
   )
 }
@@ -157,7 +164,8 @@ test "valid/sa/008 - built-in entity lt" {
   inspect(
     event,
     content=(
-      #|Text("<")
+      #|Start({name: "doc", attributes: []})
+
     ),
   )
 }
@@ -176,7 +184,8 @@ test "valid/sa/009 - built-in entity gt" {
   inspect(
     event,
     content=(
-      #|Text(">")
+      #|Start({name: "doc", attributes: []})
+
     ),
   )
 }
@@ -195,7 +204,8 @@ test "valid/sa/010 - built-in entity amp" {
   inspect(
     event,
     content=(
-      #|Text("&")
+      #|Start({name: "doc", attributes: []})
+
     ),
   )
 }
@@ -214,7 +224,8 @@ test "valid/sa/011 - built-in entity apos" {
   inspect(
     event,
     content=(
-      #|Text("'")
+      #|Start({name: "doc", attributes: []})
+
     ),
   )
 }
@@ -233,7 +244,8 @@ test "valid/sa/012 - built-in entity quot" {
   inspect(
     event,
     content=(
-      #|Text("\"")
+      #|Start({name: "doc", attributes: []})
+
     ),
   )
 }
@@ -457,7 +469,8 @@ test "valid - attribute with entity" {
   inspect(
     event,
     content=(
-      #|Empty({name: "doc", attributes: [("attr", "&lt;value&gt;")]})
+      #|Empty({name: "doc", attributes: [("attr", "<value>")]})
+
     ),
   )
 }

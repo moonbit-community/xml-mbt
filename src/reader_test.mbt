@@ -212,7 +212,8 @@ test "preserve whitespace in text" {
   inspect(
     event,
     content=(
-      #|Text("hello\n  world  ")
+      #|Text("  hello\n  world  ")
+
     ),
   )
 }
@@ -224,7 +225,8 @@ test "parse with leading whitespace" {
   inspect(
     event,
     content=(
-      #|Empty({name: "root", attributes: []})
+      #|Text("  ")
+
     ),
   )
 }

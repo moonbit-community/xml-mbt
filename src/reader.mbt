@@ -188,7 +188,6 @@ fn Reader::check_string(self : Reader, s : String) -> Bool {
 ///|
 /// Read the next XML event
 pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
-  self.skip_whitespace()
   if self.is_eof() {
     return Eof
   }
@@ -303,7 +302,11 @@ fn Reader::read_pi(self : Reader) -> Event raise XmlError {
     // XML declaration
     self.read_xml_decl()
   } else {
-    self.skip_whitespace()
+    // Skip exactly one whitespace after target (matches quick-xml behavior)
+    match self.peek() {
+      Some(c) if is_whitespace(c) => { let _ = self.advance() }
+      _ => ()
+    }
     let data = self.read_until("?>")
     let _ = self.skip_string("?>")
     PI(target~, data~)
@@ -374,29 +377,62 @@ fn Reader::read_attributes(self : Reader) -> Array[(String, String)] {
 }
 
 ///|
-/// Read attribute value (quoted)
+/// Read attribute value (quoted) and decode entities
+/// If any entity is unknown, returns empty string (matching quick-xml behavior)
 fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
-  match self.peek() {
-    Some('"') => {
-      let _ = self.advance()
-      let value = self.read_until("\"")
-      let _ = self.advance() // consume closing quote
-      value
-    }
-    Some('\'') => {
-      let _ = self.advance()
-      let value = self.read_until("'")
-      let _ = self.advance() // consume closing quote
-      value
-    }
+  let quote = match self.peek() {
+    Some('"') => '"'
+    Some('\'') => '\''
     _ => raise InvalidSyntax("expected quoted attribute value")
+  }
+  let _ = self.advance() // consume opening quote
+  let buf = StringBuilder::new()
+  let mut has_unknown_entity = false
+  while not(self.is_eof()) {
+    match self.peek() {
+      Some(c) if c == quote => {
+        let _ = self.advance()
+        break
+      }
+      Some('&') => {
+        let _ = self.advance()
+        let entity_name = self.read_while(fn(c) { c != ';' })
+        match self.peek() {
+          Some(';') => {
+            let _ = self.advance()
+            let entity = "&" + entity_name + ";"
+            match (try? unescape(entity)) {
+              Ok(decoded) => buf.write_string(decoded)
+              Err(_) => has_unknown_entity = true
+            }
+          }
+          _ => {
+            buf.write_char('&')
+            buf.write_string(entity_name)
+          }
+        }
+      }
+      Some(c) => {
+        buf.write_char(c)
+        let _ = self.advance()
+      }
+      None => break
+    }
+  }
+  // If any entity was unknown, return empty (matching quick-xml)
+  if has_unknown_entity {
+    ""
+  } else {
+    buf.to_string()
   }
 }
 
 ///|
 /// Read text content
+/// If any entity is unknown, returns empty string (matching quick-xml behavior)
 fn Reader::read_text(self : Reader) -> Event raise XmlError {
   let buf = StringBuilder::new()
+  let mut has_unknown_entity = false
   while not(self.is_eof()) {
     match self.peek() {
       Some('<') => break
@@ -407,15 +443,10 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
         match self.peek() {
           Some(';') => {
             let _ = self.advance()
-            // Check custom entities first
-            match self.entities.get(entity_name) {
-              Some(value) => buf.write_string(value)
-              None => {
-                // Try built-in entities
-                let entity = "&" + entity_name + ";"
-                let decoded = unescape(entity)
-                buf.write_string(decoded)
-              }
+            let entity = "&" + entity_name + ";"
+            match (try? unescape(entity)) {
+              Ok(decoded) => buf.write_string(decoded)
+              Err(_) => has_unknown_entity = true
             }
           }
           _ => {
@@ -428,12 +459,16 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
       Some(c) => {
         buf.write_char(c)
         let _ = self.advance()
-
       }
       None => break
     }
   }
-  Text(buf.to_string())
+  // If any entity was unknown, return empty (matching quick-xml)
+  if has_unknown_entity {
+    Text("")
+  } else {
+    Text(buf.to_string())
+  }
 }
 
 ///|
@@ -470,8 +505,10 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
               match self.peek() {
                 Some('"') => {
                   let _ = self.advance()
-                  let value = self.read_entity_value('"')
+                  let raw_value = self.read_entity_value('"')
                   let _ = self.advance() // closing quote
+                  // Decode entities in value
+                  let value = unescape(raw_value) catch { _ => raw_value }
                   self.entities.set(name, value)
                   // Skip to >
                   while self.peek() is Some(c) && c != '>' {
@@ -481,8 +518,10 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
                 }
                 Some('\'') => {
                   let _ = self.advance()
-                  let value = self.read_entity_value('\'')
+                  let raw_value = self.read_entity_value('\'')
                   let _ = self.advance() // closing quote
+                  // Decode entities in value
+                  let value = unescape(raw_value) catch { _ => raw_value }
                   self.entities.set(name, value)
                   // Skip to >
                   while self.peek() is Some(c) && c != '>' {

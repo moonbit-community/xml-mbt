@@ -67,7 +67,8 @@ test "unescape no entities" {
 }
 
 ///|
-test "unescape invalid entity error" {
+test "unescape unknown entity error" {
+  // Unknown entities raise InvalidEntity error
   let result = try? unescape("&invalid;")
   inspect(result, content="Err(InvalidEntity(\"&invalid;\"))")
 }

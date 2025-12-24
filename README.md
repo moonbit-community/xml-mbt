@@ -65,11 +65,23 @@ Coverage:
 curl -L -o xmlts.tar.gz "https://www.w3.org/XML/Test/xmlts20130923.tar.gz"
 tar -xzf xmlts.tar.gz && mv xmlconf . && rm xmlts.tar.gz
 
-# Generate MoonBit tests from the suite
-python3 scripts/generate_conformance_tests.py
-
 # Run all tests
 moon test --target all
+```
+
+### Regenerating Test Snapshots
+
+The conformance tests use snapshot testing to verify parsed events match the expected output. Expected values are generated using [quick-xml](https://github.com/tafia/quick-xml) as the reference implementation.
+
+```bash
+# Build the quick-xml reference tool (requires Rust)
+cargo build --release --manifest-path tools/quickxml-ref/Cargo.toml
+
+# Regenerate tests with expected snapshots from quick-xml
+python3 scripts/generate_conformance_tests.py
+
+# Update snapshots
+moon test --update
 ```
 
 ### Excluded Tests

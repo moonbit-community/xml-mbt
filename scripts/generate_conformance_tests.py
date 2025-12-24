@@ -3,15 +3,21 @@
 Generate MoonBit conformance tests from W3C XML Test Suite.
 
 Covers: XML 1.0 + Namespaces 1.0
+
+Uses quick-xml (Rust) as the reference implementation to generate expected snapshots.
 """
 
+import json
 import os
 import re
+import subprocess
+import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 XMLCONF_DIR = Path(__file__).parent.parent / "xmlconf"
 OUTPUT_FILE = Path(__file__).parent.parent / "src" / "w3c_conformance_test.mbt"
+QUICKXML_REF = Path(__file__).parent.parent / "tools" / "quickxml-ref" / "target" / "release" / "quickxml-ref"
 
 LICENSE_HEADER = """// Copyright 2025 International Digital Economy Academy
 //
@@ -95,6 +101,55 @@ def parse_test_manifest(manifest_path: Path, base_dir: Path) -> List[Tuple[str, 
 
     return tests
 
+class QuickXmlRef:
+    """Interface to quick-xml reference tool."""
+
+    def __init__(self):
+        self.proc = None
+
+    def start(self):
+        if not QUICKXML_REF.exists():
+            print(f"Warning: quick-xml reference tool not found at {QUICKXML_REF}")
+            print("Run: cargo build --release --manifest-path tools/quickxml-ref/Cargo.toml")
+            return False
+        self.proc = subprocess.Popen(
+            [str(QUICKXML_REF)],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            text=True
+        )
+        return True
+
+    def parse(self, xml: str) -> Optional[str]:
+        """Parse XML and return expected events string."""
+        if not self.proc:
+            return None
+        try:
+            # Send XML as single line (escape newlines)
+            escaped = xml.replace('\\', '\\\\').replace('\n', '\\n').replace('\r', '\\r')
+            self.proc.stdin.write(escaped + "\n")
+            self.proc.stdin.flush()
+            # Use select with timeout to avoid hanging
+            import select
+            ready, _, _ = select.select([self.proc.stdout], [], [], 5.0)
+            if ready:
+                return self.proc.stdout.readline().strip()
+            else:
+                print(f"  Warning: quick-xml timeout, restarting process...")
+                self.stop()
+                self.start()
+                return None
+        except Exception as e:
+            print(f"  Warning: quick-xml error: {e}")
+            return None
+
+    def stop(self):
+        if self.proc:
+            self.proc.stdin.close()
+            self.proc.wait()
+
+quickxml = QuickXmlRef()
+
 def load_test_file(file_path: str) -> str | None:
     """Load test XML file content."""
     try:
@@ -119,60 +174,114 @@ def load_test_file(file_path: str) -> str | None:
     except:
         return None
 
-def generate_valid_test(test_id: str, content: str, description: str) -> str:
-    """Generate a test for valid XML."""
+def generate_valid_test(test_id: str, content: str, description: str, expected: Optional[str]) -> str:
+    """Generate a test for valid XML with snapshot testing."""
     safe_name = sanitize_test_name(test_id)
     escaped = escape_moonbit_string(content)
     desc = clean_description(description)
 
-    return f'''///|
+    if expected:
+        # Use expected value from quick-xml with #| multi-line string (no escaping needed)
+        return f'''///|
 test "w3c/valid/{safe_name}" {{
   // {desc}
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
+  let events : Array[Event] = []
   while true {{
     let event = reader.read_event()
+    events.push(event)
     if event is Eof {{
       break
     }}
   }}
+  inspect(events, content=(
+    #|{expected}
+  ))
+}}
+
+'''
+    else:
+        # No expected value, let moon test --update fill it
+        return f'''///|
+test "w3c/valid/{safe_name}" {{
+  // {desc}
+  let xml = "{escaped}"
+  let reader = Reader::from_string(xml)
+  let events : Array[Event] = []
+  while true {{
+    let event = reader.read_event()
+    events.push(event)
+    if event is Eof {{
+      break
+    }}
+  }}
+  inspect(events)
 }}
 
 '''
 
-def generate_not_wf_test(test_id: str, content: str, description: str) -> str:
-    """Generate a test for not-well-formed XML."""
+def generate_not_wf_test(test_id: str, content: str, description: str, quickxml_errors: bool, expected: Optional[str]) -> str:
+    """Generate a test for not-well-formed XML.
+
+    If quick-xml errors, verify our parser also errors.
+    If quick-xml succeeds, use its output as expected (both parsers are lenient).
+    """
     safe_name = sanitize_test_name(test_id)
     escaped = escape_moonbit_string(content)
     desc = clean_description(description)
 
-    return f'''///|
+    if quickxml_errors:
+        # Quick-xml rejected this, verify we also error
+        return f'''///|
 test "w3c/not-wf/{safe_name}" {{
   // {desc}
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
-  let mut found_error = false
-  let mut event_count = 0
-  while event_count < 1000 {{
-    event_count += 1
-    let result = try? reader.read_event()
-    match result {{
-      Err(_) => {{
-        found_error = true
-        break
-      }}
+  let mut has_error = false
+  for i = 0; i < 1000 && not(has_error); i = i + 1 {{
+    match (try? reader.read_event()) {{
+      Err(_) => has_error = true
       Ok(Eof) => break
       Ok(_) => continue
     }}
   }}
-  // Track for strictness - some lenient parsing may pass
-  let _ = found_error
+  inspect(has_error, content="true")
+}}
+
+'''
+    else:
+        # Quick-xml parsed this (lenient), so should we - use same format as valid tests
+        return f'''///|
+test "w3c/not-wf/{safe_name}" {{
+  // {desc} (parser is lenient like quick-xml)
+  let xml = "{escaped}"
+  let reader = Reader::from_string(xml)
+  let events : Array[Event] = []
+  while true {{
+    let event = reader.read_event()
+    events.push(event)
+    if event is Eof {{
+      break
+    }}
+  }}
+  inspect(events, content=(
+    #|{expected}
+  ))
 }}
 
 '''
 
 def main():
     print("Generating W3C conformance tests (XML 1.0 + Namespaces 1.0)...")
+
+    # Start quick-xml reference tool
+    has_quickxml = quickxml.start()
+    if has_quickxml:
+        print("Using quick-xml as reference implementation")
+    else:
+        print("Warning: Generating tests without expected values")
+        print("Run 'moon test --update' to populate snapshots")
 
     all_tests = []
 
@@ -247,12 +356,29 @@ def main():
             continue
 
         if test_type == "valid":
-            output_lines.append(generate_valid_test(test_id, content, description))
+            # Normalize line endings before parsing (XML spec requires \r\n -> \n)
+            normalized_content = content.replace('\r\n', '\n').replace('\r', '\n')
+            if has_quickxml:
+                expected = quickxml.parse(normalized_content)
+            else:
+                expected = None
+            output_lines.append(generate_valid_test(test_id, content, description, expected))
             valid_count += 1
         elif test_type == "not-wf":
-            output_lines.append(generate_not_wf_test(test_id, content, description))
+            # Normalize line endings
+            normalized_content = content.replace('\r\n', '\n').replace('\r', '\n')
+            if has_quickxml:
+                expected = quickxml.parse(normalized_content)
+                # Check if quick-xml produced an error
+                quickxml_errors = expected and "Error(" in expected
+            else:
+                expected = None
+                quickxml_errors = True  # Assume error if no quick-xml
+            output_lines.append(generate_not_wf_test(test_id, content, description, quickxml_errors, expected))
             not_wf_count += 1
         # Skip "invalid" and "error" types (DTD validation)
+
+    quickxml.stop()
 
     OUTPUT_FILE.write_text(''.join(output_lines), encoding='utf-8')
 
