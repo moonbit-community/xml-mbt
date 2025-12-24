@@ -50,12 +50,12 @@ while true {
 
 This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using [quick-xml](https://github.com/tafia/quick-xml) as the reference implementation.
 
-**Current status: 728/827 tests (88%)**
+**Current status: 734/827 tests (89%)**
 
 | Category | Passing | Total | Rate |
 |----------|---------|-------|------|
 | Valid tests | 450 | 454 | 99% |
-| Not-well-formed | 278 | 308 | 90% |
+| Not-well-formed | 284 | 308 | 92% |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
