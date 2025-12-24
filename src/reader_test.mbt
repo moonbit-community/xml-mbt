@@ -249,7 +249,7 @@ test "error on mismatched tags" {
   inspect(
     result,
     content=(
-      #|Ok(End("other"))
+      #|Err(InvalidSyntax("end tag mismatch: expected </root>, found </other>"))
     ),
   )
 }

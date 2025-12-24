@@ -92,9 +92,9 @@ fn decode_entity(entity : String) -> String raise XmlError {
           // Decimal
           parse_decimal_chars(chars, inner_start, inner_end)
         }
-        // Validate Unicode code point (XML 1.0 Char production)
-        // Valid: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-        if is_valid_xml_char(code_point) {
+        // Be lenient: output any valid Unicode code point (even if not valid XML)
+        // Only reject code points that can't be represented in Unicode
+        if is_valid_unicode_code_point(code_point) {
           Int::unsafe_to_char(code_point).to_string()
         } else {
           raise InvalidEntity(entity)
@@ -103,6 +103,13 @@ fn decode_entity(entity : String) -> String raise XmlError {
         raise InvalidEntity(entity)
       }
   }
+}
+
+///|
+fn is_valid_unicode_code_point(code : Int) -> Bool {
+  // Accept any Unicode code point in the valid range (0x1 to 0x10FFFF)
+  // excluding NUL (0x00) and surrogate pairs (0xD800-0xDFFF)
+  code >= 1 && code <= 0x10FFFF && not(code >= 0xD800 && code <= 0xDFFF)
 }
 
 ///|

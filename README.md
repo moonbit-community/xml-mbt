@@ -50,12 +50,12 @@ while true {
 
 This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using [quick-xml](https://github.com/tafia/quick-xml) as the reference implementation.
 
-**Current status: 735/762 W3C tests (96%)**
+**Current status: 748/762 W3C tests (98%)**
 
 | Category | Passing | Total | Rate |
 |----------|---------|-------|------|
-| Valid tests | 450 | 454 | 99% |
-| Not-well-formed | 285 | 308 | 93% |
+| Valid tests | 454 | 454 | 100% |
+| Not-well-formed | 294 | 308 | 95% |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
@@ -89,8 +89,10 @@ python3 scripts/generate_conformance_tests.py
 ### Test Differences
 
 Some tests differ from quick-xml due to:
-- **DOCTYPE internal subset**: Our parser correctly processes `[...]` content; quick-xml outputs it as text
+- **DOCTYPE internal subset**: Our parser consumes `[...]` content internally; quick-xml emits it as text
 - **Entity values**: Our parser handles character references in DTD entity values; quick-xml errors on some valid cases
+- **Tag matching**: Our parser validates start/end tag matching (quick-xml does with "check" feature)
+- **UTF-16 surrogates**: Some IBM tests with invalid surrogate sequences in element names differ in output
 
 ### Excluded Tests
 

@@ -32,6 +32,7 @@ pub struct Reader {
   mut column : Int
   entities : Map[String, String] // Custom entities from DTD
   base_path : String // Base path for resolving external entities
+  tag_stack : Array[String] // Stack of open element names for validation
 }
 
 ///|

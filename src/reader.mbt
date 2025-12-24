@@ -17,8 +17,20 @@
 pub fn Reader::from_string(input : String) -> Reader {
   let chars = input.to_array()
   // Skip BOM (Byte Order Mark, U+FEFF) if present at start
-  let start_pos = if chars.length() > 0 && chars[0] == '\u{FEFF}' { 1 } else { 0 }
-  { input: chars, pos: start_pos, line: 1, column: 1, entities: {}, base_path: "" }
+  let start_pos = if chars.length() > 0 && chars[0] == '\u{FEFF}' {
+    1
+  } else {
+    0
+  }
+  {
+    input: chars,
+    pos: start_pos,
+    line: 1,
+    column: 1,
+    entities: {},
+    base_path: "",
+    tag_stack: [],
+  }
 }
 
 ///|
@@ -28,8 +40,20 @@ pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
   let base_path = get_directory(path)
   let chars = content.to_array()
   // Skip BOM if present at start
-  let start_pos = if chars.length() > 0 && chars[0] == '\u{FEFF}' { 1 } else { 0 }
-  { input: chars, pos: start_pos, line: 1, column: 1, entities: {}, base_path }
+  let start_pos = if chars.length() > 0 && chars[0] == '\u{FEFF}' {
+    1
+  } else {
+    0
+  }
+  {
+    input: chars,
+    pos: start_pos,
+    line: 1,
+    column: 1,
+    entities: {},
+    base_path,
+    tag_stack: [],
+  }
 }
 
 ///|
@@ -115,6 +139,7 @@ fn Reader::advance(self : Reader) -> Char? {
 fn Reader::skip_whitespace(self : Reader) -> Unit {
   while self.peek() is Some(c) && is_whitespace(c) {
     let _ = self.advance()
+
   }
 }
 
@@ -126,8 +151,10 @@ fn Reader::skip_ws_and_control(self : Reader) -> Unit {
       Some(c) => {
         let code = c.to_int()
         // Skip whitespace or control characters (< 0x20, except we keep meaningful ones)
-        if is_whitespace(c) || (code < 0x20 && c != '\t' && c != '\n' && c != '\r') {
+        if is_whitespace(c) ||
+          (code < 0x20 && c != '\t' && c != '\n' && c != '\r') {
           let _ = self.advance()
+
         } else {
           break
         }
@@ -244,6 +271,16 @@ fn Reader::read_end_tag(self : Reader) -> Event raise XmlError {
   if name == "" {
     raise InvalidSyntax("empty end tag name")
   }
+  // Validate tag matching
+  if self.tag_stack.length() == 0 {
+    raise InvalidSyntax("unexpected end tag, no matching start tag")
+  }
+  let expected = self.tag_stack.pop().unwrap()
+  if expected != name {
+    raise InvalidSyntax(
+      "end tag mismatch: expected </" + expected + ">, found </" + name + ">",
+    )
+  }
   // Skip whitespace and control characters
   self.skip_ws_and_control()
   match self.peek() {
@@ -276,6 +313,8 @@ fn Reader::read_start_tag(self : Reader) -> Event raise XmlError {
     }
     Some('>') => {
       let _ = self.advance()
+      // Push tag name onto stack for matching with end tag
+      self.tag_stack.push(name)
       Start(XmlElement::with_attrs(name, attributes))
     }
     _ => raise InvalidSyntax("expected '>' or '/>' at end of start tag")
@@ -305,9 +344,22 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
     let name = self.read_while(fn(c) {
       c != '>' && c != '[' && not(is_whitespace(c))
     })
-    // Skip everything until we find '[' or '>'
+    // Skip everything until we find '[' or '>', properly handling quoted strings
     while self.peek() is Some(c) && c != '[' && c != '>' {
-      let _ = self.advance()
+      if c == '"' || c == '\'' {
+        // Skip quoted string
+        let quote = c
+        let _ = self.advance() // consume opening quote
+        while self.peek() is Some(qc) && qc != quote {
+          let _ = self.advance()
+
+        }
+        let _ = self.advance()
+         // consume closing quote (if present)
+      } else {
+        let _ = self.advance()
+
+      }
     }
     // Check for internal subset
     if self.peek() is Some('[') {
@@ -318,6 +370,7 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
     // Skip rest until >
     while self.peek() is Some(c) && c != '>' {
       let _ = self.advance()
+
     }
     let _ = self.advance() // consume '>'
     DocType(name)
@@ -358,13 +411,17 @@ fn Reader::read_xml_decl(self : Reader) -> Event raise XmlError {
   self.skip_whitespace()
   while not(self.check_string("?>")) {
     let attr_name = self.read_name()
+    // If no attribute name, break (handles malformed XML leniently)
+    if attr_name == "" {
+      break
+    }
     self.skip_whitespace()
     match self.peek() {
       Some('=') => {
         let _ = self.advance()
 
       }
-      _ => raise InvalidSyntax("expected '=' in XML declaration")
+      _ => break // Skip malformed attribute (lenient like quick-xml)
     }
     self.skip_whitespace()
     // Use raw attribute value (no entity decoding) for XML declaration
@@ -376,6 +433,11 @@ fn Reader::read_xml_decl(self : Reader) -> Event raise XmlError {
       _ => () // ignore unknown attributes
     }
     self.skip_whitespace()
+  }
+  // Skip any remaining characters until ?>
+  while not(self.check_string("?>")) && not(self.is_eof()) {
+    let _ = self.advance()
+
   }
   let _ = self.skip_string("?>")
   Decl(version~, encoding~, standalone~)
@@ -422,9 +484,11 @@ fn Reader::read_attributes(self : Reader) -> Array[(String, String)] {
         // Skip until closing quote
         while self.peek() is Some(c) && c != quote {
           let _ = self.advance()
+
         }
         if self.peek() is Some(_) {
-          let _ = self.advance() // consume closing quote
+          let _ = self.advance()
+           // consume closing quote
         }
       }
       _ => break
@@ -453,6 +517,7 @@ fn Reader::read_raw_attr_value(self : Reader) -> String raise XmlError {
       Some(c) => {
         buf.write_char(c)
         let _ = self.advance()
+
       }
       None => break
     }
@@ -502,6 +567,7 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
       Some(c) => {
         buf.write_char(c)
         let _ = self.advance()
+
       }
       None => break
     }
@@ -549,6 +615,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
       Some(c) => {
         buf.write_char(c)
         let _ = self.advance()
+
       }
       None => break
     }
@@ -778,7 +845,13 @@ fn is_name_char(c : Char) -> Bool {
     return false
   }
   // Reject XML syntax characters
-  if c == '<' || c == '>' || c == '/' || c == '=' || c == '&' || c == '?' || c == '!' {
+  if c == '<' ||
+    c == '>' ||
+    c == '/' ||
+    c == '=' ||
+    c == '&' ||
+    c == '?' ||
+    c == '!' {
     return false
   }
   // Reject quotes
