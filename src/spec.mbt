@@ -33,6 +33,9 @@ pub struct Reader {
   entities : Map[String, String] // Custom entities from DTD
   base_path : String // Base path for resolving external entities
   tag_stack : Array[String] // Stack of open element names for validation
+  mut seen_root : Bool // Whether we've seen the root element
+  mut root_closed : Bool // Whether the root element has been closed
+  mut seen_content : Bool // Whether any content has been parsed (for XML decl position check)
 }
 
 ///|

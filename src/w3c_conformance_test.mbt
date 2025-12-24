@@ -5492,7 +5492,7 @@ test "w3c/not-wf/not_wf_sa_002" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5504,7 +5504,7 @@ test "w3c/not-wf/not_wf_sa_003" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5540,7 +5540,7 @@ test "w3c/not-wf/not_wf_sa_006" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5552,7 +5552,7 @@ test "w3c/not-wf/not_wf_sa_007" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5564,7 +5564,7 @@ test "w3c/not-wf/not_wf_sa_008" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5576,7 +5576,7 @@ test "w3c/not-wf/not_wf_sa_009" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5588,7 +5588,7 @@ test "w3c/not-wf/not_wf_sa_010" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5600,7 +5600,7 @@ test "w3c/not-wf/not_wf_sa_011" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5612,7 +5612,7 @@ test "w3c/not-wf/not_wf_sa_012" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5636,7 +5636,7 @@ test "w3c/not-wf/not_wf_sa_014" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5648,7 +5648,7 @@ test "w3c/not-wf/not_wf_sa_015" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5660,7 +5660,7 @@ test "w3c/not-wf/not_wf_sa_016" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5708,7 +5708,7 @@ test "w3c/not-wf/not_wf_sa_020" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5720,7 +5720,7 @@ test "w3c/not-wf/not_wf_sa_021" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5732,7 +5732,7 @@ test "w3c/not-wf/not_wf_sa_022" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5744,7 +5744,7 @@ test "w3c/not-wf/not_wf_sa_023" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5756,7 +5756,7 @@ test "w3c/not-wf/not_wf_sa_024" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5768,7 +5768,7 @@ test "w3c/not-wf/not_wf_sa_025" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5780,7 +5780,7 @@ test "w3c/not-wf/not_wf_sa_026" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5816,7 +5816,7 @@ test "w3c/not-wf/not_wf_sa_029" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5828,7 +5828,7 @@ test "w3c/not-wf/not_wf_sa_030" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5840,7 +5840,7 @@ test "w3c/not-wf/not_wf_sa_031" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5852,7 +5852,7 @@ test "w3c/not-wf/not_wf_sa_032" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5864,7 +5864,7 @@ test "w3c/not-wf/not_wf_sa_033" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5876,7 +5876,7 @@ test "w3c/not-wf/not_wf_sa_034" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5900,7 +5900,7 @@ test "w3c/not-wf/not_wf_sa_036" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5912,7 +5912,7 @@ test "w3c/not-wf/not_wf_sa_037" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5924,7 +5924,7 @@ test "w3c/not-wf/not_wf_sa_038" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5948,7 +5948,7 @@ test "w3c/not-wf/not_wf_sa_040" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5960,7 +5960,7 @@ test "w3c/not-wf/not_wf_sa_041" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5984,7 +5984,7 @@ test "w3c/not-wf/not_wf_sa_043" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -5996,7 +5996,7 @@ test "w3c/not-wf/not_wf_sa_044" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6044,7 +6044,7 @@ test "w3c/not-wf/not_wf_sa_048" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6068,7 +6068,7 @@ test "w3c/not-wf/not_wf_sa_050" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6080,7 +6080,7 @@ test "w3c/not-wf/not_wf_sa_051" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6092,7 +6092,7 @@ test "w3c/not-wf/not_wf_sa_052" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6116,7 +6116,7 @@ test "w3c/not-wf/not_wf_sa_055" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6128,7 +6128,7 @@ test "w3c/not-wf/not_wf_sa_056" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6140,7 +6140,7 @@ test "w3c/not-wf/not_wf_sa_057" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6152,7 +6152,7 @@ test "w3c/not-wf/not_wf_sa_058" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6164,7 +6164,7 @@ test "w3c/not-wf/not_wf_sa_059" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6176,7 +6176,7 @@ test "w3c/not-wf/not_wf_sa_060" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6188,7 +6188,7 @@ test "w3c/not-wf/not_wf_sa_062" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6200,7 +6200,7 @@ test "w3c/not-wf/not_wf_sa_063" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6212,7 +6212,7 @@ test "w3c/not-wf/not_wf_sa_064" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6224,7 +6224,7 @@ test "w3c/not-wf/not_wf_sa_065" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6236,7 +6236,7 @@ test "w3c/not-wf/not_wf_sa_066" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6248,7 +6248,7 @@ test "w3c/not-wf/not_wf_sa_067" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6260,7 +6260,7 @@ test "w3c/not-wf/not_wf_sa_068" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6272,7 +6272,7 @@ test "w3c/not-wf/not_wf_sa_070" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6284,7 +6284,7 @@ test "w3c/not-wf/not_wf_sa_071" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6296,7 +6296,7 @@ test "w3c/not-wf/not_wf_sa_072" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6308,7 +6308,7 @@ test "w3c/not-wf/not_wf_sa_073" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6320,7 +6320,7 @@ test "w3c/not-wf/not_wf_sa_074" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6332,7 +6332,7 @@ test "w3c/not-wf/not_wf_sa_075" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6344,7 +6344,7 @@ test "w3c/not-wf/not_wf_sa_076" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6356,7 +6356,7 @@ test "w3c/not-wf/not_wf_sa_077" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6368,7 +6368,7 @@ test "w3c/not-wf/not_wf_sa_078" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6380,7 +6380,7 @@ test "w3c/not-wf/not_wf_sa_079" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6392,7 +6392,7 @@ test "w3c/not-wf/not_wf_sa_080" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6404,7 +6404,7 @@ test "w3c/not-wf/not_wf_sa_085" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6416,7 +6416,7 @@ test "w3c/not-wf/not_wf_sa_087" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6440,7 +6440,7 @@ test "w3c/not-wf/not_wf_sa_090" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6452,7 +6452,7 @@ test "w3c/not-wf/not_wf_sa_092" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6464,7 +6464,7 @@ test "w3c/not-wf/not_wf_sa_093" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6476,7 +6476,7 @@ test "w3c/not-wf/not_wf_sa_094" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6488,7 +6488,7 @@ test "w3c/not-wf/not_wf_sa_095" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6500,7 +6500,7 @@ test "w3c/not-wf/not_wf_sa_096" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6512,7 +6512,7 @@ test "w3c/not-wf/not_wf_sa_097" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6524,7 +6524,7 @@ test "w3c/not-wf/not_wf_sa_098" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6536,7 +6536,7 @@ test "w3c/not-wf/not_wf_sa_099" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6548,7 +6548,7 @@ test "w3c/not-wf/not_wf_sa_100" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6560,7 +6560,7 @@ test "w3c/not-wf/not_wf_sa_101" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6572,7 +6572,7 @@ test "w3c/not-wf/not_wf_sa_102" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6584,7 +6584,7 @@ test "w3c/not-wf/not_wf_sa_103" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6608,7 +6608,7 @@ test "w3c/not-wf/not_wf_sa_105" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6620,7 +6620,7 @@ test "w3c/not-wf/not_wf_sa_106" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6632,7 +6632,7 @@ test "w3c/not-wf/not_wf_sa_107" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6656,7 +6656,7 @@ test "w3c/not-wf/not_wf_sa_109" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6668,7 +6668,7 @@ test "w3c/not-wf/not_wf_sa_110" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6704,7 +6704,7 @@ test "w3c/not-wf/not_wf_sa_113" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6716,7 +6716,7 @@ test "w3c/not-wf/not_wf_sa_114" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6728,7 +6728,7 @@ test "w3c/not-wf/not_wf_sa_115" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6740,7 +6740,7 @@ test "w3c/not-wf/not_wf_sa_116" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6752,7 +6752,7 @@ test "w3c/not-wf/not_wf_sa_117" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6764,7 +6764,7 @@ test "w3c/not-wf/not_wf_sa_118" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6776,7 +6776,7 @@ test "w3c/not-wf/not_wf_sa_119" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6788,7 +6788,7 @@ test "w3c/not-wf/not_wf_sa_120" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6800,7 +6800,7 @@ test "w3c/not-wf/not_wf_sa_121" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6812,7 +6812,7 @@ test "w3c/not-wf/not_wf_sa_122" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6824,7 +6824,7 @@ test "w3c/not-wf/not_wf_sa_123" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6836,7 +6836,7 @@ test "w3c/not-wf/not_wf_sa_124" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6848,7 +6848,7 @@ test "w3c/not-wf/not_wf_sa_125" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6860,7 +6860,7 @@ test "w3c/not-wf/not_wf_sa_126" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6872,7 +6872,7 @@ test "w3c/not-wf/not_wf_sa_127" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6884,7 +6884,7 @@ test "w3c/not-wf/not_wf_sa_128" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6896,7 +6896,7 @@ test "w3c/not-wf/not_wf_sa_129" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6908,7 +6908,7 @@ test "w3c/not-wf/not_wf_sa_130" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6920,7 +6920,7 @@ test "w3c/not-wf/not_wf_sa_131" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6932,7 +6932,7 @@ test "w3c/not-wf/not_wf_sa_132" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6944,7 +6944,7 @@ test "w3c/not-wf/not_wf_sa_133" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6956,7 +6956,7 @@ test "w3c/not-wf/not_wf_sa_134" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6968,7 +6968,7 @@ test "w3c/not-wf/not_wf_sa_135" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6980,7 +6980,7 @@ test "w3c/not-wf/not_wf_sa_136" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -6992,7 +6992,7 @@ test "w3c/not-wf/not_wf_sa_137" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7004,7 +7004,7 @@ test "w3c/not-wf/not_wf_sa_138" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7016,7 +7016,7 @@ test "w3c/not-wf/not_wf_sa_139" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7028,7 +7028,7 @@ test "w3c/not-wf/not_wf_sa_142" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7040,7 +7040,7 @@ test "w3c/not-wf/not_wf_sa_143" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7052,7 +7052,7 @@ test "w3c/not-wf/not_wf_sa_144" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7064,7 +7064,7 @@ test "w3c/not-wf/not_wf_sa_145" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7076,7 +7076,7 @@ test "w3c/not-wf/not_wf_sa_146" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7088,7 +7088,7 @@ test "w3c/not-wf/not_wf_sa_147" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7100,7 +7100,7 @@ test "w3c/not-wf/not_wf_sa_148" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7112,7 +7112,7 @@ test "w3c/not-wf/not_wf_sa_149" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7124,7 +7124,7 @@ test "w3c/not-wf/not_wf_sa_150" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7136,7 +7136,7 @@ test "w3c/not-wf/not_wf_sa_151" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7148,7 +7148,7 @@ test "w3c/not-wf/not_wf_sa_152" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7160,7 +7160,7 @@ test "w3c/not-wf/not_wf_sa_153" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7172,7 +7172,7 @@ test "w3c/not-wf/not_wf_sa_154" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7184,7 +7184,7 @@ test "w3c/not-wf/not_wf_sa_155" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7196,7 +7196,7 @@ test "w3c/not-wf/not_wf_sa_156" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7208,7 +7208,7 @@ test "w3c/not-wf/not_wf_sa_157" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7220,7 +7220,7 @@ test "w3c/not-wf/not_wf_sa_158" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7232,7 +7232,7 @@ test "w3c/not-wf/not_wf_sa_159" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7244,7 +7244,7 @@ test "w3c/not-wf/not_wf_sa_160" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7256,7 +7256,7 @@ test "w3c/not-wf/not_wf_sa_161" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7268,7 +7268,7 @@ test "w3c/not-wf/not_wf_sa_162" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7280,7 +7280,7 @@ test "w3c/not-wf/not_wf_sa_163" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7292,7 +7292,7 @@ test "w3c/not-wf/not_wf_sa_164" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7304,7 +7304,7 @@ test "w3c/not-wf/not_wf_sa_165" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7316,7 +7316,7 @@ test "w3c/not-wf/not_wf_sa_166" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7328,7 +7328,7 @@ test "w3c/not-wf/not_wf_sa_167" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7340,7 +7340,7 @@ test "w3c/not-wf/not_wf_sa_171" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7352,7 +7352,7 @@ test "w3c/not-wf/not_wf_sa_172" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7364,7 +7364,7 @@ test "w3c/not-wf/not_wf_sa_173" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7376,7 +7376,7 @@ test "w3c/not-wf/not_wf_sa_174" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7388,7 +7388,7 @@ test "w3c/not-wf/not_wf_sa_175" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7400,7 +7400,7 @@ test "w3c/not-wf/not_wf_sa_176" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7412,7 +7412,7 @@ test "w3c/not-wf/not_wf_sa_177" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7436,7 +7436,7 @@ test "w3c/not-wf/not_wf_sa_179" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7448,7 +7448,7 @@ test "w3c/not-wf/not_wf_sa_180" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7460,7 +7460,7 @@ test "w3c/not-wf/not_wf_sa_181" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7472,7 +7472,7 @@ test "w3c/not-wf/not_wf_sa_182" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7484,7 +7484,7 @@ test "w3c/not-wf/not_wf_sa_183" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7496,7 +7496,7 @@ test "w3c/not-wf/not_wf_sa_184" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7508,7 +7508,7 @@ test "w3c/not-wf/not_wf_sa_186" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7520,7 +7520,7 @@ test "w3c/not-wf/rmt_ns10_035" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7532,7 +7532,7 @@ test "w3c/not-wf/attlist01" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7544,7 +7544,7 @@ test "w3c/not-wf/attlist02" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7556,7 +7556,7 @@ test "w3c/not-wf/attlist03" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7568,7 +7568,7 @@ test "w3c/not-wf/attlist04" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7580,7 +7580,7 @@ test "w3c/not-wf/attlist05" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7592,7 +7592,7 @@ test "w3c/not-wf/attlist06" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7604,7 +7604,7 @@ test "w3c/not-wf/attlist07" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7616,7 +7616,7 @@ test "w3c/not-wf/attlist08" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7628,7 +7628,7 @@ test "w3c/not-wf/attlist09" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7640,7 +7640,7 @@ test "w3c/not-wf/attlist10" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7652,7 +7652,7 @@ test "w3c/not-wf/attlist11" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7664,7 +7664,7 @@ test "w3c/not-wf/content01" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7676,7 +7676,7 @@ test "w3c/not-wf/content02" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7688,7 +7688,7 @@ test "w3c/not-wf/content03" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7700,7 +7700,7 @@ test "w3c/not-wf/nwf_dtd00" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7712,7 +7712,7 @@ test "w3c/not-wf/nwf_dtd01" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7724,7 +7724,7 @@ test "w3c/not-wf/dtd02" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7736,7 +7736,7 @@ test "w3c/not-wf/dtd03" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7808,7 +7808,7 @@ test "w3c/not-wf/encoding01" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7820,7 +7820,7 @@ test "w3c/not-wf/encoding02" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7832,7 +7832,7 @@ test "w3c/not-wf/encoding03" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7844,7 +7844,7 @@ test "w3c/not-wf/encoding04" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7856,7 +7856,7 @@ test "w3c/not-wf/encoding05" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7868,7 +7868,7 @@ test "w3c/not-wf/encoding06" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7880,7 +7880,7 @@ test "w3c/not-wf/pi" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7892,7 +7892,7 @@ test "w3c/not-wf/sgml01" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7904,7 +7904,7 @@ test "w3c/not-wf/sgml02" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7916,7 +7916,7 @@ test "w3c/not-wf/sgml03" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7928,7 +7928,7 @@ test "w3c/not-wf/sgml04" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7940,7 +7940,7 @@ test "w3c/not-wf/sgml05" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7952,7 +7952,7 @@ test "w3c/not-wf/sgml06" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7964,7 +7964,7 @@ test "w3c/not-wf/sgml07" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7976,7 +7976,7 @@ test "w3c/not-wf/sgml08" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -7988,7 +7988,7 @@ test "w3c/not-wf/sgml09" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8000,7 +8000,7 @@ test "w3c/not-wf/sgml10" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8012,7 +8012,7 @@ test "w3c/not-wf/sgml11" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8024,7 +8024,7 @@ test "w3c/not-wf/sgml12" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8036,7 +8036,7 @@ test "w3c/not-wf/sgml13" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8048,7 +8048,7 @@ test "w3c/not-wf/rmt_e2e_61" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8060,7 +8060,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n02_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8072,7 +8072,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n03_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8084,7 +8084,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n04_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8096,7 +8096,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n05_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8108,7 +8108,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n06_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8120,7 +8120,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n07_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8132,7 +8132,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n08_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8144,7 +8144,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n09_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8156,7 +8156,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n10_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8168,7 +8168,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n11_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8180,7 +8180,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n12_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8192,7 +8192,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n13_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8204,7 +8204,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n14_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8216,7 +8216,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n15_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8228,7 +8228,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n16_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8240,7 +8240,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n17_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8252,7 +8252,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n18_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8264,7 +8264,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n19_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8276,7 +8276,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n20_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8288,7 +8288,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n21_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8300,7 +8300,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n22_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8312,7 +8312,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n23_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8324,7 +8324,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n24_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8336,7 +8336,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n25_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8348,7 +8348,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n26_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8360,7 +8360,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n27_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8372,7 +8372,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n28_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8384,7 +8384,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an01_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8396,7 +8396,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an02_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8408,7 +8408,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an03_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8420,7 +8420,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an04_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8432,7 +8432,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an05_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8444,7 +8444,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an06_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8456,7 +8456,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an07_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8468,7 +8468,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an08_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8480,7 +8480,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an09_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8492,7 +8492,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an10_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8504,7 +8504,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an11_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8516,7 +8516,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an12_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8528,7 +8528,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an13_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8540,7 +8540,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an14_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8552,7 +8552,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an15_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8564,7 +8564,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an16_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8576,7 +8576,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an17_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8588,7 +8588,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an18_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8600,7 +8600,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an19_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8612,7 +8612,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an20_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8624,7 +8624,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an21_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8636,7 +8636,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an22_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8648,7 +8648,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an23_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8660,7 +8660,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an24_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8672,7 +8672,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an25_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8684,7 +8684,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an26_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8696,7 +8696,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an27_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8708,7 +8708,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an28_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8720,7 +8720,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n01_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8732,7 +8732,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n02_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8744,7 +8744,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n03_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8756,7 +8756,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n04_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8768,7 +8768,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n05_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8780,7 +8780,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n06_xml" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8792,7 +8792,7 @@ test "w3c/not-wf/hst_bh_001" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8804,7 +8804,7 @@ test "w3c/not-wf/hst_bh_002" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8816,7 +8816,7 @@ test "w3c/not-wf/hst_bh_003" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8828,7 +8828,7 @@ test "w3c/not-wf/hst_bh_004" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 
 ///|
@@ -8840,6 +8840,6 @@ test "w3c/not-wf/hst_lhs_009" {
   for {
     try reader.read_event() catch { _ => { has_error = true; break } } noraise { Eof => break; _ => continue }
   }
-  inspect(has_error, content="false")
+  inspect(has_error, content="true")
 }
 

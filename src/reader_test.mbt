@@ -144,8 +144,9 @@ test "parse XML comment" {
 
 ///|
 test "parse CDATA section" {
-  let reader = Reader::from_string("<![CDATA[<html>raw content</html>]]>")
-  let event = reader.read_event()
+  let reader = Reader::from_string("<root><![CDATA[<html>raw content</html>]]></root>")
+  let _ = reader.read_event() // Start(root)
+  let event = reader.read_event() // CDATA
   inspect(event, content="CData(\"<html>raw content</html>\")")
 }
 
@@ -238,7 +239,7 @@ test "error on unclosed tag" {
   let reader = Reader::from_string("<root>")
   let _ = reader.read_event() // Start
   let result = try? reader.read_event()
-  inspect(result, content="Ok(Eof)")
+  inspect(result, content="Err(InvalidSyntax(\"unclosed element: <root>\"))")
 }
 
 ///|
@@ -261,7 +262,7 @@ test "error on invalid syntax" {
   inspect(
     result,
     content=(
-      #|Err(InvalidSyntax("expected '>' or '/>' at end of start tag"))
+      #|Err(InvalidSyntax("unexpected character in tag: '<'"))
     ),
   )
 }

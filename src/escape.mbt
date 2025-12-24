@@ -85,16 +85,20 @@ fn decode_entity(entity : String) -> String raise XmlError {
         let inner_start = 2
         let inner_end = chars.length() - 1
         let first_inner = chars[inner_start]
-        let code_point = if first_inner == 'x' || first_inner == 'X' {
+        let code_point = if first_inner == 'x' {
           // Hexadecimal: skip the 'x'
           parse_hex_chars(chars, inner_start + 1, inner_end)
+        } else if first_inner == 'X' {
+          // Uppercase X is not valid in XML - must use lowercase 'x'
+          raise InvalidEntity(
+            "hex character reference must use lowercase 'x': " + entity,
+          )
         } else {
           // Decimal
           parse_decimal_chars(chars, inner_start, inner_end)
         }
-        // Be lenient: output any valid Unicode code point (even if not valid XML)
-        // Only reject code points that can't be represented in Unicode
-        if is_valid_unicode_code_point(code_point) {
+        // Strict: only accept valid XML character references
+        if is_valid_xml_char(code_point) {
           Int::unsafe_to_char(code_point).to_string()
         } else {
           raise InvalidEntity(entity)
@@ -103,13 +107,6 @@ fn decode_entity(entity : String) -> String raise XmlError {
         raise InvalidEntity(entity)
       }
   }
-}
-
-///|
-fn is_valid_unicode_code_point(code : Int) -> Bool {
-  // Accept any Unicode code point in the valid range (0x1 to 0x10FFFF)
-  // excluding NUL (0x00) and surrogate pairs (0xD800-0xDFFF)
-  code >= 1 && code <= 0x10FFFF && not(code >= 0xD800 && code <= 0xDFFF)
 }
 
 ///|

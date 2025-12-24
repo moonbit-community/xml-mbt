@@ -273,7 +273,8 @@ test "not-wf/sa/027 - comments must end with -->" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   let result = try? reader.read_event()
-  inspect(result, content="Err(UnexpectedEof)")
+  // Comment has -- not followed by >, which is invalid
+  inspect(result, content="Err(InvalidSyntax(\"'--' is not allowed in comments\"))")
 }
 
 ///|
