@@ -15,7 +15,10 @@
 ///|
 /// Create a new reader from a string
 pub fn Reader::from_string(input : String) -> Reader {
-  { input: input.to_array(), pos: 0, line: 1, column: 1, entities: {}, base_path: "" }
+  let chars = input.to_array()
+  // Skip BOM (Byte Order Mark, U+FEFF) if present at start
+  let start_pos = if chars.length() > 0 && chars[0] == '\u{FEFF}' { 1 } else { 0 }
+  { input: chars, pos: start_pos, line: 1, column: 1, entities: {}, base_path: "" }
 }
 
 ///|
@@ -23,7 +26,10 @@ pub fn Reader::from_string(input : String) -> Reader {
 pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
   let content = @fs.read_file_to_string(path)
   let base_path = get_directory(path)
-  { input: content.to_array(), pos: 0, line: 1, column: 1, entities: {}, base_path }
+  let chars = content.to_array()
+  // Skip BOM if present at start
+  let start_pos = if chars.length() > 0 && chars[0] == '\u{FEFF}' { 1 } else { 0 }
+  { input: chars, pos: start_pos, line: 1, column: 1, entities: {}, base_path }
 }
 
 ///|
@@ -304,7 +310,10 @@ fn Reader::read_pi(self : Reader) -> Event raise XmlError {
   } else {
     // Skip exactly one whitespace after target (matches quick-xml behavior)
     match self.peek() {
-      Some(c) if is_whitespace(c) => { let _ = self.advance() }
+      Some(c) if is_whitespace(c) => {
+        let _ = self.advance()
+
+      }
       _ => ()
     }
     let data = self.read_until("?>")
@@ -415,6 +424,7 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
       Some(c) => {
         buf.write_char(c)
         let _ = self.advance()
+
       }
       None => break
     }
@@ -459,6 +469,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
       Some(c) => {
         buf.write_char(c)
         let _ = self.advance()
+
       }
       None => break
     }
@@ -495,8 +506,10 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
               // Parameter entity - skip to >
               while self.peek() is Some(c) && c != '>' {
                 let _ = self.advance()
+
               }
               let _ = self.advance()
+
             } else {
               // General entity
               let name = self.read_name()
@@ -513,8 +526,10 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
                   // Skip to >
                   while self.peek() is Some(c) && c != '>' {
                     let _ = self.advance()
+
                   }
                   let _ = self.advance()
+
                 }
                 Some('\'') => {
                   let _ = self.advance()
@@ -526,8 +541,10 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
                   // Skip to >
                   while self.peek() is Some(c) && c != '>' {
                     let _ = self.advance()
+
                   }
                   let _ = self.advance()
+
                 }
                 _ => {
                   // External entity (SYSTEM/PUBLIC)
@@ -544,7 +561,9 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
                         // Try to read the external entity file
                         if self.base_path.length() > 0 {
                           let full_path = self.base_path + path
-                          let content = @fs.read_file_to_string(full_path) catch { _ => "" }
+                          let content = @fs.read_file_to_string(full_path) catch {
+                            _ => ""
+                          }
                           if content.length() > 0 {
                             self.entities.set(name, content)
                           }
@@ -556,7 +575,9 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
                         let _ = self.advance()
                         if self.base_path.length() > 0 {
                           let full_path = self.base_path + path
-                          let content = @fs.read_file_to_string(full_path) catch { _ => "" }
+                          let content = @fs.read_file_to_string(full_path) catch {
+                            _ => ""
+                          }
                           if content.length() > 0 {
                             self.entities.set(name, content)
                           }
@@ -568,8 +589,10 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
                   // Skip rest to >
                   while self.peek() is Some(c) && c != '>' {
                     let _ = self.advance()
+
                   }
                   let _ = self.advance()
+
                 }
               }
             }
@@ -581,19 +604,25 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
                 let _ = self.advance()
                 while self.peek() is Some(c2) && c2 != '"' {
                   let _ = self.advance()
+
                 }
                 let _ = self.advance()
+
               } else if c == '\'' {
                 let _ = self.advance()
                 while self.peek() is Some(c2) && c2 != '\'' {
                   let _ = self.advance()
+
                 }
                 let _ = self.advance()
+
               } else {
                 let _ = self.advance()
+
               }
             }
             let _ = self.advance()
+
           }
         } else if self.peek() is Some('?') {
           // Processing instruction in DTD - skip to ?>
@@ -603,10 +632,12 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
               break
             }
             let _ = self.advance()
+
           }
         } else {
           // Unknown - skip
           let _ = self.advance()
+
         }
       }
       Some('%') => {
@@ -614,11 +645,14 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit {
         let _ = self.advance()
         while self.peek() is Some(c) && c != ';' {
           let _ = self.advance()
+
         }
         let _ = self.advance()
+
       }
       Some(_) => {
         let _ = self.advance()
+
       }
       None => return
     }
@@ -632,6 +666,7 @@ fn Reader::read_entity_value(self : Reader, quote : Char) -> String {
   while self.peek() is Some(c) && c != quote {
     buf.write_char(c)
     let _ = self.advance()
+
   }
   buf.to_string()
 }

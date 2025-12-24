@@ -213,7 +213,6 @@ test "preserve whitespace in text" {
     event,
     content=(
       #|Text("  hello\n  world  ")
-
     ),
   )
 }
@@ -226,7 +225,6 @@ test "parse with leading whitespace" {
     event,
     content=(
       #|Text("  ")
-
     ),
   )
 }

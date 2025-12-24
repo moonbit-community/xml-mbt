@@ -38,7 +38,6 @@ test "valid/sa/001 - empty element with DTD" {
     event2,
     content=(
       #|Text("\n")
-
     ),
   )
   let event3 = reader.read_event()
@@ -46,7 +45,6 @@ test "valid/sa/001 - empty element with DTD" {
     event3,
     content=(
       #|Start({name: "doc", attributes: []})
-
     ),
   )
 }
@@ -65,7 +63,6 @@ test "valid/sa/003 - whitespace in start tag" {
     event,
     content=(
       #|Text("\n")
-
     ),
   )
 }
@@ -85,7 +82,6 @@ test "valid/sa/004 - attribute with value" {
     event,
     content=(
       #|Text("\n")
-
     ),
   )
 }
@@ -105,7 +101,6 @@ test "valid/sa/005 - multiple attributes" {
     event,
     content=(
       #|Text("\n")
-
     ),
   )
 }
@@ -125,7 +120,6 @@ test "valid/sa/006 - numeric character reference" {
     event,
     content=(
       #|Start({name: "doc", attributes: []})
-
     ),
   )
 }
@@ -145,7 +139,6 @@ test "valid/sa/007 - hex character reference" {
     event,
     content=(
       #|Start({name: "doc", attributes: []})
-
     ),
   )
 }
@@ -165,7 +158,6 @@ test "valid/sa/008 - built-in entity lt" {
     event,
     content=(
       #|Start({name: "doc", attributes: []})
-
     ),
   )
 }
@@ -185,7 +177,6 @@ test "valid/sa/009 - built-in entity gt" {
     event,
     content=(
       #|Start({name: "doc", attributes: []})
-
     ),
   )
 }
@@ -205,7 +196,6 @@ test "valid/sa/010 - built-in entity amp" {
     event,
     content=(
       #|Start({name: "doc", attributes: []})
-
     ),
   )
 }
@@ -225,7 +215,6 @@ test "valid/sa/011 - built-in entity apos" {
     event,
     content=(
       #|Start({name: "doc", attributes: []})
-
     ),
   )
 }
@@ -245,7 +234,6 @@ test "valid/sa/012 - built-in entity quot" {
     event,
     content=(
       #|Start({name: "doc", attributes: []})
-
     ),
   )
 }
@@ -470,7 +458,6 @@ test "valid - attribute with entity" {
     event,
     content=(
       #|Empty({name: "doc", attributes: [("attr", "<value>")]})
-
     ),
   )
 }
