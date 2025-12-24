@@ -240,6 +240,10 @@ fn Reader::read_tag(self : Reader) -> Event raise XmlError {
 fn Reader::read_end_tag(self : Reader) -> Event raise XmlError {
   let _ = self.advance() // consume '/'
   let name = self.read_name()
+  // Empty end tag name is invalid
+  if name == "" {
+    raise InvalidSyntax("empty end tag name")
+  }
   // Skip whitespace and control characters
   self.skip_ws_and_control()
   match self.peek() {
@@ -397,7 +401,13 @@ fn Reader::read_attributes(self : Reader) -> Array[(String, String)] {
             self.skip_whitespace()
             // If value isn't properly quoted, skip this attribute (matches quick-xml)
             match (try? self.read_attr_value()) {
-              Ok(value) => attrs.push((name, value))
+              Ok(value) => {
+                // Skip duplicate attributes (keep first occurrence, matches quick-xml)
+                let exists = attrs.iter().any(fn(pair) { pair.0 == name })
+                if not(exists) {
+                  attrs.push((name, value))
+                }
+              }
               Err(_) => ()
             }
           }
