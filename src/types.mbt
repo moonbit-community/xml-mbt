@@ -20,28 +20,9 @@ pub struct XmlElement {
 } derive(Show, Eq)
 
 ///|
-/// Normalize whitespace in attribute values (lxml behavior).
-/// For CDATA: only replace tabs/newlines with spaces
-/// For tokenized types: normalize fully (but we don't know the type without DTD)
-/// Since we don't process DTD attribute types, we just do basic CDATA-style normalization.
-fn normalize_attr_value(s : String) -> String {
-  // Replace tabs/newlines with spaces (CDATA normalization)
-  let buf = StringBuilder::new()
-  for c in s {
-    if c == '\t' || c == '\n' || c == '\r' {
-      buf.write_char(' ')
-    } else {
-      buf.write_char(c)
-    }
-  }
-  buf.to_string()
-}
-
-///|
 /// Transform attributes to match lxml behavior:
 /// - Filter out xmlns namespace declarations
 /// - Strip xml: prefix (xml:lang -> lang)
-/// - Normalize whitespace in values
 fn transform_attrs_for_libxml(
   attrs : Array[(String, String)]
 ) -> Array[(String, String)] {
@@ -58,9 +39,8 @@ fn transform_attrs_for_libxml(
     } else {
       name
     }
-    // Normalize attribute value (trim leading/trailing whitespace)
-    let normalized_value = normalize_attr_value(attr.1)
-    result.push((final_name, normalized_value))
+    // Attribute value is already normalized by the parser
+    result.push((final_name, attr.1))
   }
   result
 }

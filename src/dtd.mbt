@@ -732,7 +732,7 @@ pub fn parse_attlist(reader : Reader) -> Unit raise XmlError {
   if not(peek_is_name_start(reader)) {
     raise InvalidSyntax("expected element name in ATTLIST")
   }
-  skip_name(reader)
+  let elem_name = read_name(reader)
 
   // Parse attribute definitions until >
   while not(reader.is_eof()) {
@@ -744,7 +744,7 @@ pub fn parse_attlist(reader : Reader) -> Unit raise XmlError {
       }
       Some(c) if is_name_start_char(c) =>
         // Parse one attribute definition
-        parse_attdef(reader)
+        parse_attdef(reader, elem_name)
       _ => raise InvalidSyntax("expected attribute name or '>' in ATTLIST")
     }
   }
@@ -752,9 +752,9 @@ pub fn parse_attlist(reader : Reader) -> Unit raise XmlError {
 }
 
 ///|
-fn parse_attdef(reader : Reader) -> Unit raise XmlError {
+fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
   // Read attribute name
-  skip_name(reader)
+  let attr_name = read_name(reader)
 
   // Require whitespace between name and type
   if not(peek_is_whitespace(reader)) {
@@ -763,10 +763,12 @@ fn parse_attdef(reader : Reader) -> Unit raise XmlError {
   skip_ws(reader)
 
   // Parse attribute type
-  match reader.peek() {
-    Some('(') =>
-      // Enumeration
+  let attr_type = match reader.peek() {
+    Some('(') => {
+      // Enumeration - treated like NMTOKEN for normalization
       parse_enumeration(reader)
+      "ENUMERATION"
+    }
     Some(c) if is_name_start_char(c) => {
       // Keyword type: CDATA, ID, IDREF, etc.
       let type_name = read_name(reader)
@@ -778,7 +780,7 @@ fn parse_attdef(reader : Reader) -> Unit raise XmlError {
         | "ENTITY"
         | "ENTITIES"
         | "NMTOKEN"
-        | "NMTOKENS" => ()
+        | "NMTOKENS" => type_name
         "NOTATION" => {
           // NOTATION requires whitespace then (name|name...)
           if not(peek_is_whitespace(reader)) {
@@ -789,11 +791,18 @@ fn parse_attdef(reader : Reader) -> Unit raise XmlError {
             raise InvalidSyntax("expected '(' after NOTATION")
           }
           parse_enumeration(reader)
+          "NOTATION"
         }
         _ => raise InvalidSyntax("invalid attribute type: " + type_name)
       }
     }
     _ => raise InvalidSyntax("expected attribute type")
+  }
+
+  // Store attribute type (first declaration wins per XML spec)
+  let key = elem_name + ":" + attr_name
+  if not(reader.attr_types.contains(key)) {
+    reader.attr_types.set(key, attr_type)
   }
 
   // Require whitespace between type and default

@@ -28,6 +28,7 @@ pub fn Reader::from_string(input : String) -> Reader {
     line: 1,
     column: 1,
     entities: {},
+    attr_types: {},
     base_path: "",
     tag_stack: [],
     seen_root: false,
@@ -58,6 +59,7 @@ pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
     line: 1,
     column: 1,
     entities: {},
+    attr_types: {},
     base_path,
     tag_stack: [],
     seen_root: false,
@@ -484,7 +486,7 @@ fn Reader::read_end_tag(self : Reader) -> Event raise XmlError {
 /// Read a start tag or empty element: <name ...> or <name .../>
 fn Reader::read_start_tag(self : Reader) -> Event raise XmlError {
   let name = self.read_name()
-  let attributes = self.read_attributes()
+  let attributes = self.read_attributes(name)
   // Skip whitespace and control characters before tag end
   self.skip_ws_and_control()
   match self.peek() {
@@ -875,6 +877,7 @@ fn Reader::read_name(self : Reader) -> String raise XmlError {
 /// Read attributes
 fn Reader::read_attributes(
   self : Reader,
+  elem_name : String,
 ) -> Array[(String, String)] raise XmlError {
   let attrs : Array[(String, String)] = []
   let mut need_whitespace = false
@@ -886,19 +889,25 @@ fn Reader::read_attributes(
         if need_whitespace && not(had_whitespace) {
           raise InvalidSyntax("whitespace required between attributes")
         }
-        let name = self.read_name()
+        let attr_name = self.read_name()
         self.skip_whitespace()
         match self.peek() {
           Some('=') => {
             let _ = self.advance()
             self.skip_whitespace()
-            let value = self.read_attr_value()
+            let raw_value = self.read_attr_value()
+            // Normalize attribute value based on declared type
+            let normalized_value = self.normalize_attr_by_type(
+              elem_name,
+              attr_name,
+              raw_value,
+            )
             // Reject duplicate attributes
-            let exists = attrs.iter().any(fn(pair) { pair.0 == name })
+            let exists = attrs.iter().any(fn(pair) { pair.0 == attr_name })
             if exists {
-              raise InvalidSyntax("duplicate attribute: " + name)
+              raise InvalidSyntax("duplicate attribute: " + attr_name)
             }
-            attrs.push((name, value))
+            attrs.push((attr_name, normalized_value))
             need_whitespace = true
           }
           _ => raise InvalidSyntax("expected '=' after attribute name")
@@ -918,6 +927,53 @@ fn Reader::read_attributes(
     }
   }
   attrs
+}
+
+///|
+/// Normalize attribute value based on declared type in DTD.
+/// CDATA: only replace newlines/tabs with spaces
+/// Tokenized types (ID, IDREF, NMTOKEN, etc.): collapse whitespace, trim
+fn Reader::normalize_attr_by_type(
+  self : Reader,
+  elem_name : String,
+  attr_name : String,
+  value : String,
+) -> String {
+  let key = elem_name + ":" + attr_name
+  let attr_type = self.attr_types.get(key).unwrap_or("CDATA")
+  if attr_type == "CDATA" {
+    // CDATA: only replace tabs/newlines with spaces
+    let buf = StringBuilder::new()
+    for c in value {
+      if c == '\t' || c == '\n' || c == '\r' {
+        buf.write_char(' ')
+      } else {
+        buf.write_char(c)
+      }
+    }
+    buf.to_string()
+  } else {
+    // Tokenized types: collapse whitespace and trim
+    let buf = StringBuilder::new()
+    let mut in_whitespace = true // Start true to skip leading
+    let mut need_space = false
+    for c in value {
+      if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
+        if not(in_whitespace) {
+          need_space = true
+          in_whitespace = true
+        }
+      } else {
+        if need_space {
+          buf.write_char(' ')
+          need_space = false
+        }
+        buf.write_char(c)
+        in_whitespace = false
+      }
+    }
+    buf.to_string()
+  }
 }
 
 ///|

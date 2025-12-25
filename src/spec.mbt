@@ -31,6 +31,7 @@ pub struct Reader {
   mut line : Int
   mut column : Int
   entities : Map[String, String] // Custom entities from DTD
+  attr_types : Map[String, String] // Attribute types from ATTLIST (key: "elem:attr", value: type)
   base_path : String // Base path for resolving external entities
   tag_stack : Array[String] // Stack of open element names for validation
   mut seen_root : Bool // Whether we've seen the root element
