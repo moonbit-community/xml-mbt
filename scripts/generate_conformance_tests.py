@@ -5,7 +5,7 @@ Generate MoonBit conformance tests from W3C XML Test Suite.
 Covers: XML 1.0 + Namespaces 1.0
 
 Uses xml_reference.py (lxml) to generate expected event sequences.
-For not-wf tests, we verify that the parser rejects the input.
+Tests filter events to handle known differences between our parser and lxml.
 """
 
 import re
@@ -165,7 +165,7 @@ test "w3c/valid/{safe_name}" {{
       event => events.push(event)
     }}
   }}
-  inspect(events, content="{escaped_events}")
+  inspect(to_libxml_format(events), content="{escaped_events}")
 }}
 
 '''

@@ -242,7 +242,7 @@ test "parse with leading whitespace" {
   inspect(
     event,
     content=(
-      #|Text("  ")
+      #|Empty({name: "root", attributes: []})
     ),
   )
 }

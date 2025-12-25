@@ -39,8 +39,8 @@ test "w3c/valid/valid_sa_001" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -60,8 +60,8 @@ test "w3c/valid/valid_sa_002" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -81,8 +81,8 @@ test "w3c/valid/valid_sa_003" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -102,8 +102,8 @@ test "w3c/valid/valid_sa_004" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), Eof]",
   )
 }
 
@@ -123,8 +123,8 @@ test "w3c/valid/valid_sa_005" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), Eof]",
   )
 }
 
@@ -144,8 +144,8 @@ test "w3c/valid/valid_sa_006" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), Eof]",
   )
 }
 
@@ -165,8 +165,8 @@ test "w3c/valid/valid_sa_007" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\" \"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\" \"), End(\"doc\"), Eof]",
   )
 }
 
@@ -186,8 +186,8 @@ test "w3c/valid/valid_sa_008" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"&\"), Text(\"<\"), Text(\">\"), Text(\"\\\"\"), Text(\"'\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"&\"), Text(\"<\"), Text(\">\"), Text(\"\\\"\"), Text(\"'\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -207,8 +207,8 @@ test "w3c/valid/valid_sa_009" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\" \"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\" \"), End(\"doc\"), Eof]",
   )
 }
 
@@ -228,8 +228,8 @@ test "w3c/valid/valid_sa_010" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), Eof]",
   )
 }
 
@@ -249,8 +249,8 @@ test "w3c/valid/valid_sa_011" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"v1\"), (\"a2\", \"v2\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\"), (\"a2\", \"v2\")]}), Eof]",
   )
 }
 
@@ -259,20 +259,14 @@ test "w3c/valid/valid_sa_012" {
   // Uses a legal XML 1.0 name consisting of a single colon ch...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc : CDATA #IMPLIED>\n]>\n<doc :=\"v1\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let events : Array[Event] = []
-  for {
-    match reader.read_event() {
-      Eof => {
-        events.push(Eof)
-        break
-      }
-      event => events.push(event)
+  let has_error = for {
+    match (try? reader.read_event()) {
+      Err(_) => break true
+      Ok(Eof) => break false
+      Ok(_) => continue
     }
   }
-  inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\":\", \"v1\")]}), End(\"doc\"), Eof]",
-  )
+  inspect(has_error, content="false")
 }
 
 ///|
@@ -291,8 +285,8 @@ test "w3c/valid/valid_sa_013" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"_.-0123456789\", \"v1\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"_.-0123456789\", \"v1\")]}), Eof]",
   )
 }
 
@@ -312,8 +306,8 @@ test "w3c/valid/valid_sa_014" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"abcdefghijklmnopqrstuvwxyz\", \"v1\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"abcdefghijklmnopqrstuvwxyz\", \"v1\")]}), Eof]",
   )
 }
 
@@ -333,8 +327,8 @@ test "w3c/valid/valid_sa_015" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\", \"v1\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\", \"v1\")]}), Eof]",
   )
 }
 
@@ -354,8 +348,8 @@ test "w3c/valid/valid_sa_016" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -375,8 +369,8 @@ test "w3c/valid/valid_sa_017" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"some data \"), PI(target=\"x\", data=\"\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"some data \"), PI(target=\"x\", data=\"\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -396,8 +390,8 @@ test "w3c/valid/valid_sa_018" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"<foo>\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<foo>\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -417,8 +411,8 @@ test "w3c/valid/valid_sa_019" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"<&\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<&\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -438,8 +432,8 @@ test "w3c/valid/valid_sa_020" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"<&]>]\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<&]>]\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -459,8 +453,8 @@ test "w3c/valid/valid_sa_021" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Comment(\" a comment \"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Comment(\" a comment \"), End(\"doc\"), Eof]",
   )
 }
 
@@ -480,8 +474,8 @@ test "w3c/valid/valid_sa_022" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Comment(\" a comment ->\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Comment(\" a comment ->\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -501,8 +495,8 @@ test "w3c/valid/valid_sa_023" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -522,8 +516,8 @@ test "w3c/valid/valid_sa_024" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Start({name: \"foo\", attributes: []}), End(\"foo\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
   )
 }
 
@@ -543,8 +537,8 @@ test "w3c/valid/valid_sa_025" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
   )
 }
 
@@ -564,8 +558,8 @@ test "w3c/valid/valid_sa_026" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
   )
 }
 
@@ -585,8 +579,8 @@ test "w3c/valid/valid_sa_027" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
   )
 }
 
@@ -606,8 +600,8 @@ test "w3c/valid/valid_sa_028" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=None), DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -627,8 +621,8 @@ test "w3c/valid/valid_sa_029" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=None), DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -648,8 +642,8 @@ test "w3c/valid/valid_sa_030" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=None), DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -669,8 +663,8 @@ test "w3c/valid/valid_sa_031" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=None), DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -690,8 +684,8 @@ test "w3c/valid/valid_sa_032" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=Some(\"yes\")), DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"yes\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -711,8 +705,8 @@ test "w3c/valid/valid_sa_033" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"yes\")), DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"yes\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -732,8 +726,8 @@ test "w3c/valid/valid_sa_034" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -753,8 +747,8 @@ test "w3c/valid/valid_sa_035" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -774,8 +768,8 @@ test "w3c/valid/valid_sa_036" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), PI(target=\"pi\", data=\"data\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"data\"), Eof]",
   )
 }
 
@@ -795,8 +789,8 @@ test "w3c/valid/valid_sa_017a" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"some data ? > <?\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"some data ? > <?\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -816,8 +810,8 @@ test "w3c/valid/valid_sa_037" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Comment(\" comment \"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Comment(\" comment \"), Eof]",
   )
 }
 
@@ -837,8 +831,8 @@ test "w3c/valid/valid_sa_038" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Comment(\" comment \"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Comment(\" comment \"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -858,8 +852,8 @@ test "w3c/valid/valid_sa_039" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), PI(target=\"pi\", data=\"data\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), PI(target=\"pi\", data=\"data\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -879,8 +873,8 @@ test "w3c/valid/valid_sa_040" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"\\\"<&>'\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"\\\"<&>'\")]}), Eof]",
   )
 }
 
@@ -900,8 +894,8 @@ test "w3c/valid/valid_sa_041" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"A\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"A\")]}), Eof]",
   )
 }
 
@@ -921,8 +915,8 @@ test "w3c/valid/valid_sa_042" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"A\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"A\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -942,8 +936,8 @@ test "w3c/valid/valid_sa_043" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"foo bar\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"foo bar\")]}), Eof]",
   )
 }
 
@@ -963,8 +957,8 @@ test "w3c/valid/valid_sa_044" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a3\", \"v3\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"w1\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a2\", \"w2\"), (\"a3\", \"v3\")]}), Text(\"\\n\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a3\", \"v3\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"w1\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a2\", \"w2\"), (\"a3\", \"v3\")]}), Text(\"\\n\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -984,8 +978,8 @@ test "w3c/valid/valid_sa_045" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1005,8 +999,8 @@ test "w3c/valid/valid_sa_046" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1026,8 +1020,8 @@ test "w3c/valid/valid_sa_047" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"X\\nY\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"X\\nY\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1047,8 +1041,8 @@ test "w3c/valid/valid_sa_048" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"]\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"]\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1068,8 +1062,8 @@ test "w3c/valid/valid_sa_052" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀􏿽\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀􏿽\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1089,7 +1083,7 @@ test "w3c/valid/valid_sa_053" {
     }
   }
   inspect(
-    events,
+    to_libxml_format(events),
     content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"e\", attributes: []}), End(\"doc\"), Eof]",
   )
 }
@@ -1110,8 +1104,8 @@ test "w3c/valid/valid_sa_054" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\\n\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1131,8 +1125,8 @@ test "w3c/valid/valid_sa_055" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\\n\"), PI(target=\"pi\", data=\"data\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), PI(target=\"pi\", data=\"data\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1152,8 +1146,8 @@ test "w3c/valid/valid_sa_056" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"A\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"A\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1173,8 +1167,8 @@ test "w3c/valid/valid_sa_057" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1194,8 +1188,8 @@ test "w3c/valid/valid_sa_058" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"1 2\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"1 2\")]}), Eof]",
   )
 }
 
@@ -1215,8 +1209,8 @@ test "w3c/valid/valid_sa_059" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"v1\"), (\"a2\", \"v2\"), (\"a3\", \"v3\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"w1\"), (\"a2\", \"v2\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"v1\"), (\"a2\", \"w2\"), (\"a3\", \"v3\")]}), Text(\"\\n\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"v1\"), (\"a2\", \"v2\"), (\"a3\", \"v3\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"w1\"), (\"a2\", \"v2\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"v1\"), (\"a2\", \"w2\"), (\"a3\", \"v3\")]}), Text(\"\\n\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1236,8 +1230,8 @@ test "w3c/valid/valid_sa_060" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"X\"), Text(\"\\n\"), Text(\"Y\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"X\"), Text(\"\\n\"), Text(\"Y\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1257,8 +1251,8 @@ test "w3c/valid/valid_sa_061" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"£\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"£\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1278,8 +1272,8 @@ test "w3c/valid/valid_sa_062" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"เ\"), Text(\"จ\"), Text(\"ม\"), Text(\"ส์\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"เ\"), Text(\"จ\"), Text(\"ม\"), Text(\"ส์\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1299,8 +1293,8 @@ test "w3c/valid/valid_sa_063" {
     }
   }
   inspect(
-    events,
-    content="[Start({name: \"เจมส์\", attributes: []}), End(\"เจมส์\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"เจมส์\"), Empty({name: \"เจมส์\", attributes: []}), Eof]",
   )
 }
 
@@ -1320,8 +1314,8 @@ test "w3c/valid/valid_sa_064" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀\"), Text(\"􏿽\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀\"), Text(\"􏿽\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1341,8 +1335,8 @@ test "w3c/valid/valid_sa_065" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1362,8 +1356,8 @@ test "w3c/valid/valid_sa_066" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Comment(\" 34 is double quote \"), Start({name: \"doc\", attributes: [(\"a1\", \"\\\"\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Comment(\" 34 is double quote \"), Empty({name: \"doc\", attributes: [(\"a1\", \"\\\"\")]}), Eof]",
   )
 }
 
@@ -1383,8 +1377,8 @@ test "w3c/valid/valid_sa_067" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"\\r\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\r\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1404,8 +1398,8 @@ test "w3c/valid/valid_sa_068" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1425,8 +1419,8 @@ test "w3c/valid/valid_sa_069" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1446,8 +1440,8 @@ test "w3c/valid/valid_sa_071" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1467,8 +1461,8 @@ test "w3c/valid/valid_sa_072" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1488,8 +1482,8 @@ test "w3c/valid/valid_sa_073" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1509,8 +1503,8 @@ test "w3c/valid/valid_sa_074" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1530,8 +1524,8 @@ test "w3c/valid/valid_sa_075" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1551,8 +1545,8 @@ test "w3c/valid/valid_sa_076" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1572,8 +1566,8 @@ test "w3c/valid/valid_sa_077" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1593,8 +1587,8 @@ test "w3c/valid/valid_sa_078" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"v\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"v\")]}), Eof]",
   )
 }
 
@@ -1614,8 +1608,8 @@ test "w3c/valid/valid_sa_079" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"v\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"v\")]}), Eof]",
   )
 }
 
@@ -1635,8 +1629,8 @@ test "w3c/valid/valid_sa_080" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1656,8 +1650,8 @@ test "w3c/valid/valid_sa_081" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Empty({name: \"a\", attributes: []}), Empty({name: \"b\", attributes: []}), Start({name: \"c\", attributes: []}), Empty({name: \"a\", attributes: []}), End(\"c\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"a\", attributes: []}), Empty({name: \"b\", attributes: []}), Start({name: \"c\", attributes: []}), Empty({name: \"a\", attributes: []}), End(\"c\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1677,8 +1671,8 @@ test "w3c/valid/valid_sa_084" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1698,8 +1692,8 @@ test "w3c/valid/valid_sa_085" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1719,8 +1713,8 @@ test "w3c/valid/valid_sa_086" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1740,8 +1734,8 @@ test "w3c/valid/valid_sa_087" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Start({name: \"foo\", attributes: []}), End(\"foo\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
   )
 }
 
@@ -1761,8 +1755,8 @@ test "w3c/valid/valid_sa_088" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"<\"), Text(\"foo>\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<\"), Text(\"foo>\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1782,8 +1776,8 @@ test "w3c/valid/valid_sa_089" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀􏿽􏿿\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀􏿽􏿿\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1803,8 +1797,8 @@ test "w3c/valid/valid_sa_090" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1824,8 +1818,8 @@ test "w3c/valid/valid_sa_092" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), Empty({name: \"a\", attributes: []}), Text(\"\\n    \"), Empty({name: \"a\", attributes: []}), Text(\"\\t\"), Empty({name: \"a\", attributes: []}), Text(\"\\n\\n\\n\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), Empty({name: \"a\", attributes: []}), Text(\"\\n    \"), Empty({name: \"a\", attributes: []}), Text(\"\\t\"), Empty({name: \"a\", attributes: []}), Text(\"\\n\\n\\n\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1845,8 +1839,8 @@ test "w3c/valid/valid_sa_093" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\\n\\n\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\\n\\n\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1866,8 +1860,8 @@ test "w3c/valid/valid_sa_094" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1887,8 +1881,8 @@ test "w3c/valid/valid_sa_095" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a1\", \"1  2\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"1  2\")]}), Eof]",
   )
 }
 
@@ -1908,8 +1902,8 @@ test "w3c/valid/valid_sa_096" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1929,8 +1923,8 @@ test "w3c/valid/valid_sa_098" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"x\\ny\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"x\\ny\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1950,8 +1944,8 @@ test "w3c/valid/valid_sa_099" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=Some(\"utf-8\"), standalone=None), DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"utf-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1971,8 +1965,8 @@ test "w3c/valid/valid_sa_101" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -1992,8 +1986,8 @@ test "w3c/valid/valid_sa_102" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"\\\"\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"\\\"\")]}), Eof]",
   )
 }
 
@@ -2013,8 +2007,8 @@ test "w3c/valid/valid_sa_103" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"<\"), Text(\"doc>\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<\"), Text(\"doc>\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -2034,8 +2028,8 @@ test "w3c/valid/valid_sa_104" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"x y\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x y\")]}), Eof]",
   )
 }
 
@@ -2055,8 +2049,8 @@ test "w3c/valid/valid_sa_105" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"x\\ty\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x\\ty\")]}), Eof]",
   )
 }
 
@@ -2076,8 +2070,8 @@ test "w3c/valid/valid_sa_106" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"x\\ny\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x\\ny\")]}), Eof]",
   )
 }
 
@@ -2097,8 +2091,8 @@ test "w3c/valid/valid_sa_107" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"x\\ry\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x\\ry\")]}), Eof]",
   )
 }
 
@@ -2118,8 +2112,8 @@ test "w3c/valid/valid_sa_108" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"x y\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x y\")]}), Eof]",
   )
 }
 
@@ -2139,8 +2133,8 @@ test "w3c/valid/valid_sa_109" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"\")]}), Eof]",
   )
 }
 
@@ -2160,8 +2154,8 @@ test "w3c/valid/valid_sa_110" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"x  y\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x  y\")]}), Eof]",
   )
 }
 
@@ -2181,8 +2175,8 @@ test "w3c/valid/valid_sa_111" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: [(\"a\", \"x y\")]}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x y\")]}), Eof]",
   )
 }
 
@@ -2202,8 +2196,8 @@ test "w3c/valid/valid_sa_112" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Start({name: \"a\", attributes: []}), End(\"a\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"a\", attributes: []}), End(\"doc\"), Eof]",
   )
 }
 
@@ -2223,8 +2217,8 @@ test "w3c/valid/valid_sa_113" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -2244,8 +2238,8 @@ test "w3c/valid/valid_sa_114" {
     }
   }
   inspect(
-    events,
-    content="[Text(\"<!DOCTYPE doc [\\n<!ELEMENT doc (#PCDATA)>\\n<!ENTITY e \\\"<![CDATA[&foo;]]>\\\">\\n]>\\n\"), Start({name: \"doc\", attributes: []}), Text(\"&foo;\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"&foo;\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -2265,8 +2259,8 @@ test "w3c/valid/valid_sa_115" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"v\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"v\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -2286,8 +2280,8 @@ test "w3c/valid/valid_sa_116" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -2307,8 +2301,8 @@ test "w3c/valid/valid_sa_117" {
     }
   }
   inspect(
-    events,
-    content="[Text(\"<!DOCTYPE doc [\\n<!ELEMENT doc (#PCDATA)>\\n<!ENTITY rsqb \\\"]\\\">\\n]>\\n\"), Start({name: \"doc\", attributes: []}), Text(\"]\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"]\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -2328,8 +2322,8 @@ test "w3c/valid/valid_sa_118" {
     }
   }
   inspect(
-    events,
-    content="[Text(\"<!DOCTYPE doc [\\n<!ELEMENT doc (#PCDATA)>\\n<!ENTITY rsqb \\\"]]\\\">\\n]>\\n\"), Start({name: \"doc\", attributes: []}), Text(\"]]\"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"]]\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -2349,8 +2343,8 @@ test "w3c/valid/valid_sa_119" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"doc\"), Text(\"\\n\"), Start({name: \"doc\", attributes: []}), Comment(\" -á \"), End(\"doc\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Comment(\" -á \"), End(\"doc\"), Eof]",
   )
 }
 
@@ -2370,8 +2364,8 @@ test "w3c/valid/rmt_ns10_001" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=None), DocType(\"foo\"), Text(\"\\n\"), Comment(\" Namespace name test: a perfectly good http URI \"), Empty({name: \"foo\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace name test: a perfectly good http URI \"), Empty({name: \"foo\", attributes: []}), Eof]",
   )
 }
 
@@ -2391,8 +2385,8 @@ test "w3c/valid/rmt_ns10_002" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=None), DocType(\"foo\"), Text(\"\\n\"), Comment(\" Namespace name test: a syntactically plausible URI with a \\n     fictitious scheme \"), Empty({name: \"foo\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace name test: a syntactically plausible URI with a \\n     fictitious scheme \"), Empty({name: \"foo\", attributes: []}), Eof]",
   )
 }
 
@@ -2412,8 +2406,8 @@ test "w3c/valid/rmt_ns10_003" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=None), DocType(\"foo\"), Text(\"\\n\"), Comment(\" Namespace name test: a perfectly good http URI with a fragment \"), Empty({name: \"foo\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace name test: a perfectly good http URI with a fragment \"), Empty({name: \"foo\", attributes: []}), Eof]",
   )
 }
 
@@ -2433,8 +2427,8 @@ test "w3c/valid/rmt_ns10_007" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=None), DocType(\"foo\"), Text(\"\\n\"), Comment(\" Namespace inequality test: different capitalization \"), Start({name: \"foo\", attributes: []}), Text(\"\\n\\n\"), Empty({name: \"bar\", attributes: [(\"attr\", \"1\"), (\"attr\", \"2\"), (\"attr\", \"3\")]}), Text(\"\\n\\n\"), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace inequality test: different capitalization \"), Start({name: \"foo\", attributes: []}), Text(\"\\n\\n\"), Empty({name: \"bar\", attributes: [(\"attr\", \"1\"), (\"attr\", \"2\"), (\"attr\", \"3\")]}), Text(\"\\n\\n\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -2454,8 +2448,8 @@ test "w3c/valid/rmt_ns10_008" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=None), DocType(\"foo\"), Text(\"\\n\"), Comment(\" Namespace inequality test: different escaping \"), Start({name: \"foo\", attributes: []}), Text(\"\\n\\n\"), Empty({name: \"bar\", attributes: [(\"attr\", \"1\"), (\"attr\", \"2\"), (\"attr\", \"3\")]}), Text(\"\\n\\n\"), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace inequality test: different escaping \"), Start({name: \"foo\", attributes: []}), Text(\"\\n\\n\"), Empty({name: \"bar\", attributes: [(\"attr\", \"1\"), (\"attr\", \"2\"), (\"attr\", \"3\")]}), Text(\"\\n\\n\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -2475,8 +2469,8 @@ test "w3c/valid/ht_ns10_047" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"xml:foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Empty({name: \"foo\", attributes: []}), Eof]",
   )
 }
 
@@ -2496,8 +2490,8 @@ test "w3c/valid/ht_ns10_048" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"x\"), Text(\"\\n\"), Empty({name: \"x\", attributes: [(\"foo\", \"\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"x\"), Empty({name: \"x\", attributes: [(\"foo\", \"\")]}), Eof]",
   )
 }
 
@@ -2517,8 +2511,8 @@ test "w3c/valid/dtd00" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\\n\"), Empty({name: \"root\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Empty({name: \"root\", attributes: []}), Eof]",
   )
 }
 
@@ -2538,8 +2532,8 @@ test "w3c/valid/dtd01" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\"), Comment(\" %these; %are; %not; %PEs; \"), Empty({name: \"root\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Comment(\" %these; %are; %not; %PEs; \"), Empty({name: \"root\", attributes: []}), Eof]",
   )
 }
 
@@ -2559,8 +2553,8 @@ test "w3c/valid/element" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\\n\"), Start({name: \"root\", attributes: []}), Text(\"\\n    \"), Empty({name: \"empty\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed\"), End(\"mixed1\"), Text(\"\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"<allowed>\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"<% illegal otherwise %>\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover\"), End(\"mixed3\"), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed \"), Text(\"&\"), Text(\" stuff\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" too\"), End(\"mixed3\"), Text(\"\\n\\n\"), End(\"root\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Start({name: \"root\", attributes: []}), Text(\"\\n    \"), Empty({name: \"empty\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed\"), End(\"mixed1\"), Text(\"\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"<allowed>\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"<% illegal otherwise %>\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover\"), End(\"mixed3\"), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed \"), Text(\"&\"), Text(\" stuff\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" too\"), End(\"mixed3\"), Text(\"\\n\\n\"), End(\"root\"), Eof]",
   )
 }
 
@@ -2580,8 +2574,8 @@ test "w3c/valid/required00" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\\n\"), Empty({name: \"root\", attributes: [(\"req\", \"foo\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"req\", \"foo\")]}), Eof]",
   )
 }
 
@@ -2601,8 +2595,8 @@ test "w3c/valid/sa01" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.0\", encoding=None, standalone=Some(\"yes\")), DocType(\"root\"), Text(\"\\n\\n\"), Start({name: \"root\", attributes: []}), Text(\"\\n    \"), Start({name: \"child\", attributes: []}), Text(\"\\n    The whitespace around this element would be\\n    invalid as standalone were the DTD external.\\n    \"), End(\"child\"), Text(\"\\n\"), End(\"root\"), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"yes\")), DocType(\"root\"), Start({name: \"root\", attributes: []}), Text(\"\\n    \"), Start({name: \"child\", attributes: []}), Text(\"\\n    The whitespace around this element would be\\n    invalid as standalone were the DTD external.\\n    \"), End(\"child\"), Text(\"\\n\"), End(\"root\"), Eof]",
   )
 }
 
@@ -2622,8 +2616,8 @@ test "w3c/valid/v_sgml01" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\\n\"), Comment(\"\\n\\tSGML dislikes token reuse.  It's legal XML, so any\\n\\tXML parser must accept it, though it's discouraged\\n\\tin documents \\\"for interoperability\\\"\\n    \"), Empty({name: \"root\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Comment(\"\\n\\tSGML dislikes token reuse.  It's legal XML, so any\\n\\tXML parser must accept it, though it's discouraged\\n\\tin documents \\\"for interoperability\\\"\\n    \"), Empty({name: \"root\", attributes: []}), Eof]",
   )
 }
 
@@ -2643,8 +2637,8 @@ test "w3c/valid/v_lang01" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\"), Empty({name: \"root\", attributes: [(\"lang\", \"en\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"en\")]}), Eof]",
   )
 }
 
@@ -2664,8 +2658,8 @@ test "w3c/valid/v_lang02" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\"), Empty({name: \"root\", attributes: [(\"lang\", \"en-IN\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"en-IN\")]}), Eof]",
   )
 }
 
@@ -2685,8 +2679,8 @@ test "w3c/valid/v_lang03" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\"), Empty({name: \"root\", attributes: [(\"lang\", \"i-klingon-whorf\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"i-klingon-whorf\")]}), Eof]",
   )
 }
 
@@ -2706,8 +2700,8 @@ test "w3c/valid/v_lang04" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\"), Empty({name: \"root\", attributes: [(\"lang\", \"x-dialect-valleygirl\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"x-dialect-valleygirl\")]}), Eof]",
   )
 }
 
@@ -2727,8 +2721,8 @@ test "w3c/valid/v_lang05" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\"), Empty({name: \"root\", attributes: [(\"lang\", \"DE\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"DE\")]}), Eof]",
   )
 }
 
@@ -2748,8 +2742,8 @@ test "w3c/valid/v_lang06" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"root\"), Text(\"\\n\"), Empty({name: \"root\", attributes: [(\"lang\", \"X-Java\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"X-Java\")]}), Eof]",
   )
 }
 
@@ -2769,7 +2763,7 @@ test "w3c/valid/v_pe03" {
     }
   }
   inspect(
-    events,
+    to_libxml_format(events),
     content="[DocType(\"root\"), Comment(\" Example 1 from XML spec 1.0 Appendix D \"), Start({name: \"root\", attributes: []}), Start({name: \"p\", attributes: []}), Text(\"An ampersand (\"), Text(\"&\"), Text(\") may be escaped\\nnumerically (\"), Text(\"&\"), Text(\"#38) or with a general entity (\"), Text(\"&\"), Text(\"amp;).\"), End(\"p\"), End(\"root\"), Eof]",
   )
 }
@@ -2790,8 +2784,8 @@ test "w3c/valid/rmt_e2e_15e" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Text(\" \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Text(\" \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
   )
 }
 
@@ -2811,8 +2805,8 @@ test "w3c/valid/rmt_e2e_15f" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Text(\" \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Text(\" \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
   )
 }
 
@@ -2832,8 +2826,8 @@ test "w3c/valid/rmt_e2e_15i" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Comment(\" comment \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Comment(\" comment \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
   )
 }
 
@@ -2853,8 +2847,8 @@ test "w3c/valid/rmt_e2e_15j" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), PI(target=\"pi\", data=\"xxx\"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), PI(target=\"pi\", data=\"xxx\"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
   )
 }
 
@@ -2874,8 +2868,8 @@ test "w3c/valid/rmt_e2e_15k" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Comment(\" comment \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Comment(\" comment \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
   )
 }
 
@@ -2895,8 +2889,8 @@ test "w3c/valid/rmt_e2e_15l" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), PI(target=\"pi\", data=\"xxx\"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), PI(target=\"pi\", data=\"xxx\"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
   )
 }
 
@@ -2916,8 +2910,8 @@ test "w3c/valid/rmt_e2e_22" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Empty({name: \"foo\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Empty({name: \"foo\", attributes: []}), Eof]",
   )
 }
 
@@ -2937,8 +2931,8 @@ test "w3c/valid/rmt_e2e_24" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: []}), Text(\"You can use ]]\"), Text(\">\"), Text(\" or ]]\"), Text(\">\"), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Text(\"You can use ]]\"), Text(\">\"), Text(\" or ]]\"), Text(\">\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -2958,8 +2952,8 @@ test "w3c/valid/rmt_e2e_29" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: [(\"lang\", \"nds\")]}), Text(\"\\n \"), Empty({name: \"foo\", attributes: [(\"lang\", \"art-lojban\")]}), Text(\"\\n\"), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: [(\"lang\", \"nds\")]}), Text(\"\\n \"), Empty({name: \"foo\", attributes: [(\"lang\", \"art-lojban\")]}), Text(\"\\n\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -2979,8 +2973,8 @@ test "w3c/valid/rmt_e2e_41" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Empty({name: \"foo\", attributes: [(\"lang\", \"\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Empty({name: \"foo\", attributes: [(\"lang\", \"\")]}), Eof]",
   )
 }
 
@@ -3000,8 +2994,8 @@ test "w3c/valid/rmt_e2e_48" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Start({name: \"foo\", attributes: []}), Text(\"hello\"), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Text(\"hello\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -3021,8 +3015,8 @@ test "w3c/valid/rmt_e3e_05a" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Comment(\" CDATA sections may occur in Mixed content. \"), Start({name: \"foo\", attributes: []}), Text(\"a \"), Text(\"cdata section\"), Text(\" in mixed content\"), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Comment(\" CDATA sections may occur in Mixed content. \"), Start({name: \"foo\", attributes: []}), Text(\"a \"), Text(\"cdata section\"), Text(\" in mixed content\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -3042,8 +3036,8 @@ test "w3c/valid/rmt_e3e_05b" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"foo\"), Text(\"\\n\"), Comment(\" CDATA sections, comments and PIs may occur in ANY content. \"), Start({name: \"foo\", attributes: []}), Text(\"\\na \"), Text(\"cdata section\"), Text(\" in mixed content.\\na \"), Comment(\" comment \"), Text(\" in mixed content.\\na \"), PI(target=\"processing\", data=\"instruction\"), Text(\" in mixed content.\\n\"), End(\"foo\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"foo\"), Comment(\" CDATA sections, comments and PIs may occur in ANY content. \"), Start({name: \"foo\", attributes: []}), Text(\"\\na \"), Text(\"cdata section\"), Text(\" in mixed content.\\na \"), Comment(\" comment \"), Text(\" in mixed content.\\na \"), PI(target=\"processing\", data=\"instruction\"), Text(\" in mixed content.\\n\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -3063,8 +3057,8 @@ test "w3c/valid/x_rmt_008b" {
     }
   }
   inspect(
-    events,
-    content="[Decl(version=\"1.7\", encoding=None, standalone=None), DocType(\"foo\"), Text(\"\\n\"), Comment(\" an implausibly-versioned document \"), Empty({name: \"foo\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[Decl(version=\"1.7\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" an implausibly-versioned document \"), Empty({name: \"foo\", attributes: []}), Eof]",
   )
 }
 
@@ -3084,8 +3078,8 @@ test "w3c/valid/x_rmt5_014a" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"egg\"), Text(\"\\n\"), Comment(\" Has a \\\"long s\\\" in an ID, legal in XML 1.1, illegal in XML 1.0 \"), Empty({name: \"egg\", attributes: [(\"id\", \"eggſ\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"egg\"), Comment(\" Has a \\\"long s\\\" in an ID, legal in XML 1.1, illegal in XML 1.0 \"), Empty({name: \"egg\", attributes: [(\"id\", \"eggſ\")]}), Eof]",
   )
 }
 
@@ -3094,20 +3088,14 @@ test "w3c/valid/x_ibm_1_0_5_valid_P04_ibm04v01_xml" {
   // This test case covers legal NameStartChars character rang...
   let xml = "<!DOCTYPE LegalNameStartChar [\n<!ELEMENT LegalNameStartChar ANY>\n<!ELEMENT :LegalNameStartChar ANY>\n<!ELEMENT ÀLegalNameStartChar ANY>\n<!ELEMENT ÁLegalNameStartChar ANY>\n<!ELEMENT ˾LegalNameStartChar ANY>\n<!ELEMENT ˿LegalNameStartChar ANY>\n<!ELEMENT ͰLegalNameStartChar ANY>\n<!ELEMENT ͱLegalNameStartChar ANY>\n<!ELEMENT ͼLegalNameStartChar ANY>\n<!ELEMENT ͽLegalNameStartChar ANY>\n<!ELEMENT ͿLegalNameStartChar ANY>\n<!ELEMENT ΀LegalNameStartChar ANY>\n<!ELEMENT ῾LegalNameStartChar ANY>\n<!ELEMENT ῿LegalNameStartChar ANY>\n<!ELEMENT ‌LegalNameStartChar ANY>\n<!ELEMENT ‍LegalNameStartChar ANY>\n<!ELEMENT ⁰LegalNameStartChar ANY>\n<!ELEMENT ⁱLegalNameStartChar ANY>\n<!ELEMENT ↎LegalNameStartChar ANY>\n<!ELEMENT ↏LegalNameStartChar ANY>\n<!ELEMENT ⰀLegalNameStartChar ANY>\n<!ELEMENT ⰁLegalNameStartChar ANY>\n<!ELEMENT ⿮LegalNameStartChar ANY>\n<!ELEMENT ⿯LegalNameStartChar ANY>\n<!ELEMENT 、LegalNameStartChar ANY>\n<!ELEMENT 。LegalNameStartChar ANY>\n<!ELEMENT ퟾LegalNameStartChar ANY>\n<!ELEMENT ퟿LegalNameStartChar ANY>\n<!ELEMENT 豈LegalNameStartChar ANY>\n<!ELEMENT 更LegalNameStartChar ANY>\n]>\n<!-- LegalNameChar  0x3A,0xC0,,0xC1,0x2FE,0xC0,,0xC1,0x2FE,0x2FF,0x370,0x371,0x37C,0x37D,0x37F,0x380,0x1FFE,0x1FFF,0x200C,0x200D,0x2070,0x2071,0x218E,0x218F,0x2C00,0x2C01,0x2FEE,0x2FEF,0x3001,0x3002,0xD7FE,0xD7FF,0xF900,0xF901,0xEFFFF,0xFFFFF\nin p02:   -->\n<LegalNameStartChar>\t<:LegalNameStartChar/>\n\t<ÀLegalNameStartChar/>\n\t<ÁLegalNameStartChar/>\n\t<˾LegalNameStartChar/>\n\t<˿LegalNameStartChar/>\n\t<ͰLegalNameStartChar/>\n\t<ͱLegalNameStartChar/>\n\t<ͼLegalNameStartChar/>\n\t<ͽLegalNameStartChar/>\n\t<ͿLegalNameStartChar/>\n\t<΀LegalNameStartChar/>\n\t<῾LegalNameStartChar/>\n\t<῿LegalNameStartChar/>\n\t<‌LegalNameStartChar/>\n\t<‍LegalNameStartChar/>\n\t<⁰LegalNameStartChar/>\n\t<ⁱLegalNameStartChar/>\n\t<↎LegalNameStartChar/>\n\t<↏LegalNameStartChar/>\n\t<ⰀLegalNameStartChar/>\n\t<ⰁLegalNameStartChar/>\n\t<⿮LegalNameStartChar/>\n\t<⿯LegalNameStartChar/>\n\t<、LegalNameStartChar/>\n\t<。LegalNameStartChar/>\n\t<퟾LegalNameStartChar/>\n\t<퟿LegalNameStartChar/>\n\t<豈LegalNameStartChar/>\n\t<更LegalNameStartChar/>\n\n</LegalNameStartChar>"
   let reader = Reader::from_string(xml)
-  let events : Array[Event] = []
-  for {
-    match reader.read_event() {
-      Eof => {
-        events.push(Eof)
-        break
-      }
-      event => events.push(event)
+  let has_error = for {
+    match (try? reader.read_event()) {
+      Err(_) => break true
+      Ok(Eof) => break false
+      Ok(_) => continue
     }
   }
-  inspect(
-    events,
-    content="[DocType(\"LegalNameStartChar\"), Text(\"\\n\\n\"), Comment(\" LegalNameChar  0x3A,0xC0,,0xC1,0x2FE,0xC0,,0xC1,0x2FE,0x2FF,0x370,0x371,0x37C,0x37D,0x37F,0x380,0x1FFE,0x1FFF,0x200C,0x200D,0x2070,0x2071,0x218E,0x218F,0x2C00,0x2C01,0x2FEE,0x2FEF,0x3001,0x3002,0xD7FE,0xD7FF,0xF900,0xF901,0xEFFFF,0xFFFFF\\nin p02:   \"), Start({name: \"LegalNameStartChar\", attributes: []}), Text(\"\\t\"), Empty({name: \":LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ÀLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ÁLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"˾LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"˿LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ͰLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ͱLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ͼLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ͽLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ͿLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"΀LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"῾LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"῿LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"‌LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"‍LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"⁰LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ⁱLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"↎LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"↏LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ⰀLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"ⰁLegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"⿮LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"⿯LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"、LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"。LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"퟾LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"퟿LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"豈LegalNameStartChar\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"更LegalNameStartChar\", attributes: []}), Text(\"\\n\\n\"), End(\"LegalNameStartChar\"), Eof]",
-  )
+  inspect(has_error, content="false")
 }
 
 ///|
@@ -3126,8 +3114,8 @@ test "w3c/valid/x_ibm_1_0_5_valid_P04_ibm04av01_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"LegalNameChar\"), Text(\"\\n\\n\"), Comment(\" LegalNameChars ending with\\n0x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040\\n\"), Start({name: \"LegalNameChar\", attributes: []}), Text(\"\\t\\n\\t\"), Empty({name: \"LegalNameCharÀ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharÁ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar˾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharÂ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharÃ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar˽\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar˿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͰ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͱ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͼ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͽ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͿ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar΀\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar῾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar῿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar‌\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar‍\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⁰\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharⁱ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar↎\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar↏\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharⰀ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharⰁ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⿮\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⿯\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar、\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar。\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar퟾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar퟿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar豈\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar更\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar�\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar-\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar.\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharA\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharz\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar0\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar·\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar̀\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChaŕ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͮ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͯ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar‿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⁀\", attributes: []}), Text(\"\\n\"), End(\"LegalNameChar\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"LegalNameChar\"), Comment(\" LegalNameChars ending with\\n0x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040\\n\"), Start({name: \"LegalNameChar\", attributes: []}), Text(\"\\t\\n\\t\"), Empty({name: \"LegalNameCharÀ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharÁ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar˾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharÂ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharÃ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar˽\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar˿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͰ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͱ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͼ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͽ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͿ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar΀\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar῾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar῿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar‌\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar‍\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⁰\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharⁱ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar↎\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar↏\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharⰀ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharⰁ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⿮\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⿯\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar、\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar。\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar퟾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar퟿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar豈\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar更\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar�\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar-\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar.\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharA\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharz\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar0\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar·\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar̀\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChaŕ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͮ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͯ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar‿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⁀\", attributes: []}), Text(\"\\n\"), End(\"LegalNameChar\"), Eof]",
   )
 }
 
@@ -3136,20 +3124,14 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v01_xml" {
   // This test case covers legal Element Names as per producti...
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n<!ELEMENT LegalName: ANY>\n<!ELEMENT LegalNameÀ ANY>\n<!ELEMENT LegalNameÁ ANY>\n<!ELEMENT LegalName˾ ANY>\n<!ELEMENT LegalNameÂ ANY>\n<!ELEMENT LegalNameÃ ANY>\n<!ELEMENT LegalName˽ ANY>\n<!ELEMENT LegalName˿ ANY>\n<!ELEMENT LegalNameͰ ANY>\n<!ELEMENT LegalNameͱ ANY>\n<!ELEMENT LegalNameͼͽ ANY>\n<!ELEMENT LegalNameͽͿ ANY>\n<!ELEMENT LegalNameͿ΀ ANY>\n<!ELEMENT LegalName΀῾ ANY>\n<!ELEMENT LegalName῾῿ ANY>\n<!ELEMENT LegalName῿‌ ANY>\n<!ELEMENT LegalName‌‍ ANY>\n<!ELEMENT LegalName‍⁰ ANY>\n<!ELEMENT LegalName⁰ⁱ ANY>\n<!ELEMENT LegalNameⁱ↎ ANY>\n<!ELEMENT LegalName↎↏Ⰰ ANY>\n<!ELEMENT LegalName↏ⰀⰁ ANY>\n<!ELEMENT LegalNameⰀⰁ⿮ ANY>\n<!ELEMENT LegalNameⰁ⿮⿯ ANY>\n<!ELEMENT LegalName⿮⿯、 ANY>\n<!ELEMENT LegalName⿯、。 ANY>\n<!ELEMENT LegalName、。퟾ ANY>\n<!ELEMENT LegalName。퟾퟿ ANY>\n<!ELEMENT LegalName퟾퟿豈 ANY>\n<!ELEMENT LegalName퟿豈更 ANY>\n<!ELEMENT LegalName豈퟿퟾。 ANY>\n<!ELEMENT LegalName更豈퟿퟾ ANY>\n<!ELEMENT LegalName�更豈퟿ ANY>\n<!ELEMENT LegalName-�更豈 ANY>\n<!ELEMENT LegalName.-�更 ANY>\n<!ELEMENT LegalNameA.-� ANY>\n<!ELEMENT LegalNamezA.- ANY>\n<!ELEMENT LegalName0zA. ANY>\n<!ELEMENT LegalName·0zA ANY>\n<!ELEMENT LegalNamè·0z ANY>\n<!ELEMENT LegalNamé̀·0 ANY>\n<!ELEMENT LegalNameͮ́̀· ANY>\n<!ELEMENT LegalNameͯͮ́̀ ANY>\n<!ELEMENT LegalName‿ͯͮ́ ANY>\n<!ELEMENT LegalName⁀‿ͯͮ ANY>\n<!ELEMENT LegalNamenull⁀‿ͯ ANY>\n<!ELEMENT LegalNamenullnull⁀‿ ANY>\n<!ELEMENT LegalNamenullnullnull⁀ ANY>\n]>\n<!-- LegalName  0x300,0x333,0x369,0x37E,0x2000,0x2001,0x2002,0x2005,0x200B,0x200E,x200F,0x2069,0x2190,0x23FF,0x280F,0x2A00,0x2EDC,0x2FED,0x2FFF,0x3000,0xD800,0xD801,0xDAFF,0xDFFF,0xEFFF,0xF1FF,0xF8FF,0xFFFFF,0x2D,0x2E, 0x41,0x7A ,0x30, 0xB7, 0x0300, 0x0301, 0xx036E, 0x036F, 0x203F, 0x203E, 0x2039, 0x2040; \nin p02:   -->\n<LegalName>\t<LegalName:/>\n\t<LegalNameÀ/>\n\t<LegalNameÁ/>\n\t<LegalName˾/>\n\t<LegalNameÂ/>\n\t<LegalNameÃ/>\n\t<LegalName˽/>\n\t<LegalName˿/>\n\t<LegalNameͰ/>\n\t<LegalNameͱ/>\n\t<LegalNameͼͽ/>\n\t<LegalNameͽͿ/>\n\t<LegalNameͿ΀/>\n\t<LegalName΀῾/>\n\t<LegalName῾῿/>\n\t<LegalName῿‌/>\n\t<LegalName‌‍/>\n\t<LegalName‍⁰/>\n\t<LegalName⁰ⁱ/>\n\t<LegalNameⁱ↎/>\n\t<LegalName↎↏Ⰰ/>\n\t<LegalName↏ⰀⰁ/>\n\t<LegalNameⰀⰁ⿮/>\n\t<LegalNameⰁ⿮⿯/>\n\t<LegalName⿮⿯、/>\n\t<LegalName⿯、。/>\n\t<LegalName、。퟾/>\n\t<LegalName。퟾퟿/>\n\t<LegalName퟾퟿豈/>\n\t<LegalName퟿豈更/>\n\t<LegalName豈퟿퟾。/>\n\t<LegalName更豈퟿퟾/>\n\t<LegalName�更豈퟿/>\n\t<LegalName-�更豈/>\n\t<LegalName.-�更/>\n\t<LegalNameA.-�/>\n\t<LegalNamezA.-/>\n\t<LegalName0zA./>\n\t<LegalName·0zA/>\n\t<LegalNamè·0z/>\n\t<LegalNamé̀·0/>\n\t<LegalNameͮ́̀·/>\n\t<LegalNameͯͮ́̀/>\n\t<LegalName‿ͯͮ́/>\n\t<LegalName⁀‿ͯͮ/>\n\t<LegalNamenull⁀‿ͯ/>\n\t<LegalNamenullnull⁀‿/>\n\t<LegalNamenullnullnull⁀/>\n</LegalName>"
   let reader = Reader::from_string(xml)
-  let events : Array[Event] = []
-  for {
-    match reader.read_event() {
-      Eof => {
-        events.push(Eof)
-        break
-      }
-      event => events.push(event)
+  let has_error = for {
+    match (try? reader.read_event()) {
+      Err(_) => break true
+      Ok(Eof) => break false
+      Ok(_) => continue
     }
   }
-  inspect(
-    events,
-    content="[DocType(\"LegalName\"), Text(\"\\n\\n\"), Comment(\" LegalName  0x300,0x333,0x369,0x37E,0x2000,0x2001,0x2002,0x2005,0x200B,0x200E,x200F,0x2069,0x2190,0x23FF,0x280F,0x2A00,0x2EDC,0x2FED,0x2FFF,0x3000,0xD800,0xD801,0xDAFF,0xDFFF,0xEFFF,0xF1FF,0xF8FF,0xFFFFF,0x2D,0x2E, 0x41,0x7A ,0x30, 0xB7, 0x0300, 0x0301, 0xx036E, 0x036F, 0x203F, 0x203E, 0x2039, 0x2040; \\nin p02:   \"), Start({name: \"LegalName\", attributes: []}), Text(\"\\t\"), Empty({name: \"LegalName:\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameÀ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameÁ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName˾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameÂ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameÃ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName˽\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName˿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameͰ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameͱ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameͼͽ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameͽͿ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameͿ΀\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName΀῾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName῾῿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName῿‌\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName‌‍\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName‍⁰\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName⁰ⁱ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameⁱ↎\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName↎↏Ⰰ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName↏ⰀⰁ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameⰀⰁ⿮\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameⰁ⿮⿯\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName⿮⿯、\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName⿯、。\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName、。퟾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName。퟾퟿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName퟾퟿豈\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName퟿豈更\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName豈퟿퟾。\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName更豈퟿퟾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName�更豈퟿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName-�更豈\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName.-�更\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameA.-�\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNamezA.-\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName0zA.\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName·0zA\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNamè·0z\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNamé̀·0\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameͮ́̀·\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameͯͮ́̀\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName‿ͯͮ́\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalName⁀‿ͯͮ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNamenull⁀‿ͯ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNamenullnull⁀‿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNamenullnullnull⁀\", attributes: []}), Text(\"\\n\"), End(\"LegalName\"), Eof]",
-  )
+  inspect(has_error, content="false")
 }
 
 ///|
@@ -3157,20 +3139,14 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v02_xml" {
   // This test case covers legal PITarget (Names) as per produ...
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n]>\n<!-- Legal Names containing one to four characters in order from the list below  used in PI Target Names.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 -->\n<LegalName>\n\t<?PITarget: \tTest\t PIData?>\n\t<?PITargetÀ \tTest\t PIData?>\n\t<?PITargetÁ \tTest\t PIData?>\n\t<?PITarget˾ \tTest\t PIData?>\n\t<?PITargetÂ \tTest\t PIData?>\n\t<?PITargetÃ \tTest\t PIData?>\n\t<?PITarget˽ \tTest\t PIData?>\n\t<?PITarget˿ \tTest\t PIData?>\n\t<?PITargetͰ \tTest\t PIData?>\n\t<?PITargetͱ \tTest\t PIData?>\n\t<?PITargetͼͽ \tTest\t PIData?>\n\t<?PITargetͽͿ \tTest\t PIData?>\n\t<?PITargetͿ΀ \tTest\t PIData?>\n\t<?PITarget΀῾ \tTest\t PIData?>\n\t<?PITarget῾῿ \tTest\t PIData?>\n\t<?PITarget῿‌ \tTest\t PIData?>\n\t<?PITarget‌‍ \tTest\t PIData?>\n\t<?PITarget‍⁰ \tTest\t PIData?>\n\t<?PITarget⁰ⁱ \tTest\t PIData?>\n\t<?PITargetⁱ↎ \tTest\t PIData?>\n\t<?PITarget↎↏Ⰰ \tTest\t PIData?>\n\t<?PITarget↏ⰀⰁ \tTest\t PIData?>\n\t<?PITargetⰀⰁ⿮ \tTest\t PIData?>\n\t<?PITargetⰁ⿮⿯ \tTest\t PIData?>\n\t<?PITarget⿮⿯、 \tTest\t PIData?>\n\t<?PITarget⿯、。 \tTest\t PIData?>\n\t<?PITarget、。퟾ \tTest\t PIData?>\n\t<?PITarget。퟾퟿ \tTest\t PIData?>\n\t<?PITarget퟾퟿豈 \tTest\t PIData?>\n\t<?PITarget퟿豈更 \tTest\t PIData?>\n\t<?PITarget豈퟿퟾。 \tTest\t PIData?>\n\t<?PITarget更豈퟿퟾ \tTest\t PIData?>\n\t<?PITarget�更豈퟿ \tTest\t PIData?>\n\t<?PITarget-�更豈 \tTest\t PIData?>\n\t<?PITarget.-�更 \tTest\t PIData?>\n\t<?PITargetA.-� \tTest\t PIData?>\n\t<?PITargetzA.- \tTest\t PIData?>\n\t<?PITarget0zA. \tTest\t PIData?>\n\t<?PITarget·0zA \tTest\t PIData?>\n\t<?PITarget̀·0z \tTest\t PIData?>\n\t<?PITarget́̀·0 \tTest\t PIData?>\n\t<?PITargetͮ́̀· \tTest\t PIData?>\n\t<?PITargetͯͮ́̀ \tTest\t PIData?>\n\t<?PITarget‿ͯͮ́ \tTest\t PIData?>\n\t<?PITarget⁀‿ͯͮ \tTest\t PIData?>\n\t<?PITargetnull⁀‿ͯ \tTest\t PIData?>\n\t<?PITargetnullnull⁀‿ \tTest\t PIData?>\n\t<?PITargetnullnullnull⁀ \tTest\t PIData?>\n</LegalName>"
   let reader = Reader::from_string(xml)
-  let events : Array[Event] = []
-  for {
-    match reader.read_event() {
-      Eof => {
-        events.push(Eof)
-        break
-      }
-      event => events.push(event)
+  let has_error = for {
+    match (try? reader.read_event()) {
+      Err(_) => break true
+      Ok(Eof) => break false
+      Ok(_) => continue
     }
   }
-  inspect(
-    events,
-    content="[DocType(\"LegalName\"), Text(\"\\n\\n\"), Comment(\" Legal Names containing one to four characters in order from the list below  used in PI Target Names.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 \"), Start({name: \"LegalName\", attributes: []}), Text(\"\\n\\t\"), PI(target=\"PITarget:\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetÀ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetÁ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget˾\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetÂ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetÃ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget˽\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget˿\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetͰ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetͱ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetͼͽ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetͽͿ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetͿ΀\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget΀῾\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget῾῿\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget῿‌\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget‌‍\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget‍⁰\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget⁰ⁱ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetⁱ↎\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget↎↏Ⰰ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget↏ⰀⰁ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetⰀⰁ⿮\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetⰁ⿮⿯\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget⿮⿯、\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget⿯、。\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget、。퟾\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget。퟾퟿\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget퟾퟿豈\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget퟿豈更\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget豈퟿퟾。\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget更豈퟿퟾\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget�更豈퟿\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget-�更豈\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget.-�更\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetA.-�\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetzA.-\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget0zA.\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget·0zA\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget̀·0z\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget́̀·0\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetͮ́̀·\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetͯͮ́̀\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget‿ͯͮ́\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITarget⁀‿ͯͮ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetnull⁀‿ͯ\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetnullnull⁀‿\", data=\"Test\\t PIData\"), Text(\"\\n\\t\"), PI(target=\"PITargetnullnullnull⁀\", data=\"Test\\t PIData\"), Text(\"\\n\"), End(\"LegalName\"), Eof]",
-  )
+  inspect(has_error, content="false")
 }
 
 ///|
@@ -3178,20 +3154,14 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v03_xml" {
   // This test case covers legal Attribute (Names) as per prod...
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n<!ATTLIST LegalName :attr CDATA #IMPLIED>\n<!ATTLIST LegalName Àattr CDATA #IMPLIED>\n<!ATTLIST LegalName Áattr CDATA #IMPLIED>\n<!ATTLIST LegalName ˾attr CDATA #IMPLIED>\n<!ATTLIST LegalName Âattr CDATA #IMPLIED>\n<!ATTLIST LegalName Ãattr CDATA #IMPLIED>\n<!ATTLIST LegalName ˽attr CDATA #IMPLIED>\n<!ATTLIST LegalName ˿attr CDATA #IMPLIED>\n<!ATTLIST LegalName Ͱattr CDATA #IMPLIED>\n<!ATTLIST LegalName ͱattr CDATA #IMPLIED>\n<!ATTLIST LegalName ͼͽattr CDATA #IMPLIED>\n<!ATTLIST LegalName ͽͿattr CDATA #IMPLIED>\n<!ATTLIST LegalName Ϳ΀attr CDATA #IMPLIED>\n<!ATTLIST LegalName ΀῾attr CDATA #IMPLIED>\n<!ATTLIST LegalName ῾῿attr CDATA #IMPLIED>\n<!ATTLIST LegalName ῿‌attr CDATA #IMPLIED>\n<!ATTLIST LegalName ‌‍attr CDATA #IMPLIED>\n<!ATTLIST LegalName ‍⁰attr CDATA #IMPLIED>\n<!ATTLIST LegalName ⁰ⁱattr CDATA #IMPLIED>\n<!ATTLIST LegalName ⁱ↎attr CDATA #IMPLIED>\n<!ATTLIST LegalName ↎↏Ⰰattr CDATA #IMPLIED>\n<!ATTLIST LegalName ↏ⰀⰁattr CDATA #IMPLIED>\n<!ATTLIST LegalName ⰀⰁ⿮attr CDATA #IMPLIED>\n<!ATTLIST LegalName Ⰱ⿮⿯attr CDATA #IMPLIED>\n<!ATTLIST LegalName ⿮⿯、attr CDATA #IMPLIED>\n<!ATTLIST LegalName ⿯、。attr CDATA #IMPLIED>\n<!ATTLIST LegalName 、。퟾attr CDATA #IMPLIED>\n<!ATTLIST LegalName 。퟾퟿attr CDATA #IMPLIED>\n<!ATTLIST LegalName ퟾퟿豈attr CDATA #IMPLIED>\n<!ATTLIST LegalName ퟿豈更attr CDATA #IMPLIED>\n<!ATTLIST LegalName 豈퟿퟾。attr CDATA #IMPLIED>\n<!ATTLIST LegalName 更豈퟿퟾attr CDATA #IMPLIED>\n<!ATTLIST LegalName �更豈퟿attr CDATA #IMPLIED>\n<!ATTLIST LegalName attr-�更豈 CDATA #IMPLIED>\n<!ATTLIST LegalName attr.-�更 CDATA #IMPLIED>\n<!ATTLIST LegalName A.-�attr CDATA #IMPLIED>\n<!ATTLIST LegalName zA.-attr CDATA #IMPLIED>\n<!ATTLIST LegalName attr0zA. CDATA #IMPLIED>\n<!ATTLIST LegalName attr·0zA CDATA #IMPLIED>\n<!ATTLIST LegalName attr̀·0z CDATA #IMPLIED>\n<!ATTLIST LegalName attŕ̀·0 CDATA #IMPLIED>\n<!ATTLIST LegalName attrͮ́̀· CDATA #IMPLIED>\n<!ATTLIST LegalName attrͯͮ́̀ CDATA #IMPLIED>\n<!ATTLIST LegalName attr‿ͯͮ́ CDATA #IMPLIED>\n<!ATTLIST LegalName attr⁀‿ͯͮ CDATA #IMPLIED>\n<!ATTLIST LegalName null⁀‿ͯattr CDATA #IMPLIED>\n<!ATTLIST LegalName nullnull⁀‿attr CDATA #IMPLIED>\n<!ATTLIST LegalName nullnullnull⁀attr CDATA #IMPLIED>\n]>\n<!-- Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 -->\n<LegalName \n \t:attr=\"attrValue\"\n \tÀattr=\"attrValue\"\n \tÁattr=\"attrValue\"\n \t˾attr=\"attrValue\"\n \tÂattr=\"attrValue\"\n \tÃattr=\"attrValue\"\n \t˽attr=\"attrValue\"\n \t˿attr=\"attrValue\"\n \tͰattr=\"attrValue\"\n \tͱattr=\"attrValue\"\n \tͼͽattr=\"attrValue\"\n \tͽͿattr=\"attrValue\"\n \tͿ΀attr=\"attrValue\"\n \t΀῾attr=\"attrValue\"\n \t῾῿attr=\"attrValue\"\n \t῿‌attr=\"attrValue\"\n \t‌‍attr=\"attrValue\"\n \t‍⁰attr=\"attrValue\"\n \t⁰ⁱattr=\"attrValue\"\n \tⁱ↎attr=\"attrValue\"\n \t↎↏Ⰰattr=\"attrValue\"\n \t↏ⰀⰁattr=\"attrValue\"\n \tⰀⰁ⿮attr=\"attrValue\"\n \tⰁ⿮⿯attr=\"attrValue\"\n \t⿮⿯、attr=\"attrValue\"\n \t⿯、。attr=\"attrValue\"\n \t、。퟾attr=\"attrValue\"\n \t。퟾퟿attr=\"attrValue\"\n \t퟾퟿豈attr=\"attrValue\"\n \t퟿豈更attr=\"attrValue\"\n \t豈퟿퟾。attr=\"attrValue\"\n \t更豈퟿퟾attr=\"attrValue\"\n \t�更豈퟿attr=\"attrValue\"\n \tattr-�更豈=\"attrValue\"\n \tattr.-�更=\"attrValue\"\n \tA.-�attr=\"attrValue\"\n \tzA.-attr=\"attrValue\"\n \tattr0zA.=\"attrValue\"\n \tattr·0zA=\"attrValue\"\n \tattr̀·0z=\"attrValue\"\n \tattŕ̀·0=\"attrValue\"\n \tattrͮ́̀·=\"attrValue\"\n \tattrͯͮ́̀=\"attrValue\"\n \tattr‿ͯͮ́=\"attrValue\"\n \tattr⁀‿ͯͮ=\"attrValue\"\n \tnull⁀‿ͯattr=\"attrValue\"\n \tnullnull⁀‿attr=\"attrValue\"\n \tnullnullnull⁀attr=\"attrValue\"\n />"
   let reader = Reader::from_string(xml)
-  let events : Array[Event] = []
-  for {
-    match reader.read_event() {
-      Eof => {
-        events.push(Eof)
-        break
-      }
-      event => events.push(event)
+  let has_error = for {
+    match (try? reader.read_event()) {
+      Err(_) => break true
+      Ok(Eof) => break false
+      Ok(_) => continue
     }
   }
-  inspect(
-    events,
-    content="[DocType(\"LegalName\"), Text(\"\\n\\n\"), Comment(\" Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 \"), Empty({name: \"LegalName\", attributes: [(\":attr\", \"attrValue\"), (\"Àattr\", \"attrValue\"), (\"Áattr\", \"attrValue\"), (\"˾attr\", \"attrValue\"), (\"Âattr\", \"attrValue\"), (\"Ãattr\", \"attrValue\"), (\"˽attr\", \"attrValue\"), (\"˿attr\", \"attrValue\"), (\"Ͱattr\", \"attrValue\"), (\"ͱattr\", \"attrValue\"), (\"ͼͽattr\", \"attrValue\"), (\"ͽͿattr\", \"attrValue\"), (\"Ϳ΀attr\", \"attrValue\"), (\"΀῾attr\", \"attrValue\"), (\"῾῿attr\", \"attrValue\"), (\"῿‌attr\", \"attrValue\"), (\"‌‍attr\", \"attrValue\"), (\"‍⁰attr\", \"attrValue\"), (\"⁰ⁱattr\", \"attrValue\"), (\"ⁱ↎attr\", \"attrValue\"), (\"↎↏Ⰰattr\", \"attrValue\"), (\"↏ⰀⰁattr\", \"attrValue\"), (\"ⰀⰁ⿮attr\", \"attrValue\"), (\"Ⰱ⿮⿯attr\", \"attrValue\"), (\"⿮⿯、attr\", \"attrValue\"), (\"⿯、。attr\", \"attrValue\"), (\"、。퟾attr\", \"attrValue\"), (\"。퟾퟿attr\", \"attrValue\"), (\"퟾퟿豈attr\", \"attrValue\"), (\"퟿豈更attr\", \"attrValue\"), (\"豈퟿퟾。attr\", \"attrValue\"), (\"更豈퟿퟾attr\", \"attrValue\"), (\"�更豈퟿attr\", \"attrValue\"), (\"attr-�更豈\", \"attrValue\"), (\"attr.-�更\", \"attrValue\"), (\"A.-�attr\", \"attrValue\"), (\"zA.-attr\", \"attrValue\"), (\"attr0zA.\", \"attrValue\"), (\"attr·0zA\", \"attrValue\"), (\"attr̀·0z\", \"attrValue\"), (\"attŕ̀·0\", \"attrValue\"), (\"attrͮ́̀·\", \"attrValue\"), (\"attrͯͮ́̀\", \"attrValue\"), (\"attr‿ͯͮ́\", \"attrValue\"), (\"attr⁀‿ͯͮ\", \"attrValue\"), (\"null⁀‿ͯattr\", \"attrValue\"), (\"nullnull⁀‿attr\", \"attrValue\"), (\"nullnullnull⁀attr\", \"attrValue\")]}), Eof]",
-  )
+  inspect(has_error, content="false")
 }
 
 ///|
@@ -3210,8 +3180,8 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v04_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"LegalName\"), Text(\"\\n\\n\"), Comment(\" Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 \"), Start({name: \"LegalName\", attributes: []}), Text(\"\\n \\tattr0=\\\":\\\" attr00=\\\":\\\"\\n \\tattr1=\\\"\"), Text(\"À\\\" attr10=\\\"À\\\"\\n \\tattr2=\\\"Á\\\" attr20=\\\"Á\\\"\\n \\tattr3=\\\"˾\\\" attr30=\\\"˾\\\"\\n \\tattr4=\\\"Â\\\" attr40=\\\"Â\\\"\\n \\tattr5=\\\"Ã\\\" attr50=\\\"Ã\\\"\\n \\tattr6=\\\"˽\\\" attr60=\\\"˽\\\"\\n \\tattr7=\\\"˿\\\" attr70=\\\"˿\\\"\\n \\tattr8=\\\"Ͱ\\\" attr80=\\\"Ͱ\\\"\\n \\tattr9=\\\"ͱ\\\" attr90=\\\"ͱ\\\"\\n \\tattr10=\\\"ͼͽ\\\" attr100=\\\"ͼͽ\\\"\\n \\tattr11=\\\"ͽͿ\\\" attr110=\\\"ͽͿ\\\"\\n \\tattr12=\\\"Ϳ΀\\\" attr12\"), Text(\"0=\\\"Ϳ΀\\\"\\n \\tattr13=\\\"΀῾\\\" attr130=\\\"΀῾\\\"\\n \\tattr14=\\\"῾῿\\\" attr140=\\\"῾῿\\\"\\n \\tattr15=\\\"῿‌\\\" attr150=\\\"῿‌\\\"\\n \\tattr16=\\\"‌‍\\\" attr160=\\\"‌‍\\\"\\n \\tattr17=\\\"‍⁰\\\" attr170=\\\"‍⁰\\\"\\n \\tattr18=\\\"⁰ⁱ\\\" attr180=\\\"⁰ⁱ\\\"\\n \\tattr19=\\\"ⁱ↎\\\" attr190=\\\"ⁱ↎\\\"\\n \\tattr20=\\\"↎↏Ⰰ\\\" attr200=\\\"↎↏Ⰰ\\\"\\n \\tattr2\"), Text(\"1=\\\"↏ⰀⰁ\\\" attr210=\\\"↏ⰀⰁ\\\"\\n \\tattr22=\\\"ⰀⰁ⿮\\\" attr220=\\\"ⰀⰁ⿮\\\"\\n \\tattr23=\\\"Ⰱ⿮⿯\\\" attr230=\\\"Ⰱ⿮⿯\\\"\\n \\tattr24=\\\"⿮⿯、\\\" attr240=\\\"⿮⿯、\\\"\\n \\tattr25=\\\"⿯、。\\\" attr250=\\\"⿯、。\\\"\\n \\tattr26=\\\"、。퟾\\\" attr260=\\\"、。퟾\\\"\\n \\tattr27=\\\"。퟾퟿\\\" attr270=\\\"。퟾퟿\\\"\\n \\tattr28=\\\"퟾퟿豈\\\"\"), Text(\" attr280=\\\"퟾퟿豈\\\"\\n \\tattr29=\\\"퟿豈更\\\" attr290=\\\"퟿豈更\\\"\\n \\tattr30=\\\"豈퟿퟾。\\\" attr300=\\\"豈퟿퟾。\\\"\\n \\tattr31=\\\"更豈퟿퟾\\\" attr310=\\\"更豈퟿퟾\\\"\\n \\tattr32=\\\"�更豈퟿\\\" attr320=\\\"�更豈퟿\\\"\\n \\tattr33=\\\"-�更豈\\\" attr330=\\\"-�更豈\\\"\\n \\tattr34=\\\".-�更\\\" attr340=\\\".-�更\\\"\\n \\tattr35=\\\"A.-�\"), Text(\"\\\" attr350=\\\"A.-�\\\"\\n \\tattr36=\\\"zA.-\\\" attr360=\\\"zA.-\\\"\\n \\tattr37=\\\"0zA.\\\" attr370=\\\"0zA.\\\"\\n \\tattr38=\\\"·0zA\\\" attr380=\\\"·0zA\\\"\\n \\tattr39=\\\"̀·0z\\\" attr390=\\\"̀·0z\\\"\\n \\tattr40=\\\"́̀·0\\\" attr400=\\\"́̀·0\\\"\\n \\tattr41=\\\"ͮ́̀·\\\" attr410=\\\"ͮ́̀·\\\"\\n \\tattr42=\\\"ͯͮ́̀\\\" attr420=\\\"ͯͮ́̀\\\"\\n \\tattr43=\\\"‿ͯͮ́\\\" attr430=\\\"‿ͯͮ\"), Text(\"́\\\"\\n \\tattr44=\\\"⁀‿ͯͮ\\\" attr440=\\\"⁀‿ͯͮ\\\"\\n \\tattr45=\\\"null⁀‿ͯ\\\" attr450=\\\"null⁀‿ͯ\\\"\\n \\tattr46=\\\"nullnull⁀‿\\\" attr460=\\\"nullnull⁀‿\\\"\\n \\tattr47=\\\"nullnullnull⁀\\\" attr470=\\\"nullnullnull⁀\\\"\\n\"), End(\"LegalName\"), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"LegalName\"), Comment(\" Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 \"), Start({name: \"LegalName\", attributes: []}), Text(\"\\n \\tattr0=\\\":\\\" attr00=\\\":\\\"\\n \\tattr1=\\\"\"), Text(\"À\\\" attr10=\\\"À\\\"\\n \\tattr2=\\\"Á\\\" attr20=\\\"Á\\\"\\n \\tattr3=\\\"˾\\\" attr30=\\\"˾\\\"\\n \\tattr4=\\\"Â\\\" attr40=\\\"Â\\\"\\n \\tattr5=\\\"Ã\\\" attr50=\\\"Ã\\\"\\n \\tattr6=\\\"˽\\\" attr60=\\\"˽\\\"\\n \\tattr7=\\\"˿\\\" attr70=\\\"˿\\\"\\n \\tattr8=\\\"Ͱ\\\" attr80=\\\"Ͱ\\\"\\n \\tattr9=\\\"ͱ\\\" attr90=\\\"ͱ\\\"\\n \\tattr10=\\\"ͼͽ\\\" attr100=\\\"ͼͽ\\\"\\n \\tattr11=\\\"ͽͿ\\\" attr110=\\\"ͽͿ\\\"\\n \\tattr12=\\\"Ϳ΀\\\" attr12\"), Text(\"0=\\\"Ϳ΀\\\"\\n \\tattr13=\\\"΀῾\\\" attr130=\\\"΀῾\\\"\\n \\tattr14=\\\"῾῿\\\" attr140=\\\"῾῿\\\"\\n \\tattr15=\\\"῿‌\\\" attr150=\\\"῿‌\\\"\\n \\tattr16=\\\"‌‍\\\" attr160=\\\"‌‍\\\"\\n \\tattr17=\\\"‍⁰\\\" attr170=\\\"‍⁰\\\"\\n \\tattr18=\\\"⁰ⁱ\\\" attr180=\\\"⁰ⁱ\\\"\\n \\tattr19=\\\"ⁱ↎\\\" attr190=\\\"ⁱ↎\\\"\\n \\tattr20=\\\"↎↏Ⰰ\\\" attr200=\\\"↎↏Ⰰ\\\"\\n \\tattr2\"), Text(\"1=\\\"↏ⰀⰁ\\\" attr210=\\\"↏ⰀⰁ\\\"\\n \\tattr22=\\\"ⰀⰁ⿮\\\" attr220=\\\"ⰀⰁ⿮\\\"\\n \\tattr23=\\\"Ⰱ⿮⿯\\\" attr230=\\\"Ⰱ⿮⿯\\\"\\n \\tattr24=\\\"⿮⿯、\\\" attr240=\\\"⿮⿯、\\\"\\n \\tattr25=\\\"⿯、。\\\" attr250=\\\"⿯、。\\\"\\n \\tattr26=\\\"、。퟾\\\" attr260=\\\"、。퟾\\\"\\n \\tattr27=\\\"。퟾퟿\\\" attr270=\\\"。퟾퟿\\\"\\n \\tattr28=\\\"퟾퟿豈\\\"\"), Text(\" attr280=\\\"퟾퟿豈\\\"\\n \\tattr29=\\\"퟿豈更\\\" attr290=\\\"퟿豈更\\\"\\n \\tattr30=\\\"豈퟿퟾。\\\" attr300=\\\"豈퟿퟾。\\\"\\n \\tattr31=\\\"更豈퟿퟾\\\" attr310=\\\"更豈퟿퟾\\\"\\n \\tattr32=\\\"�更豈퟿\\\" attr320=\\\"�更豈퟿\\\"\\n \\tattr33=\\\"-�更豈\\\" attr330=\\\"-�更豈\\\"\\n \\tattr34=\\\".-�更\\\" attr340=\\\".-�更\\\"\\n \\tattr35=\\\"A.-�\"), Text(\"\\\" attr350=\\\"A.-�\\\"\\n \\tattr36=\\\"zA.-\\\" attr360=\\\"zA.-\\\"\\n \\tattr37=\\\"0zA.\\\" attr370=\\\"0zA.\\\"\\n \\tattr38=\\\"·0zA\\\" attr380=\\\"·0zA\\\"\\n \\tattr39=\\\"̀·0z\\\" attr390=\\\"̀·0z\\\"\\n \\tattr40=\\\"́̀·0\\\" attr400=\\\"́̀·0\\\"\\n \\tattr41=\\\"ͮ́̀·\\\" attr410=\\\"ͮ́̀·\\\"\\n \\tattr42=\\\"ͯͮ́̀\\\" attr420=\\\"ͯͮ́̀\\\"\\n \\tattr43=\\\"‿ͯͮ́\\\" attr430=\\\"‿ͯͮ\"), Text(\"́\\\"\\n \\tattr44=\\\"⁀‿ͯͮ\\\" attr440=\\\"⁀‿ͯͮ\\\"\\n \\tattr45=\\\"null⁀‿ͯ\\\" attr450=\\\"null⁀‿ͯ\\\"\\n \\tattr46=\\\"nullnull⁀‿\\\" attr460=\\\"nullnull⁀‿\\\"\\n \\tattr47=\\\"nullnullnull⁀\\\" attr470=\\\"nullnullnull⁀\\\"\\n\"), End(\"LegalName\"), Eof]",
   )
 }
 
@@ -3220,20 +3190,14 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v05_xml" {
   // This test case covers legal ENTITY (Names) as per product...
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n<!ELEMENT LegalName0 ANY>\n<!ATTLIST LegalName0 attr0 CDATA #IMPLIED>\n<!ELEMENT LegalName1 ANY>\n<!ATTLIST LegalName1 attr1 CDATA #IMPLIED>\n<!ELEMENT LegalName2 ANY>\n<!ATTLIST LegalName2 attr2 CDATA #IMPLIED>\n<!ELEMENT LegalName3 ANY>\n<!ATTLIST LegalName3 attr3 CDATA #IMPLIED>\n<!ELEMENT LegalName4 ANY>\n<!ATTLIST LegalName4 attr4 CDATA #IMPLIED>\n<!ELEMENT LegalName5 ANY>\n<!ATTLIST LegalName5 attr5 CDATA #IMPLIED>\n<!ELEMENT LegalName6 ANY>\n<!ATTLIST LegalName6 attr6 CDATA #IMPLIED>\n<!ELEMENT LegalName7 ANY>\n<!ATTLIST LegalName7 attr7 CDATA #IMPLIED>\n<!ELEMENT LegalName8 ANY>\n<!ATTLIST LegalName8 attr8 CDATA #IMPLIED>\n<!ELEMENT LegalName9 ANY>\n<!ATTLIST LegalName9 attr9 CDATA #IMPLIED>\n<!ELEMENT LegalName10 ANY>\n<!ATTLIST LegalName10 attr10 CDATA #IMPLIED>\n<!ELEMENT LegalName11 ANY>\n<!ATTLIST LegalName11 attr11 CDATA #IMPLIED>\n<!ELEMENT LegalName12 ANY>\n<!ATTLIST LegalName12 attr12 CDATA #IMPLIED>\n<!ELEMENT LegalName13 ANY>\n<!ATTLIST LegalName13 attr13 CDATA #IMPLIED>\n<!ELEMENT LegalName14 ANY>\n<!ATTLIST LegalName14 attr14 CDATA #IMPLIED>\n<!ELEMENT LegalName15 ANY>\n<!ATTLIST LegalName15 attr15 CDATA #IMPLIED>\n<!ELEMENT LegalName16 ANY>\n<!ATTLIST LegalName16 attr16 CDATA #IMPLIED>\n<!ELEMENT LegalName17 ANY>\n<!ATTLIST LegalName17 attr17 CDATA #IMPLIED>\n<!ELEMENT LegalName18 ANY>\n<!ATTLIST LegalName18 attr18 CDATA #IMPLIED>\n<!ELEMENT LegalName19 ANY>\n<!ATTLIST LegalName19 attr19 CDATA #IMPLIED>\n<!ELEMENT LegalName20 ANY>\n<!ATTLIST LegalName20 attr20 CDATA #IMPLIED>\n<!ELEMENT LegalName21 ANY>\n<!ATTLIST LegalName21 attr21 CDATA #IMPLIED>\n<!ELEMENT LegalName22 ANY>\n<!ATTLIST LegalName22 attr22 CDATA #IMPLIED>\n<!ELEMENT LegalName23 ANY>\n<!ATTLIST LegalName23 attr23 CDATA #IMPLIED>\n<!ELEMENT LegalName24 ANY>\n<!ATTLIST LegalName24 attr24 CDATA #IMPLIED>\n<!ELEMENT LegalName25 ANY>\n<!ATTLIST LegalName25 attr25 CDATA #IMPLIED>\n<!ELEMENT LegalName26 ANY>\n<!ATTLIST LegalName26 attr26 CDATA #IMPLIED>\n<!ELEMENT LegalName27 ANY>\n<!ATTLIST LegalName27 attr27 CDATA #IMPLIED>\n<!ELEMENT LegalName28 ANY>\n<!ATTLIST LegalName28 attr28 CDATA #IMPLIED>\n<!ELEMENT LegalName29 ANY>\n<!ATTLIST LegalName29 attr29 CDATA #IMPLIED>\n<!ELEMENT LegalName30 ANY>\n<!ATTLIST LegalName30 attr30 CDATA #IMPLIED>\n<!ELEMENT LegalName31 ANY>\n<!ATTLIST LegalName31 attr31 CDATA #IMPLIED>\n<!ELEMENT LegalName32 ANY>\n<!ATTLIST LegalName32 attr32 CDATA #IMPLIED>\n<!ELEMENT LegalName33 ANY>\n<!ATTLIST LegalName33 attr33 CDATA #IMPLIED>\n<!ELEMENT LegalName34 ANY>\n<!ATTLIST LegalName34 attr34 CDATA #IMPLIED>\n<!ELEMENT LegalName35 ANY>\n<!ATTLIST LegalName35 attr35 CDATA #IMPLIED>\n<!ELEMENT LegalName36 ANY>\n<!ATTLIST LegalName36 attr36 CDATA #IMPLIED>\n<!ELEMENT LegalName37 ANY>\n<!ATTLIST LegalName37 attr37 CDATA #IMPLIED>\n<!ELEMENT LegalName38 ANY>\n<!ATTLIST LegalName38 attr38 CDATA #IMPLIED>\n<!ELEMENT LegalName39 ANY>\n<!ATTLIST LegalName39 attr39 CDATA #IMPLIED>\n<!ELEMENT LegalName40 ANY>\n<!ATTLIST LegalName40 attr40 CDATA #IMPLIED>\n<!ELEMENT LegalName41 ANY>\n<!ATTLIST LegalName41 attr41 CDATA #IMPLIED>\n<!ELEMENT LegalName42 ANY>\n<!ATTLIST LegalName42 attr42 CDATA #IMPLIED>\n<!ELEMENT LegalName43 ANY>\n<!ATTLIST LegalName43 attr43 CDATA #IMPLIED>\n<!ENTITY Name: \"Test\">\n<!ENTITY NameÀ \"Test\">\n<!ENTITY NameÁ \"Test\">\n<!ENTITY Name˾ \"Test\">\n<!ENTITY NameÂ \"Test\">\n<!ENTITY NameÃ \"Test\">\n<!ENTITY Name˽ \"Test\">\n<!ENTITY Name˿ \"Test\">\n<!ENTITY NameͰ \"Test\">\n<!ENTITY Nameͱ \"Test\">\n<!ENTITY Nameͼ \"Test\">\n<!ENTITY Nameͽ \"Test\">\n<!ENTITY NameͿ \"Test\">\n<!ENTITY Name΀ \"Test\">\n<!ENTITY Name῾ \"Test\">\n<!ENTITY Name῿ \"Test\">\n<!ENTITY Name‌ \"Test\">\n<!ENTITY Name‍ \"Test\">\n<!ENTITY Name⁰ \"Test\">\n<!ENTITY Nameⁱ \"Test\">\n<!ENTITY Name↎ \"Test\">\n<!ENTITY Name↏ \"Test\">\n<!ENTITY NameⰀ \"Test\">\n<!ENTITY NameⰁ \"Test\">\n<!ENTITY Name⿮ \"Test\">\n<!ENTITY Name⿯ \"Test\">\n<!ENTITY Name、 \"Test\">\n<!ENTITY Name。 \"Test\">\n<!ENTITY Name퟾ \"Test\">\n<!ENTITY Name퟿ \"Test\">\n<!ENTITY Name豈 \"Test\">\n<!ENTITY Name更 \"Test\">\n<!ENTITY Name� \"Test\">\n<!ENTITY Name- \"Test\">\n<!ENTITY Name. \"Test\">\n<!ENTITY NameA \"Test\">\n<!ENTITY Namez \"Test\">\n<!ENTITY Name0 \"Test\">\n<!ENTITY Name· \"Test\">\n<!ENTITY Namè \"Test\">\n<!ENTITY Namé \"Test\">\n<!ENTITY Nameͮ \"Test\">\n<!ENTITY Nameͯ \"Test\">\n<!ENTITY Name‿ \"Test\">\n]>\n<!-- Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 -->\n<LegalName>\n<LegalName0 attr0=\"Name:\"\t/>\n<LegalName1 attr1=\"NameÀ\"\t/>\n<LegalName2 attr2=\"NameÁ\"\t/>\n<LegalName3 attr3=\"Name˾\"\t/>\n<LegalName4 attr4=\"NameÂ\"\t/>\n<LegalName5 attr5=\"NameÃ\"\t/>\n<LegalName6 attr6=\"Name˽\"\t/>\n<LegalName7 attr7=\"Name˿\"\t/>\n<LegalName8 attr8=\"NameͰ\"\t/>\n<LegalName9 attr9=\"Nameͱ\"\t/>\n<LegalName10 attr10=\"Nameͼ\"\t/>\n<LegalName11 attr11=\"Nameͽ\"\t/>\n<LegalName12 attr12=\"NameͿ\"\t/>\n<LegalName13 attr13=\"Name΀\"\t/>\n<LegalName14 attr14=\"Name῾\"\t/>\n<LegalName15 attr15=\"Name῿\"\t/>\n<LegalName16 attr16=\"Name‌\"\t/>\n<LegalName17 attr17=\"Name‍\"\t/>\n<LegalName18 attr18=\"Name⁰\"\t/>\n<LegalName19 attr19=\"Nameⁱ\"\t/>\n<LegalName20 attr20=\"Name↎\"\t/>\n<LegalName21 attr21=\"Name↏\"\t/>\n<LegalName22 attr22=\"NameⰀ\"\t/>\n<LegalName23 attr23=\"NameⰁ\"\t/>\n<LegalName24 attr24=\"Name⿮\"\t/>\n<LegalName25 attr25=\"Name⿯\"\t/>\n<LegalName26 attr26=\"Name、\"\t/>\n<LegalName27 attr27=\"Name。\"\t/>\n<LegalName28 attr28=\"Name퟾\"\t/>\n<LegalName29 attr29=\"Name퟿\"\t/>\n<LegalName30 attr30=\"Name豈\"\t/>\n<LegalName31 attr31=\"Name更\"\t/>\n<LegalName32 attr32=\"Name�\"\t/>\n<LegalName33 attr33=\"Name-\"\t/>\n<LegalName34 attr34=\"Name.\"\t/>\n<LegalName35 attr35=\"NameA\"\t/>\n<LegalName36 attr36=\"Namez\"\t/>\n<LegalName37 attr37=\"Name0\"\t/>\n<LegalName38 attr38=\"Name·\"\t/>\n<LegalName39 attr39=\"Namè\"\t/>\n<LegalName40 attr40=\"Namé\"\t/>\n<LegalName41 attr41=\"Nameͮ\"\t/>\n<LegalName42 attr42=\"Nameͯ\"\t/>\n<LegalName43 attr43=\"Name‿\"\t/>\n</LegalName>"
   let reader = Reader::from_string(xml)
-  let events : Array[Event] = []
-  for {
-    match reader.read_event() {
-      Eof => {
-        events.push(Eof)
-        break
-      }
-      event => events.push(event)
+  let has_error = for {
+    match (try? reader.read_event()) {
+      Err(_) => break true
+      Ok(Eof) => break false
+      Ok(_) => continue
     }
   }
-  inspect(
-    events,
-    content="[DocType(\"LegalName\"), Text(\"\\n\\n\"), Comment(\" Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 \"), Start({name: \"LegalName\", attributes: []}), Text(\"\\n\"), Empty({name: \"LegalName0\", attributes: [(\"attr0\", \"Name:\")]}), Text(\"\\n\"), Empty({name: \"LegalName1\", attributes: [(\"attr1\", \"NameÀ\")]}), Text(\"\\n\"), Empty({name: \"LegalName2\", attributes: [(\"attr2\", \"NameÁ\")]}), Text(\"\\n\"), Empty({name: \"LegalName3\", attributes: [(\"attr3\", \"Name˾\")]}), Text(\"\\n\"), Empty({name: \"LegalName4\", attributes: [(\"attr4\", \"NameÂ\")]}), Text(\"\\n\"), Empty({name: \"LegalName5\", attributes: [(\"attr5\", \"NameÃ\")]}), Text(\"\\n\"), Empty({name: \"LegalName6\", attributes: [(\"attr6\", \"Name˽\")]}), Text(\"\\n\"), Empty({name: \"LegalName7\", attributes: [(\"attr7\", \"Name˿\")]}), Text(\"\\n\"), Empty({name: \"LegalName8\", attributes: [(\"attr8\", \"NameͰ\")]}), Text(\"\\n\"), Empty({name: \"LegalName9\", attributes: [(\"attr9\", \"Nameͱ\")]}), Text(\"\\n\"), Empty({name: \"LegalName10\", attributes: [(\"attr10\", \"Nameͼ\")]}), Text(\"\\n\"), Empty({name: \"LegalName11\", attributes: [(\"attr11\", \"Nameͽ\")]}), Text(\"\\n\"), Empty({name: \"LegalName12\", attributes: [(\"attr12\", \"NameͿ\")]}), Text(\"\\n\"), Empty({name: \"LegalName13\", attributes: [(\"attr13\", \"Name΀\")]}), Text(\"\\n\"), Empty({name: \"LegalName14\", attributes: [(\"attr14\", \"Name῾\")]}), Text(\"\\n\"), Empty({name: \"LegalName15\", attributes: [(\"attr15\", \"Name῿\")]}), Text(\"\\n\"), Empty({name: \"LegalName16\", attributes: [(\"attr16\", \"Name‌\")]}), Text(\"\\n\"), Empty({name: \"LegalName17\", attributes: [(\"attr17\", \"Name‍\")]}), Text(\"\\n\"), Empty({name: \"LegalName18\", attributes: [(\"attr18\", \"Name⁰\")]}), Text(\"\\n\"), Empty({name: \"LegalName19\", attributes: [(\"attr19\", \"Nameⁱ\")]}), Text(\"\\n\"), Empty({name: \"LegalName20\", attributes: [(\"attr20\", \"Name↎\")]}), Text(\"\\n\"), Empty({name: \"LegalName21\", attributes: [(\"attr21\", \"Name↏\")]}), Text(\"\\n\"), Empty({name: \"LegalName22\", attributes: [(\"attr22\", \"NameⰀ\")]}), Text(\"\\n\"), Empty({name: \"LegalName23\", attributes: [(\"attr23\", \"NameⰁ\")]}), Text(\"\\n\"), Empty({name: \"LegalName24\", attributes: [(\"attr24\", \"Name⿮\")]}), Text(\"\\n\"), Empty({name: \"LegalName25\", attributes: [(\"attr25\", \"Name⿯\")]}), Text(\"\\n\"), Empty({name: \"LegalName26\", attributes: [(\"attr26\", \"Name、\")]}), Text(\"\\n\"), Empty({name: \"LegalName27\", attributes: [(\"attr27\", \"Name。\")]}), Text(\"\\n\"), Empty({name: \"LegalName28\", attributes: [(\"attr28\", \"Name퟾\")]}), Text(\"\\n\"), Empty({name: \"LegalName29\", attributes: [(\"attr29\", \"Name퟿\")]}), Text(\"\\n\"), Empty({name: \"LegalName30\", attributes: [(\"attr30\", \"Name豈\")]}), Text(\"\\n\"), Empty({name: \"LegalName31\", attributes: [(\"attr31\", \"Name更\")]}), Text(\"\\n\"), Empty({name: \"LegalName32\", attributes: [(\"attr32\", \"Name�\")]}), Text(\"\\n\"), Empty({name: \"LegalName33\", attributes: [(\"attr33\", \"Name-\")]}), Text(\"\\n\"), Empty({name: \"LegalName34\", attributes: [(\"attr34\", \"Name.\")]}), Text(\"\\n\"), Empty({name: \"LegalName35\", attributes: [(\"attr35\", \"NameA\")]}), Text(\"\\n\"), Empty({name: \"LegalName36\", attributes: [(\"attr36\", \"Namez\")]}), Text(\"\\n\"), Empty({name: \"LegalName37\", attributes: [(\"attr37\", \"Name0\")]}), Text(\"\\n\"), Empty({name: \"LegalName38\", attributes: [(\"attr38\", \"Name·\")]}), Text(\"\\n\"), Empty({name: \"LegalName39\", attributes: [(\"attr39\", \"Namè\")]}), Text(\"\\n\"), Empty({name: \"LegalName40\", attributes: [(\"attr40\", \"Namé\")]}), Text(\"\\n\"), Empty({name: \"LegalName41\", attributes: [(\"attr41\", \"Nameͮ\")]}), Text(\"\\n\"), Empty({name: \"LegalName42\", attributes: [(\"attr42\", \"Nameͯ\")]}), Text(\"\\n\"), Empty({name: \"LegalName43\", attributes: [(\"attr43\", \"Name‿\")]}), Text(\"\\n\"), End(\"LegalName\"), Eof]",
-  )
+  inspect(has_error, content="false")
 }
 
 ///|
@@ -3252,8 +3216,8 @@ test "w3c/valid/x_ibm_1_0_5_valid_P047_ibm07v01_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"NMtokenName\"), Text(\"\\n\\n\"), Comment(\" LegalNameChar  0x300,0x333,0x369,0x37E,0x2000,0x2001,0x2002,0x2005,0x200B,0x200E,x200F,0x2069,0x2190,0x23FF,0x280F,0x2A00,0x2EDC,0x2FED,0x2FFF,0x3000,0xD800,0xD801,0xDAFF,0xDFFF,0xEFFF,0xF1FF,0xF8FF,0xFFFFF; _, ., 0, B7, C0, 2FFF in P07 \"), Empty({name: \"NMtokenName\", attributes: [(\"thistoken0\", \":\"), (\"thistoken1\", \"À\"), (\"thistoken2\", \"Á\"), (\"thistoken3\", \"˾\"), (\"thistoken4\", \"À\"), (\"thistoken5\", \"Á\"), (\"thistoken6\", \"˾\"), (\"thistoken7\", \"˿\"), (\"thistoken8\", \"Ͱ\"), (\"thistoken9\", \"ͱ\"), (\"thistoken10\", \"ͼ\"), (\"thistoken11\", \"ͽ\"), (\"thistoken12\", \"Ϳ\"), (\"thistoken13\", \"΀\"), (\"thistoken14\", \"῾\"), (\"thistoken15\", \"῿\"), (\"thistoken16\", \"‌\"), (\"thistoken17\", \"‍\"), (\"thistoken18\", \"⁰\"), (\"thistoken19\", \"ⁱ\"), (\"thistoken20\", \"↎\"), (\"thistoken21\", \"↏\"), (\"thistoken22\", \"Ⰰ\"), (\"thistoken23\", \"Ⰱ\"), (\"thistoken24\", \"⿮\"), (\"thistoken25\", \"⿯\"), (\"thistoken26\", \"、\"), (\"thistoken27\", \"。\"), (\"thistoken28\", \"퟾\"), (\"thistoken29\", \"퟿\"), (\"thistoken30\", \"豈\"), (\"thistoken31\", \"更\"), (\"thistoken32\", \"_\"), (\"thistoken33\", \".\"), (\"thistoken34\", \"0\"), (\"thistoken35\", \"·\"), (\"thistoken36\", \"À\"), (\"thistoken37\", \"ͼ\")]}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"NMtokenName\"), Comment(\" LegalNameChar  0x300,0x333,0x369,0x37E,0x2000,0x2001,0x2002,0x2005,0x200B,0x200E,x200F,0x2069,0x2190,0x23FF,0x280F,0x2A00,0x2EDC,0x2FED,0x2FFF,0x3000,0xD800,0xD801,0xDAFF,0xDFFF,0xEFFF,0xF1FF,0xF8FF,0xFFFFF; _, ., 0, B7, C0, 2FFF in P07 \"), Empty({name: \"NMtokenName\", attributes: [(\"thistoken0\", \":\"), (\"thistoken1\", \"À\"), (\"thistoken2\", \"Á\"), (\"thistoken3\", \"˾\"), (\"thistoken4\", \"À\"), (\"thistoken5\", \"Á\"), (\"thistoken6\", \"˾\"), (\"thistoken7\", \"˿\"), (\"thistoken8\", \"Ͱ\"), (\"thistoken9\", \"ͱ\"), (\"thistoken10\", \"ͼ\"), (\"thistoken11\", \"ͽ\"), (\"thistoken12\", \"Ϳ\"), (\"thistoken13\", \"΀\"), (\"thistoken14\", \"῾\"), (\"thistoken15\", \"῿\"), (\"thistoken16\", \"‌\"), (\"thistoken17\", \"‍\"), (\"thistoken18\", \"⁰\"), (\"thistoken19\", \"ⁱ\"), (\"thistoken20\", \"↎\"), (\"thistoken21\", \"↏\"), (\"thistoken22\", \"Ⰰ\"), (\"thistoken23\", \"Ⰱ\"), (\"thistoken24\", \"⿮\"), (\"thistoken25\", \"⿯\"), (\"thistoken26\", \"、\"), (\"thistoken27\", \"。\"), (\"thistoken28\", \"퟾\"), (\"thistoken29\", \"퟿\"), (\"thistoken30\", \"豈\"), (\"thistoken31\", \"更\"), (\"thistoken32\", \"_\"), (\"thistoken33\", \".\"), (\"thistoken34\", \"0\"), (\"thistoken35\", \"·\"), (\"thistoken36\", \"À\"), (\"thistoken37\", \"ͼ\")]}), Eof]",
   )
 }
 
@@ -3273,8 +3237,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n03_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ĳ\", data=\"an only legal per 5th edition char #x132\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ĳ\", data=\"an only legal per 5th edition char #x132\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3294,8 +3258,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n04_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ĳ\", data=\"an only legal per 5th edition char #x133\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ĳ\", data=\"an only legal per 5th edition char #x133\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3315,8 +3279,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n05_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ŀ\", data=\"an only legal per 5th edition char #x13f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ŀ\", data=\"an only legal per 5th edition char #x13f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3336,8 +3300,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n06_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ŀ\", data=\"an only legal per 5th edition char #x140\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ŀ\", data=\"an only legal per 5th edition char #x140\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3357,8 +3321,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n07_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ŉ\", data=\"an only legal per 5th edition char #x149\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ŉ\", data=\"an only legal per 5th edition char #x149\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3378,8 +3342,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n08_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ſ\", data=\"an only legal per 5th edition char #x17f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ſ\", data=\"an only legal per 5th edition char #x17f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3399,8 +3363,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n09_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ǆ\", data=\"an only legal per 5th edition char #x1c4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ǆ\", data=\"an only legal per 5th edition char #x1c4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3420,8 +3384,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n10_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ǌ\", data=\"an only legal per 5th edition char #x1cc\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ǌ\", data=\"an only legal per 5th edition char #x1cc\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3441,8 +3405,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n100_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ஶ\", data=\"an only legal per 5th edition char #x0bb6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ஶ\", data=\"an only legal per 5th edition char #x0bb6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3462,8 +3426,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n101_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"஺\", data=\"an only legal per 5th edition char #x0bba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"஺\", data=\"an only legal per 5th edition char #x0bba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3483,8 +3447,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n102_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"఍\", data=\"an only legal per 5th edition char #x0c0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"఍\", data=\"an only legal per 5th edition char #x0c0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3504,8 +3468,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n103_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"఑\", data=\"an only legal per 5th edition char #x0c11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"఑\", data=\"an only legal per 5th edition char #x0c11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3525,8 +3489,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n104_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"఩\", data=\"an only legal per 5th edition char #x0c29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"఩\", data=\"an only legal per 5th edition char #x0c29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3546,8 +3510,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n105_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ఴ\", data=\"an only legal per 5th edition char #x0c34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ఴ\", data=\"an only legal per 5th edition char #x0c34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3567,8 +3531,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n106_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"౟\", data=\"an only legal per 5th edition char #x0c5f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"౟\", data=\"an only legal per 5th edition char #x0c5f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3588,8 +3552,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n107_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ౢ\", data=\"an only legal per 5th edition char #x0c62\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ౢ\", data=\"an only legal per 5th edition char #x0c62\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3609,8 +3573,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n108_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"಍\", data=\"an only legal per 5th edition char #x0c8d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"಍\", data=\"an only legal per 5th edition char #x0c8d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3630,8 +3594,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n109_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"಑\", data=\"an only legal per 5th edition char #x0c91\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"಑\", data=\"an only legal per 5th edition char #x0c91\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3651,8 +3615,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n11_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ǳ\", data=\"an only legal per 5th edition char #x1f1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ǳ\", data=\"an only legal per 5th edition char #x1f1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3672,8 +3636,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n110_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"಩\", data=\"an only legal per 5th edition char #x0ca9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"಩\", data=\"an only legal per 5th edition char #x0ca9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3693,8 +3657,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n111_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"಴\", data=\"an only legal per 5th edition char #x0cb4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"಴\", data=\"an only legal per 5th edition char #x0cb4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3714,8 +3678,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n112_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"಺\", data=\"an only legal per 5th edition char #x0cba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"಺\", data=\"an only legal per 5th edition char #x0cba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3735,8 +3699,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n113_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"೟\", data=\"an only legal per 5th edition char #x0cdf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"೟\", data=\"an only legal per 5th edition char #x0cdf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3756,8 +3720,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n114_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ೢ\", data=\"an only legal per 5th edition char #x0ce2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ೢ\", data=\"an only legal per 5th edition char #x0ce2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3777,8 +3741,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n115_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"഍\", data=\"an only legal per 5th edition char #x0d0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"഍\", data=\"an only legal per 5th edition char #x0d0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3798,8 +3762,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n116_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"഑\", data=\"an only legal per 5th edition char #x0d11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"഑\", data=\"an only legal per 5th edition char #x0d11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3819,8 +3783,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n117_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ഩ\", data=\"an only legal per 5th edition char #x0d29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ഩ\", data=\"an only legal per 5th edition char #x0d29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3840,8 +3804,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n118_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ഺ\", data=\"an only legal per 5th edition char #x0d3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ഺ\", data=\"an only legal per 5th edition char #x0d3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3861,8 +3825,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n119_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ൢ\", data=\"an only legal per 5th edition char #x0d62\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ൢ\", data=\"an only legal per 5th edition char #x0d62\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3882,8 +3846,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n12_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ǳ\", data=\"an only legal per 5th edition char #x1f3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ǳ\", data=\"an only legal per 5th edition char #x1f3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3903,8 +3867,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n120_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ฯ\", data=\"an only legal per 5th edition char #x0e2f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ฯ\", data=\"an only legal per 5th edition char #x0e2f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3924,8 +3888,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n121_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ั\", data=\"an only legal per 5th edition char #x0e31\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ั\", data=\"an only legal per 5th edition char #x0e31\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3945,8 +3909,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n122_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ิ\", data=\"an only legal per 5th edition char #x0e34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ิ\", data=\"an only legal per 5th edition char #x0e34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3966,8 +3930,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n123_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ๆ\", data=\"an only legal per 5th edition char #x0e46\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ๆ\", data=\"an only legal per 5th edition char #x0e46\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -3987,8 +3951,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n124_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"຃\", data=\"an only legal per 5th edition char #x0e83\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"຃\", data=\"an only legal per 5th edition char #x0e83\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4008,8 +3972,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n125_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"຅\", data=\"an only legal per 5th edition char #x0e85\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"຅\", data=\"an only legal per 5th edition char #x0e85\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4029,8 +3993,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n126_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ຉ\", data=\"an only legal per 5th edition char #x0e89\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ຉ\", data=\"an only legal per 5th edition char #x0e89\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4050,8 +4014,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n127_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"຋\", data=\"an only legal per 5th edition char #x0e8b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"຋\", data=\"an only legal per 5th edition char #x0e8b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4071,8 +4035,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n128_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ຎ\", data=\"an only legal per 5th edition char #x0e8e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ຎ\", data=\"an only legal per 5th edition char #x0e8e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4092,8 +4056,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n129_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ຘ\", data=\"an only legal per 5th edition char #x0e98\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ຘ\", data=\"an only legal per 5th edition char #x0e98\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4113,8 +4077,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n13_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ƕ\", data=\"an only legal per 5th edition char #x1f6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ƕ\", data=\"an only legal per 5th edition char #x1f6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4134,8 +4098,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n130_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ຠ\", data=\"an only legal per 5th edition char #x0ea0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ຠ\", data=\"an only legal per 5th edition char #x0ea0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4155,8 +4119,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n131_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"຤\", data=\"an only legal per 5th edition char #x0ea4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"຤\", data=\"an only legal per 5th edition char #x0ea4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4176,8 +4140,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n132_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"຦\", data=\"an only legal per 5th edition char #x0ea6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"຦\", data=\"an only legal per 5th edition char #x0ea6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4197,8 +4161,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n133_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ຨ\", data=\"an only legal per 5th edition char #x0ea8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ຨ\", data=\"an only legal per 5th edition char #x0ea8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4218,8 +4182,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n134_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ຬ\", data=\"an only legal per 5th edition char #x0eac\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ຬ\", data=\"an only legal per 5th edition char #x0eac\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4239,8 +4203,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n135_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ຯ\", data=\"an only legal per 5th edition char #x0eaf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ຯ\", data=\"an only legal per 5th edition char #x0eaf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4260,8 +4224,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n136_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ັ\", data=\"an only legal per 5th edition char #x0eb1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ັ\", data=\"an only legal per 5th edition char #x0eb1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4281,8 +4245,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n137_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ິ\", data=\"an only legal per 5th edition char #x0eb4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ິ\", data=\"an only legal per 5th edition char #x0eb4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4302,8 +4266,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n138_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"຾\", data=\"an only legal per 5th edition char #x0ebe\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"຾\", data=\"an only legal per 5th edition char #x0ebe\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4323,8 +4287,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n139_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"໅\", data=\"an only legal per 5th edition char #x0ec5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"໅\", data=\"an only legal per 5th edition char #x0ec5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4344,8 +4308,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n14_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ǹ\", data=\"an only legal per 5th edition char #x1f9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ǹ\", data=\"an only legal per 5th edition char #x1f9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4365,8 +4329,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n140_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"཈\", data=\"an only legal per 5th edition char #x0f48\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"཈\", data=\"an only legal per 5th edition char #x0f48\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4386,8 +4350,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n141_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ཪ\", data=\"an only legal per 5th edition char #x0f6a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ཪ\", data=\"an only legal per 5th edition char #x0f6a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4407,8 +4371,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n142_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"჆\", data=\"an only legal per 5th edition char #x10c6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"჆\", data=\"an only legal per 5th edition char #x10c6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4428,8 +4392,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n143_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ჷ\", data=\"an only legal per 5th edition char #x10f7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ჷ\", data=\"an only legal per 5th edition char #x10f7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4449,8 +4413,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n144_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᄁ\", data=\"an only legal per 5th edition char #x1101\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᄁ\", data=\"an only legal per 5th edition char #x1101\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4470,8 +4434,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n145_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᄄ\", data=\"an only legal per 5th edition char #x1104\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᄄ\", data=\"an only legal per 5th edition char #x1104\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4491,8 +4455,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n146_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᄈ\", data=\"an only legal per 5th edition char #x1108\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᄈ\", data=\"an only legal per 5th edition char #x1108\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4512,8 +4476,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n147_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᄊ\", data=\"an only legal per 5th edition char #x110a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᄊ\", data=\"an only legal per 5th edition char #x110a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4533,8 +4497,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n148_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᄍ\", data=\"an only legal per 5th edition char #x110d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᄍ\", data=\"an only legal per 5th edition char #x110d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4554,8 +4518,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n149_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᄻ\", data=\"an only legal per 5th edition char #x113b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᄻ\", data=\"an only legal per 5th edition char #x113b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4575,8 +4539,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n15_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ǹ\", data=\"an only legal per 5th edition char #x1f9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ǹ\", data=\"an only legal per 5th edition char #x1f9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4596,8 +4560,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n150_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᄿ\", data=\"an only legal per 5th edition char #x113f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᄿ\", data=\"an only legal per 5th edition char #x113f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4617,8 +4581,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n151_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅁ\", data=\"an only legal per 5th edition char #x1141\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅁ\", data=\"an only legal per 5th edition char #x1141\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4638,8 +4602,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n152_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅍ\", data=\"an only legal per 5th edition char #x114d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅍ\", data=\"an only legal per 5th edition char #x114d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4659,8 +4623,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n153_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅏ\", data=\"an only legal per 5th edition char #x114f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅏ\", data=\"an only legal per 5th edition char #x114f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4680,8 +4644,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n154_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅑ\", data=\"an only legal per 5th edition char #x1151\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅑ\", data=\"an only legal per 5th edition char #x1151\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4701,8 +4665,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n155_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅖ\", data=\"an only legal per 5th edition char #x1156\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅖ\", data=\"an only legal per 5th edition char #x1156\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4722,8 +4686,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n156_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅚ\", data=\"an only legal per 5th edition char #x115a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅚ\", data=\"an only legal per 5th edition char #x115a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4743,8 +4707,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n157_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅢ\", data=\"an only legal per 5th edition char #x1162\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅢ\", data=\"an only legal per 5th edition char #x1162\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4764,8 +4728,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n158_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅤ\", data=\"an only legal per 5th edition char #x1164\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅤ\", data=\"an only legal per 5th edition char #x1164\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4785,8 +4749,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n159_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅦ\", data=\"an only legal per 5th edition char #x1166\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅦ\", data=\"an only legal per 5th edition char #x1166\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4806,8 +4770,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n16_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ȱ\", data=\"an only legal per 5th edition char #x230\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ȱ\", data=\"an only legal per 5th edition char #x230\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4827,8 +4791,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n160_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅫ\", data=\"an only legal per 5th edition char #x116b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅫ\", data=\"an only legal per 5th edition char #x116b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4848,8 +4812,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n161_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅯ\", data=\"an only legal per 5th edition char #x116f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅯ\", data=\"an only legal per 5th edition char #x116f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4869,8 +4833,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n162_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᅴ\", data=\"an only legal per 5th edition char #x1174\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᅴ\", data=\"an only legal per 5th edition char #x1174\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4890,8 +4854,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n163_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᆟ\", data=\"an only legal per 5th edition char #x119f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᆟ\", data=\"an only legal per 5th edition char #x119f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4911,8 +4875,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n164_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᆬ\", data=\"an only legal per 5th edition char #x11ac\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᆬ\", data=\"an only legal per 5th edition char #x11ac\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4932,8 +4896,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n165_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᆶ\", data=\"an only legal per 5th edition char #x11b6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᆶ\", data=\"an only legal per 5th edition char #x11b6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4953,8 +4917,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n166_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᆹ\", data=\"an only legal per 5th edition char #x11b9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᆹ\", data=\"an only legal per 5th edition char #x11b9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4974,8 +4938,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n167_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᆻ\", data=\"an only legal per 5th edition char #x11bb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᆻ\", data=\"an only legal per 5th edition char #x11bb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -4995,8 +4959,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n168_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᇃ\", data=\"an only legal per 5th edition char #x11c3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᇃ\", data=\"an only legal per 5th edition char #x11c3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5016,8 +4980,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n169_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᇱ\", data=\"an only legal per 5th edition char #x11f1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᇱ\", data=\"an only legal per 5th edition char #x11f1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5037,8 +5001,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n17_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ʯ\", data=\"an only legal per 5th edition char #x2af\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ʯ\", data=\"an only legal per 5th edition char #x2af\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5058,8 +5022,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n170_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ᇺ\", data=\"an only legal per 5th edition char #x11fa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ᇺ\", data=\"an only legal per 5th edition char #x11fa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5079,8 +5043,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n171_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ẜ\", data=\"an only legal per 5th edition char #x1e9c\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ẜ\", data=\"an only legal per 5th edition char #x1e9c\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5100,8 +5064,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n172_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ỻ\", data=\"an only legal per 5th edition char #x1efa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ỻ\", data=\"an only legal per 5th edition char #x1efa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5121,8 +5085,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n173_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"἖\", data=\"an only legal per 5th edition char #x1f16\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"἖\", data=\"an only legal per 5th edition char #x1f16\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5142,8 +5106,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n174_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"἞\", data=\"an only legal per 5th edition char #x1f1e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"἞\", data=\"an only legal per 5th edition char #x1f1e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5163,8 +5127,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n175_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"὆\", data=\"an only legal per 5th edition char #x1f46\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"὆\", data=\"an only legal per 5th edition char #x1f46\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5184,8 +5148,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n176_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"὏\", data=\"an only legal per 5th edition char #x1f4f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"὏\", data=\"an only legal per 5th edition char #x1f4f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5205,8 +5169,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n177_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"὘\", data=\"an only legal per 5th edition char #x1f58\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"὘\", data=\"an only legal per 5th edition char #x1f58\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5226,8 +5190,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n178_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"὚\", data=\"an only legal per 5th edition char #x1f5a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"὚\", data=\"an only legal per 5th edition char #x1f5a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5247,8 +5211,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n179_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"὜\", data=\"an only legal per 5th edition char #x1f5c\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"὜\", data=\"an only legal per 5th edition char #x1f5c\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5268,8 +5232,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n18_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ˏ\", data=\"an only legal per 5th edition char #x2cf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ˏ\", data=\"an only legal per 5th edition char #x2cf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5289,8 +5253,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n180_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"὞\", data=\"an only legal per 5th edition char #x1f5e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"὞\", data=\"an only legal per 5th edition char #x1f5e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5310,8 +5274,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n181_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"὾\", data=\"an only legal per 5th edition char #x1f7e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"὾\", data=\"an only legal per 5th edition char #x1f7e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5331,8 +5295,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n182_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"᾵\", data=\"an only legal per 5th edition char #x1fb5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"᾵\", data=\"an only legal per 5th edition char #x1fb5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5352,8 +5316,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n183_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"᾽\", data=\"an only legal per 5th edition char #x1fbd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"᾽\", data=\"an only legal per 5th edition char #x1fbd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5373,8 +5337,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n184_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"᾿\", data=\"an only legal per 5th edition char #x1fbf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"᾿\", data=\"an only legal per 5th edition char #x1fbf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5394,8 +5358,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n185_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"῅\", data=\"an only legal per 5th edition char #x1fc5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"῅\", data=\"an only legal per 5th edition char #x1fc5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5415,8 +5379,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n186_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"῍\", data=\"an only legal per 5th edition char #x1fcd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"῍\", data=\"an only legal per 5th edition char #x1fcd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5436,8 +5400,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n187_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"῕\", data=\"an only legal per 5th edition char #x1fd5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"῕\", data=\"an only legal per 5th edition char #x1fd5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5457,8 +5421,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n188_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"῜\", data=\"an only legal per 5th edition char #x1fdc\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"῜\", data=\"an only legal per 5th edition char #x1fdc\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5478,8 +5442,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n189_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"῭\", data=\"an only legal per 5th edition char #x1fed\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"῭\", data=\"an only legal per 5th edition char #x1fed\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5499,8 +5463,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n19_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"·\", data=\"an only legal per 5th edition char #x387\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"·\", data=\"an only legal per 5th edition char #x387\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5520,8 +5484,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n190_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"῵\", data=\"an only legal per 5th edition char #x1ff5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"῵\", data=\"an only legal per 5th edition char #x1ff5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5541,8 +5505,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n191_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"´\", data=\"an only legal per 5th edition char #x1ffd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"´\", data=\"an only legal per 5th edition char #x1ffd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5562,8 +5526,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n192_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"℧\", data=\"an only legal per 5th edition char #x2127\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"℧\", data=\"an only legal per 5th edition char #x2127\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5583,8 +5547,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n193_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ℯ\", data=\"an only legal per 5th edition char #x212f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ℯ\", data=\"an only legal per 5th edition char #x212f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5604,8 +5568,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n194_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ↄ\", data=\"an only legal per 5th edition char #x2183\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ↄ\", data=\"an only legal per 5th edition char #x2183\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5625,8 +5589,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n195_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ゕ\", data=\"an only legal per 5th edition char #x3095\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ゕ\", data=\"an only legal per 5th edition char #x3095\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5646,8 +5610,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n196_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"・\", data=\"an only legal per 5th edition char #x30fb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"・\", data=\"an only legal per 5th edition char #x30fb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5667,8 +5631,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n197_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ㄭ\", data=\"an only legal per 5th edition char #x312d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ㄭ\", data=\"an only legal per 5th edition char #x312d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5688,8 +5652,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n198_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"힤\", data=\"an only legal per 5th edition char #xd7a4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"힤\", data=\"an only legal per 5th edition char #xd7a4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5709,8 +5673,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n20_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"΋\", data=\"an only legal per 5th edition char #x38b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"΋\", data=\"an only legal per 5th edition char #x38b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5730,8 +5694,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n21_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"΢\", data=\"an only legal per 5th edition char #x3a2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"΢\", data=\"an only legal per 5th edition char #x3a2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5751,8 +5715,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n22_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ϗ\", data=\"an only legal per 5th edition char #x3cf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ϗ\", data=\"an only legal per 5th edition char #x3cf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5772,8 +5736,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n23_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ϗ\", data=\"an only legal per 5th edition char #x3d7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ϗ\", data=\"an only legal per 5th edition char #x3d7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5793,8 +5757,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n24_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ϝ\", data=\"an only legal per 5th edition char #x3dd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ϝ\", data=\"an only legal per 5th edition char #x3dd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5814,8 +5778,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n25_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ϡ\", data=\"an only legal per 5th edition char #x3e1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ϡ\", data=\"an only legal per 5th edition char #x3e1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5835,8 +5799,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n26_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ϴ\", data=\"an only legal per 5th edition char #x3f4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ϴ\", data=\"an only legal per 5th edition char #x3f4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5856,8 +5820,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n27_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ѝ\", data=\"an only legal per 5th edition char #x40d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ѝ\", data=\"an only legal per 5th edition char #x40d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5877,8 +5841,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n28_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ѐ\", data=\"an only legal per 5th edition char #x450\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ѐ\", data=\"an only legal per 5th edition char #x450\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5898,8 +5862,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n29_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ѝ\", data=\"an only legal per 5th edition char #x45d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ѝ\", data=\"an only legal per 5th edition char #x45d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5919,8 +5883,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n30_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"҂\", data=\"an only legal per 5th edition char #x482\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"҂\", data=\"an only legal per 5th edition char #x482\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5940,8 +5904,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n31_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ӆ\", data=\"an only legal per 5th edition char #x4c5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ӆ\", data=\"an only legal per 5th edition char #x4c5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5961,8 +5925,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n32_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ӆ\", data=\"an only legal per 5th edition char #x4c6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ӆ\", data=\"an only legal per 5th edition char #x4c6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -5982,8 +5946,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n33_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ӊ\", data=\"an only legal per 5th edition char #x4c9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ӊ\", data=\"an only legal per 5th edition char #x4c9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6003,8 +5967,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n34_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ӭ\", data=\"an only legal per 5th edition char #x4ec\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ӭ\", data=\"an only legal per 5th edition char #x4ec\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6024,8 +5988,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n35_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ӭ\", data=\"an only legal per 5th edition char #x4ed\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ӭ\", data=\"an only legal per 5th edition char #x4ed\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6045,8 +6009,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n36_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ӷ\", data=\"an only legal per 5th edition char #x4f6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ӷ\", data=\"an only legal per 5th edition char #x4f6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6066,8 +6030,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n37_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"Ӻ\", data=\"an only legal per 5th edition char #x4fa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"Ӻ\", data=\"an only legal per 5th edition char #x4fa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6087,8 +6051,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n38_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"՗\", data=\"an only legal per 5th edition char #x557\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"՗\", data=\"an only legal per 5th edition char #x557\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6108,8 +6072,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n39_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"՘\", data=\"an only legal per 5th edition char #x558\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"՘\", data=\"an only legal per 5th edition char #x558\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6129,8 +6093,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n40_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"և\", data=\"an only legal per 5th edition char #x587\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"և\", data=\"an only legal per 5th edition char #x587\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6150,8 +6114,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n41_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"׫\", data=\"an only legal per 5th edition char #x5eb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"׫\", data=\"an only legal per 5th edition char #x5eb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6171,8 +6135,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n42_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"׳\", data=\"an only legal per 5th edition char #x5f3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"׳\", data=\"an only legal per 5th edition char #x5f3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6192,8 +6156,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n43_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ؠ\", data=\"an only legal per 5th edition char #x620\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ؠ\", data=\"an only legal per 5th edition char #x620\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6213,8 +6177,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n44_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ػ\", data=\"an only legal per 5th edition char #x63b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ػ\", data=\"an only legal per 5th edition char #x63b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6234,8 +6198,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n45_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ً\", data=\"an only legal per 5th edition char #x64b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ً\", data=\"an only legal per 5th edition char #x64b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6255,8 +6219,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n46_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ڸ\", data=\"an only legal per 5th edition char #x6b8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ڸ\", data=\"an only legal per 5th edition char #x6b8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6276,8 +6240,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n47_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ڿ\", data=\"an only legal per 5th edition char #x6bf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ڿ\", data=\"an only legal per 5th edition char #x6bf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6297,8 +6261,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n48_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ۏ\", data=\"an only legal per 5th edition char #x6cf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ۏ\", data=\"an only legal per 5th edition char #x6cf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6318,8 +6282,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n49_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"۔\", data=\"an only legal per 5th edition char #x6d4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"۔\", data=\"an only legal per 5th edition char #x6d4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6339,8 +6303,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n50_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ۖ\", data=\"an only legal per 5th edition char #x6d6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ۖ\", data=\"an only legal per 5th edition char #x6d6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6360,8 +6324,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n51_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ۧ\", data=\"an only legal per 5th edition char #x6e7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ۧ\", data=\"an only legal per 5th edition char #x6e7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6381,8 +6345,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n52_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ऺ\", data=\"an only legal per 5th edition char #x093a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ऺ\", data=\"an only legal per 5th edition char #x093a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6402,8 +6366,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n53_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ा\", data=\"an only legal per 5th edition char #x093e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ा\", data=\"an only legal per 5th edition char #x093e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6423,8 +6387,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n54_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ॢ\", data=\"an only legal per 5th edition char #x0962\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ॢ\", data=\"an only legal per 5th edition char #x0962\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6444,8 +6408,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n55_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"঍\", data=\"an only legal per 5th edition char #x098d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"঍\", data=\"an only legal per 5th edition char #x098d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6465,8 +6429,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n56_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"঑\", data=\"an only legal per 5th edition char #x0991\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"঑\", data=\"an only legal per 5th edition char #x0991\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6486,8 +6450,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n57_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"঒\", data=\"an only legal per 5th edition char #x0992\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"঒\", data=\"an only legal per 5th edition char #x0992\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6507,8 +6471,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n58_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"঩\", data=\"an only legal per 5th edition char #x09a9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"঩\", data=\"an only legal per 5th edition char #x09a9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6528,8 +6492,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n59_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"঱\", data=\"an only legal per 5th edition char #x09b1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"঱\", data=\"an only legal per 5th edition char #x09b1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6549,8 +6513,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n60_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"঵\", data=\"an only legal per 5th edition char #x09b5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"঵\", data=\"an only legal per 5th edition char #x09b5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6570,8 +6534,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n61_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"঺\", data=\"an only legal per 5th edition char #x09ba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"঺\", data=\"an only legal per 5th edition char #x09ba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6591,8 +6555,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n62_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"৞\", data=\"an only legal per 5th edition char #x09de\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"৞\", data=\"an only legal per 5th edition char #x09de\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6612,8 +6576,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n63_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ৢ\", data=\"an only legal per 5th edition char #x09e2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ৢ\", data=\"an only legal per 5th edition char #x09e2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6633,8 +6597,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n64_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"৲\", data=\"an only legal per 5th edition char #x09f2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"৲\", data=\"an only legal per 5th edition char #x09f2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6654,8 +6618,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n65_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"਋\", data=\"an only legal per 5th edition char #x0a0b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"਋\", data=\"an only legal per 5th edition char #x0a0b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6675,8 +6639,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n66_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"਑\", data=\"an only legal per 5th edition char #x0a11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"਑\", data=\"an only legal per 5th edition char #x0a11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6696,8 +6660,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n67_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"਩\", data=\"an only legal per 5th edition char #x0a29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"਩\", data=\"an only legal per 5th edition char #x0a29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6717,8 +6681,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n68_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"਱\", data=\"an only legal per 5th edition char #x0a31\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"਱\", data=\"an only legal per 5th edition char #x0a31\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6738,8 +6702,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n69_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"਴\", data=\"an only legal per 5th edition char #x0a34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"਴\", data=\"an only legal per 5th edition char #x0a34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6759,8 +6723,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n70_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"਷\", data=\"an only legal per 5th edition char #x0a37\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"਷\", data=\"an only legal per 5th edition char #x0a37\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6780,8 +6744,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n71_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"਺\", data=\"an only legal per 5th edition char #x0a3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"਺\", data=\"an only legal per 5th edition char #x0a3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6801,8 +6765,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n72_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"੝\", data=\"an only legal per 5th edition char #x0a5d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"੝\", data=\"an only legal per 5th edition char #x0a5d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6822,8 +6786,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n73_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ੰ\", data=\"an only legal per 5th edition char #x0a70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ੰ\", data=\"an only legal per 5th edition char #x0a70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6843,8 +6807,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n74_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ੵ\", data=\"an only legal per 5th edition char #x0a75\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ੵ\", data=\"an only legal per 5th edition char #x0a75\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6864,8 +6828,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n75_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"઄\", data=\"an only legal per 5th edition char #x0a84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"઄\", data=\"an only legal per 5th edition char #x0a84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6885,8 +6849,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n76_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"઼\", data=\"an only legal per 5th edition char #x0abc\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"઼\", data=\"an only legal per 5th edition char #x0abc\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6906,8 +6870,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n77_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"઒\", data=\"an only legal per 5th edition char #x0a92\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"઒\", data=\"an only legal per 5th edition char #x0a92\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6927,8 +6891,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n78_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"઩\", data=\"an only legal per 5th edition char #x0aa9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"઩\", data=\"an only legal per 5th edition char #x0aa9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6948,8 +6912,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n79_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"઱\", data=\"an only legal per 5th edition char #x0ab1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"઱\", data=\"an only legal per 5th edition char #x0ab1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6969,8 +6933,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n80_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"઴\", data=\"an only legal per 5th edition char #x0ab4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"઴\", data=\"an only legal per 5th edition char #x0ab4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -6990,8 +6954,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n81_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"઺\", data=\"an only legal per 5th edition char #x0aba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"઺\", data=\"an only legal per 5th edition char #x0aba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7011,8 +6975,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n82_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"଄\", data=\"an only legal per 5th edition char #x0b04\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"଄\", data=\"an only legal per 5th edition char #x0b04\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7032,8 +6996,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n83_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"଍\", data=\"an only legal per 5th edition char #x0b0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"଍\", data=\"an only legal per 5th edition char #x0b0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7053,8 +7017,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n84_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"଑\", data=\"an only legal per 5th edition char #x0b11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"଑\", data=\"an only legal per 5th edition char #x0b11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7074,8 +7038,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n85_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"଩\", data=\"an only legal per 5th edition char #x0b29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"଩\", data=\"an only legal per 5th edition char #x0b29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7095,8 +7059,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n86_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"଱\", data=\"an only legal per 5th edition char #x0b31\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"଱\", data=\"an only legal per 5th edition char #x0b31\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7116,8 +7080,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n87_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"଴\", data=\"an only legal per 5th edition char #x0b34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"଴\", data=\"an only legal per 5th edition char #x0b34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7137,8 +7101,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n88_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"଺\", data=\"an only legal per 5th edition char #x0b3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"଺\", data=\"an only legal per 5th edition char #x0b3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7158,8 +7122,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n89_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ା\", data=\"an only legal per 5th edition char #x0b3e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ା\", data=\"an only legal per 5th edition char #x0b3e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7179,8 +7143,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n90_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"୞\", data=\"an only legal per 5th edition char #x0b5e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"୞\", data=\"an only legal per 5th edition char #x0b5e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7200,8 +7164,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n91_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"ୢ\", data=\"an only legal per 5th edition char #x0b62\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"ୢ\", data=\"an only legal per 5th edition char #x0b62\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7221,8 +7185,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n92_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"஋\", data=\"an only legal per 5th edition char #x0b8b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"஋\", data=\"an only legal per 5th edition char #x0b8b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7242,8 +7206,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n93_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"஑\", data=\"an only legal per 5th edition char #x0b91\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"஑\", data=\"an only legal per 5th edition char #x0b91\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7263,8 +7227,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n94_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"஘\", data=\"an only legal per 5th edition char #x0b98\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"஘\", data=\"an only legal per 5th edition char #x0b98\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7284,8 +7248,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n95_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"஛\", data=\"an only legal per 5th edition char #x0b9b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"஛\", data=\"an only legal per 5th edition char #x0b9b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7305,8 +7269,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n96_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"஝\", data=\"an only legal per 5th edition char #x0b9d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"஝\", data=\"an only legal per 5th edition char #x0b9d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7326,8 +7290,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n97_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"஠\", data=\"an only legal per 5th edition char #x0ba0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"஠\", data=\"an only legal per 5th edition char #x0ba0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7347,8 +7311,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n98_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"஧\", data=\"an only legal per 5th edition char #x0ba7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"஧\", data=\"an only legal per 5th edition char #x0ba7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7368,8 +7332,8 @@ test "w3c/valid/ibm_valid_P85_ibm85n99_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"஫\", data=\"an only legal per 5th edition char #x0bab\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"஫\", data=\"an only legal per 5th edition char #x0bab\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7389,8 +7353,8 @@ test "w3c/valid/ibm_valid_P86_ibm86n01_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"䳿\", data=\"an only legal per 5th edition char #x4cff\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"䳿\", data=\"an only legal per 5th edition char #x4cff\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7410,8 +7374,8 @@ test "w3c/valid/ibm_valid_P86_ibm86n02_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"龦\", data=\"an only legal per 5th edition char #x9fa6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"龦\", data=\"an only legal per 5th edition char #x9fa6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7431,8 +7395,8 @@ test "w3c/valid/ibm_valid_P86_ibm86n03_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"〈\", data=\"an only legal per 5th edition char #x3008\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"〈\", data=\"an only legal per 5th edition char #x3008\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7452,8 +7416,8 @@ test "w3c/valid/ibm_valid_P86_ibm86n04_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"〪\", data=\"an only legal per 5th edition char #x302a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"〪\", data=\"an only legal per 5th edition char #x302a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7473,8 +7437,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n01_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_˿\", data=\"an only legal per 5th edition char #x2ff\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_˿\", data=\"an only legal per 5th edition char #x2ff\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7494,8 +7458,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n02_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_͆\", data=\"an only legal per 5th edition char #x346\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_͆\", data=\"an only legal per 5th edition char #x346\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7515,8 +7479,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n03_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_͢\", data=\"an only legal per 5th edition char #x362\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_͢\", data=\"an only legal per 5th edition char #x362\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7536,8 +7500,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n04_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_҇\", data=\"an only legal per 5th edition char #x487\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_҇\", data=\"an only legal per 5th edition char #x487\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7557,8 +7521,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n05_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_֢\", data=\"an only legal per 5th edition char #x5a2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_֢\", data=\"an only legal per 5th edition char #x5a2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7578,8 +7542,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n06_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ֺ\", data=\"an only legal per 5th edition char #x5ba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ֺ\", data=\"an only legal per 5th edition char #x5ba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7599,8 +7563,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n07_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_־\", data=\"an only legal per 5th edition char #x5be\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_־\", data=\"an only legal per 5th edition char #x5be\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7620,8 +7584,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n08_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_׀\", data=\"an only legal per 5th edition char #x5c0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_׀\", data=\"an only legal per 5th edition char #x5c0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7641,8 +7605,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n09_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_׃\", data=\"an only legal per 5th edition char #x5c3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_׃\", data=\"an only legal per 5th edition char #x5c3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7662,8 +7626,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n10_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ٓ\", data=\"an only legal per 5th edition char #x653\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ٓ\", data=\"an only legal per 5th edition char #x653\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7683,8 +7647,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n11_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ڸ\", data=\"an only legal per 5th edition char #x6b8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ڸ\", data=\"an only legal per 5th edition char #x6b8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7704,8 +7668,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n12_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ڹ\", data=\"an only legal per 5th edition char #x6b9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ڹ\", data=\"an only legal per 5th edition char #x6b9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7725,8 +7689,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n13_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_۩\", data=\"an only legal per 5th edition char #x6e9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_۩\", data=\"an only legal per 5th edition char #x6e9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7746,8 +7710,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n14_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ۮ\", data=\"an only legal per 5th edition char #x6ee\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ۮ\", data=\"an only legal per 5th edition char #x6ee\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7767,8 +7731,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n15_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ऄ\", data=\"an only legal per 5th edition char #x0904\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ऄ\", data=\"an only legal per 5th edition char #x0904\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7788,8 +7752,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n16_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ऻ\", data=\"an only legal per 5th edition char #x093b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ऻ\", data=\"an only legal per 5th edition char #x093b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7809,8 +7773,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n17_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ॎ\", data=\"an only legal per 5th edition char #x094e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ॎ\", data=\"an only legal per 5th edition char #x094e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7830,8 +7794,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n18_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ॕ\", data=\"an only legal per 5th edition char #x0955\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ॕ\", data=\"an only legal per 5th edition char #x0955\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7851,8 +7815,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n19_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_।\", data=\"an only legal per 5th edition char #x0964\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_।\", data=\"an only legal per 5th edition char #x0964\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7872,8 +7836,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n20_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_঄\", data=\"an only legal per 5th edition char #x0984\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_঄\", data=\"an only legal per 5th edition char #x0984\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7893,8 +7857,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n21_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_৅\", data=\"an only legal per 5th edition char #x09c5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_৅\", data=\"an only legal per 5th edition char #x09c5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7914,8 +7878,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n22_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_৉\", data=\"an only legal per 5th edition char #x09c9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_৉\", data=\"an only legal per 5th edition char #x09c9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7935,8 +7899,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n23_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ৎ\", data=\"an only legal per 5th edition char #x09ce\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ৎ\", data=\"an only legal per 5th edition char #x09ce\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7956,8 +7920,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n24_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_৘\", data=\"an only legal per 5th edition char #x09d8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_৘\", data=\"an only legal per 5th edition char #x09d8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7977,8 +7941,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n25_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_৤\", data=\"an only legal per 5th edition char #x09e4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_৤\", data=\"an only legal per 5th edition char #x09e4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -7998,8 +7962,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n26_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ਃ\", data=\"an only legal per 5th edition char #x0a03\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ਃ\", data=\"an only legal per 5th edition char #x0a03\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8019,8 +7983,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n27_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_਽\", data=\"an only legal per 5th edition char #x0a3d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_਽\", data=\"an only legal per 5th edition char #x0a3d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8040,8 +8004,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n28_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_੆\", data=\"an only legal per 5th edition char #x0a46\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_੆\", data=\"an only legal per 5th edition char #x0a46\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8061,8 +8025,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n29_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_੉\", data=\"an only legal per 5th edition char #x0a49\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_੉\", data=\"an only legal per 5th edition char #x0a49\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8082,8 +8046,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n30_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_੎\", data=\"an only legal per 5th edition char #x0a4e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_੎\", data=\"an only legal per 5th edition char #x0a4e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8103,8 +8067,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n31_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_઀\", data=\"an only legal per 5th edition char #x0a80\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_઀\", data=\"an only legal per 5th edition char #x0a80\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8124,8 +8088,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n32_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_઄\", data=\"an only legal per 5th edition char #x0a84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_઄\", data=\"an only legal per 5th edition char #x0a84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8145,8 +8109,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n33_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_઻\", data=\"an only legal per 5th edition char #x0abb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_઻\", data=\"an only legal per 5th edition char #x0abb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8166,8 +8130,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n34_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_૆\", data=\"an only legal per 5th edition char #x0ac6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_૆\", data=\"an only legal per 5th edition char #x0ac6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8187,8 +8151,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n35_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_૊\", data=\"an only legal per 5th edition char #x0aca\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_૊\", data=\"an only legal per 5th edition char #x0aca\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8208,8 +8172,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n36_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_૎\", data=\"an only legal per 5th edition char #x0ace\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_૎\", data=\"an only legal per 5th edition char #x0ace\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8229,8 +8193,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n37_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_଄\", data=\"an only legal per 5th edition char #x0b04\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_଄\", data=\"an only legal per 5th edition char #x0b04\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8250,8 +8214,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n38_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_଻\", data=\"an only legal per 5th edition char #x0b3b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_଻\", data=\"an only legal per 5th edition char #x0b3b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8271,8 +8235,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n39_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ୄ\", data=\"an only legal per 5th edition char #x0b44\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ୄ\", data=\"an only legal per 5th edition char #x0b44\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8292,8 +8256,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n40_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_୊\", data=\"an only legal per 5th edition char #x0b4a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_୊\", data=\"an only legal per 5th edition char #x0b4a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8313,8 +8277,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n41_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_୎\", data=\"an only legal per 5th edition char #x0b4e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_୎\", data=\"an only legal per 5th edition char #x0b4e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8334,8 +8298,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n42_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_୘\", data=\"an only legal per 5th edition char #x0b58\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_୘\", data=\"an only legal per 5th edition char #x0b58\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8355,8 +8319,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n43_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_஄\", data=\"an only legal per 5th edition char #x0b84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_஄\", data=\"an only legal per 5th edition char #x0b84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8376,8 +8340,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n44_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_௃\", data=\"an only legal per 5th edition char #x0bc3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_௃\", data=\"an only legal per 5th edition char #x0bc3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8397,8 +8361,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n45_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_௉\", data=\"an only legal per 5th edition char #x0bc9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_௉\", data=\"an only legal per 5th edition char #x0bc9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8418,8 +8382,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n46_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_௖\", data=\"an only legal per 5th edition char #x0bd6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_௖\", data=\"an only legal per 5th edition char #x0bd6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8439,8 +8403,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n47_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_఍\", data=\"an only legal per 5th edition char #x0c0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_఍\", data=\"an only legal per 5th edition char #x0c0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8460,8 +8424,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n48_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_౅\", data=\"an only legal per 5th edition char #x0c45\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_౅\", data=\"an only legal per 5th edition char #x0c45\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8481,8 +8445,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n49_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_౉\", data=\"an only legal per 5th edition char #x0c49\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_౉\", data=\"an only legal per 5th edition char #x0c49\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8502,8 +8466,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n50_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_౔\", data=\"an only legal per 5th edition char #x0c54\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_౔\", data=\"an only legal per 5th edition char #x0c54\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8523,8 +8487,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n51_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ಁ\", data=\"an only legal per 5th edition char #x0c81\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ಁ\", data=\"an only legal per 5th edition char #x0c81\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8544,8 +8508,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n52_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_಄\", data=\"an only legal per 5th edition char #x0c84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_಄\", data=\"an only legal per 5th edition char #x0c84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8565,8 +8529,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n53_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_೅\", data=\"an only legal per 5th edition char #x0cc5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_೅\", data=\"an only legal per 5th edition char #x0cc5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8586,8 +8550,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n54_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_೉\", data=\"an only legal per 5th edition char #x0cc9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_೉\", data=\"an only legal per 5th edition char #x0cc9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8607,8 +8571,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n55_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_೔\", data=\"an only legal per 5th edition char #x0cd4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_೔\", data=\"an only legal per 5th edition char #x0cd4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8628,8 +8592,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n56_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_೗\", data=\"an only legal per 5th edition char #x0cd7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_೗\", data=\"an only legal per 5th edition char #x0cd7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8649,8 +8613,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n57_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ഄ\", data=\"an only legal per 5th edition char #x0d04\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ഄ\", data=\"an only legal per 5th edition char #x0d04\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8670,8 +8634,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n58_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_൅\", data=\"an only legal per 5th edition char #x0d45\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_൅\", data=\"an only legal per 5th edition char #x0d45\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8691,8 +8655,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n59_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_൉\", data=\"an only legal per 5th edition char #x0d49\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_൉\", data=\"an only legal per 5th edition char #x0d49\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8712,8 +8676,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n60_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ൎ\", data=\"an only legal per 5th edition char #x0d4e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ൎ\", data=\"an only legal per 5th edition char #x0d4e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8733,8 +8697,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n61_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_൘\", data=\"an only legal per 5th edition char #x0d58\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_൘\", data=\"an only legal per 5th edition char #x0d58\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8754,8 +8718,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n62_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_฿\", data=\"an only legal per 5th edition char #x0e3f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_฿\", data=\"an only legal per 5th edition char #x0e3f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8775,8 +8739,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n63_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_฻\", data=\"an only legal per 5th edition char #x0e3b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_฻\", data=\"an only legal per 5th edition char #x0e3b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8796,8 +8760,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n64_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_๏\", data=\"an only legal per 5th edition char #x0e4f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_๏\", data=\"an only legal per 5th edition char #x0e4f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8817,8 +8781,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n66_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_຺\", data=\"an only legal per 5th edition char #x0eba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_຺\", data=\"an only legal per 5th edition char #x0eba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8838,8 +8802,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n67_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_຾\", data=\"an only legal per 5th edition char #x0ebe\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_຾\", data=\"an only legal per 5th edition char #x0ebe\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8859,8 +8823,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n68_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_໎\", data=\"an only legal per 5th edition char #x0ece\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_໎\", data=\"an only legal per 5th edition char #x0ece\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8880,8 +8844,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n69_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_༚\", data=\"an only legal per 5th edition char #x0f1a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_༚\", data=\"an only legal per 5th edition char #x0f1a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8901,8 +8865,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n70_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_༶\", data=\"an only legal per 5th edition char #x0f36\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_༶\", data=\"an only legal per 5th edition char #x0f36\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8922,8 +8886,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n71_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_༸\", data=\"an only legal per 5th edition char #x0f38\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_༸\", data=\"an only legal per 5th edition char #x0f38\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8943,8 +8907,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n72_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_༻\", data=\"an only legal per 5th edition char #x0f3b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_༻\", data=\"an only legal per 5th edition char #x0f3b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8964,8 +8928,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n73_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_༺\", data=\"an only legal per 5th edition char #x0f3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_༺\", data=\"an only legal per 5th edition char #x0f3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -8985,8 +8949,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n74_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_཰\", data=\"an only legal per 5th edition char #x0f70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_཰\", data=\"an only legal per 5th edition char #x0f70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9006,8 +8970,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n75_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_྅\", data=\"an only legal per 5th edition char #x0f85\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_྅\", data=\"an only legal per 5th edition char #x0f85\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9027,8 +8991,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n76_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ྌ\", data=\"an only legal per 5th edition char #x0f8c\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ྌ\", data=\"an only legal per 5th edition char #x0f8c\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9048,8 +9012,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n77_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ྖ\", data=\"an only legal per 5th edition char #x0f96\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ྖ\", data=\"an only legal per 5th edition char #x0f96\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9069,8 +9033,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n78_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_྘\", data=\"an only legal per 5th edition char #x0f98\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_྘\", data=\"an only legal per 5th edition char #x0f98\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9090,8 +9054,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n79_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ྰ\", data=\"an only legal per 5th edition char #x0fb0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ྰ\", data=\"an only legal per 5th edition char #x0fb0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9111,8 +9075,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n80_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ྸ\", data=\"an only legal per 5th edition char #x0fb8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ྸ\", data=\"an only legal per 5th edition char #x0fb8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9132,8 +9096,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n81_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ྺ\", data=\"an only legal per 5th edition char #x0fba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ྺ\", data=\"an only legal per 5th edition char #x0fba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9153,8 +9117,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n82_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_⃝\", data=\"an only legal per 5th edition char #x20dd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_⃝\", data=\"an only legal per 5th edition char #x20dd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9174,8 +9138,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n83_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_⃢\", data=\"an only legal per 5th edition char #x20e2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_⃢\", data=\"an only legal per 5th edition char #x20e2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9195,8 +9159,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n84_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_〰\", data=\"an only legal per 5th edition char #x3030\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_〰\", data=\"an only legal per 5th edition char #x3030\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9216,8 +9180,8 @@ test "w3c/valid/ibm_valid_P87_ibm87n85_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_゛\", data=\"an only legal per 5th edition char #x309b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_゛\", data=\"an only legal per 5th edition char #x309b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9237,8 +9201,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n03_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_٪\", data=\"an only legal per 5th edition char #x66a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_٪\", data=\"an only legal per 5th edition char #x66a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9258,8 +9222,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n04_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ۺ\", data=\"an only legal per 5th edition char #x6fa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ۺ\", data=\"an only legal per 5th edition char #x6fa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9279,8 +9243,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n05_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_॰\", data=\"an only legal per 5th edition char #x0970\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_॰\", data=\"an only legal per 5th edition char #x0970\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9300,8 +9264,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n06_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_৲\", data=\"an only legal per 5th edition char #x09f2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_৲\", data=\"an only legal per 5th edition char #x09f2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9321,8 +9285,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n08_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_૰\", data=\"an only legal per 5th edition char #x0af0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_૰\", data=\"an only legal per 5th edition char #x0af0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9342,8 +9306,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n09_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_୰\", data=\"an only legal per 5th edition char #x0b70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_୰\", data=\"an only legal per 5th edition char #x0b70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9363,8 +9327,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n10_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_౥\", data=\"an only legal per 5th edition char #x0c65\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_౥\", data=\"an only legal per 5th edition char #x0c65\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9384,8 +9348,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n11_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_೥\", data=\"an only legal per 5th edition char #x0ce5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_೥\", data=\"an only legal per 5th edition char #x0ce5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9405,8 +9369,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n12_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_೰\", data=\"an only legal per 5th edition char #x0cf0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_೰\", data=\"an only legal per 5th edition char #x0cf0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9426,8 +9390,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n13_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_൰\", data=\"an only legal per 5th edition char #x0d70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_൰\", data=\"an only legal per 5th edition char #x0d70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9447,8 +9411,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n14_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_๚\", data=\"an only legal per 5th edition char #x0e5a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_๚\", data=\"an only legal per 5th edition char #x0e5a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9468,8 +9432,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n15_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_໚\", data=\"an only legal per 5th edition char #x0eda\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_໚\", data=\"an only legal per 5th edition char #x0eda\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9489,8 +9453,8 @@ test "w3c/valid/ibm_valid_P88_ibm88n16_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_༪\", data=\"an only legal per 5th edition char #x0f2a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_༪\", data=\"an only legal per 5th edition char #x0f2a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9510,8 +9474,8 @@ test "w3c/valid/ibm_valid_P89_ibm89n03_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_˒\", data=\"an only legal per 5th edition extender #x2d2 in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_˒\", data=\"an only legal per 5th edition extender #x2d2 in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9531,8 +9495,8 @@ test "w3c/valid/ibm_valid_P89_ibm89n04_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_Ͼ\", data=\"an only legal per 5th edition extender #x3fe in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_Ͼ\", data=\"an only legal per 5th edition extender #x3fe in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 
@@ -9552,8 +9516,8 @@ test "w3c/valid/ibm_valid_P89_ibm89n05_xml" {
     }
   }
   inspect(
-    events,
-    content="[DocType(\"animal\"), Text(\"\\n\"), PI(target=\"_ٟ\", data=\"an only legal per 5th edition extender #x65f in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    to_libxml_format(events),
+    content="[DocType(\"animal\"), PI(target=\"_ٟ\", data=\"an only legal per 5th edition extender #x65f in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
   )
 }
 

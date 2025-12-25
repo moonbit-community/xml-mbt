@@ -397,12 +397,11 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
           self.just_saw_decl = false
           return self.read_event()
         }
-        // Character references (&#..;) and entity references (&...;) are NOT allowed
+        // Read prolog whitespace
         let text_event = self.read_whitespace_only()
-        // Mark that we've seen content (affects XML declaration placement check)
+        // Mark that we've seen content
         self.seen_content = true
-        // If we just returned DocType, move internal subset events to pending queue
-        // This ensures they appear after the prolog whitespace (lxml behavior)
+        // Move internal subset events to pending queue
         if self.just_saw_doctype {
           self.just_saw_doctype = false
           for event in self.internal_subset_events {
@@ -1113,8 +1112,8 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                 let _ = self.advance()
                 let entity = "&" + entity_name + ";"
                 let decoded = unescape(entity)
-                // Normalize line endings and push entity value as separate text event
-                self.pending_events.push(Text(normalize_line_endings(decoded)))
+                // Character references preserve literal character (no line ending normalization)
+                self.pending_events.push(Text(decoded))
               }
               _ => raise InvalidSyntax("entity reference must end with ';'")
             }
@@ -1539,6 +1538,7 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
           } else if self.check_string("--") {
             // Comment in DTD: <!-- ... -->
             let _ = self.skip_string("--")
+            let comment_buf = StringBuilder::new()
             while not(self.is_eof()) {
               if self.check_string("--") {
                 let _ = self.skip_string("--")
@@ -1550,9 +1550,12 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
                   raise InvalidSyntax("'--' in comment must be followed by '>'")
                 }
               }
-              let _ = self.advance()
-
+              match self.advance() {
+                Some(c) => comment_buf.write_char(c)
+                None => ()
+              }
             }
+            self.internal_subset_events.push(Comment(comment_buf.to_string()))
           } else if self.check_string("NOTATION") {
             // NOTATION declaration - validate PUBLIC ID if present
             let _ = self.skip_string("NOTATION")

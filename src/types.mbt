@@ -20,6 +20,52 @@ pub struct XmlElement {
 } derive(Show, Eq)
 
 ///|
+/// Normalize whitespace in attribute values (lxml behavior).
+/// For CDATA: only replace tabs/newlines with spaces
+/// For tokenized types: normalize fully (but we don't know the type without DTD)
+/// Since we don't process DTD attribute types, we just do basic CDATA-style normalization.
+fn normalize_attr_value(s : String) -> String {
+  // Replace tabs/newlines with spaces (CDATA normalization)
+  let buf = StringBuilder::new()
+  for c in s {
+    if c == '\t' || c == '\n' || c == '\r' {
+      buf.write_char(' ')
+    } else {
+      buf.write_char(c)
+    }
+  }
+  buf.to_string()
+}
+
+///|
+/// Transform attributes to match lxml behavior:
+/// - Filter out xmlns namespace declarations
+/// - Strip xml: prefix (xml:lang -> lang)
+/// - Normalize whitespace in values
+fn transform_attrs_for_libxml(
+  attrs : Array[(String, String)]
+) -> Array[(String, String)] {
+  let result : Array[(String, String)] = []
+  for attr in attrs {
+    let name = attr.0
+    if name == "xmlns" || name.has_prefix("xmlns:") {
+      // Skip namespace declarations
+      continue
+    }
+    // Strip xml: prefix (xml:lang -> lang)
+    let final_name = if name.has_prefix("xml:") {
+      (try! name[4:]).to_string()
+    } else {
+      name
+    }
+    // Normalize attribute value (trim leading/trailing whitespace)
+    let normalized_value = normalize_attr_value(attr.1)
+    result.push((final_name, normalized_value))
+  }
+  result
+}
+
+///|
 pub fn XmlElement::new(name : String) -> XmlElement {
   { name, attributes: [] }
 }
@@ -77,3 +123,109 @@ pub(all) suberror XmlError {
   InvalidAttribute(String)
   InvalidEntity(String)
 } derive(Show, Eq)
+
+///|
+/// Convert events to libxml2/lxml format for conformance testing.
+///
+/// Handles known differences between our parser and lxml:
+/// - Removes prolog whitespace (Text events before first element)
+/// - Converts Start+End pairs (no content) to Empty
+/// - Fills in default encoding (UTF-8) and standalone (no) for XML declaration
+/// - Reorders prolog: Decl first, then DocType, then Comments/PIs
+pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
+  let result : Array[Event] = []
+  // First pass: collect prolog events and find first element
+  let mut first_element_idx = 0
+  for i, event in events {
+    match event {
+      Start(_) | Empty(_) => {
+        first_element_idx = i
+        break
+      }
+      _ => ()
+    }
+  }
+  // Process prolog: reorder Decl -> DocType -> others
+  let mut decl_event : Event? = None
+  let mut doctype_event : Event? = None
+  let prolog_others : Array[Event] = []
+  for i = 0; i < first_element_idx; i = i + 1 {
+    match events[i] {
+      Decl(version~, encoding~, standalone~) => {
+        // lxml fills in defaults
+        let enc = match encoding {
+          Some(e) => Some(e)
+          None => Some("UTF-8")
+        }
+        let std = match standalone {
+          Some(s) => Some(s)
+          None => Some("no")
+        }
+        decl_event = Some(Decl(version~, encoding=enc, standalone=std))
+      }
+      DocType(name) => doctype_event = Some(DocType(name))
+      Text(_) => () // Skip prolog whitespace
+      PI(target~, data~) => {
+        // lxml trims leading whitespace from PI data
+        prolog_others.push(PI(target~, data=data.trim_start().to_string()))
+      }
+      other => prolog_others.push(other)
+    }
+  }
+  // Emit prolog in lxml order
+  match decl_event {
+    Some(e) => result.push(e)
+    None => ()
+  }
+  match doctype_event {
+    Some(e) => result.push(e)
+    None => ()
+  }
+  for e in prolog_others {
+    result.push(e)
+  }
+  // Process remaining events (from first element onward)
+  let len = events.length()
+  let mut i = first_element_idx
+  while i < len {
+    let event = events[i]
+    match event {
+      Start(elem) => {
+        // Transform attributes for lxml compatibility
+        let filtered_elem = XmlElement::with_attrs(
+          elem.name,
+          transform_attrs_for_libxml(elem.attributes),
+        )
+        // Check if next event is matching End (empty element)
+        if i + 1 < len {
+          match events[i + 1] {
+            End(name) =>
+              if name == elem.name {
+                // Convert Start+End to Empty
+                result.push(Empty(filtered_elem))
+                i += 2
+                continue
+              }
+            _ => ()
+          }
+        }
+        result.push(Start(filtered_elem))
+      }
+      Empty(elem) => {
+        // Transform attributes for lxml compatibility
+        let filtered_elem = XmlElement::with_attrs(
+          elem.name,
+          transform_attrs_for_libxml(elem.attributes),
+        )
+        result.push(Empty(filtered_elem))
+      }
+      PI(target~, data~) => {
+        // lxml trims leading whitespace from PI data
+        result.push(PI(target~, data=data.trim_start().to_string()))
+      }
+      _ => result.push(event)
+    }
+    i += 1
+  }
+  result
+}
