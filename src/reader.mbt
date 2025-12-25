@@ -38,6 +38,7 @@ pub fn Reader::from_string(input : String) -> Reader {
     pending_events: [],
     internal_subset_events: [],
     just_saw_doctype: false,
+    had_bom: start_pos > 0,
   }
 }
 
@@ -69,6 +70,7 @@ pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
     pending_events: [],
     internal_subset_events: [],
     just_saw_doctype: false,
+    had_bom: start_pos > 0,
   }
 }
 
@@ -647,7 +649,13 @@ fn Reader::read_pi(self : Reader) -> Event raise XmlError {
       raise InvalidSyntax("PI target 'xml' is reserved (case-insensitive)")
     }
     // XML declaration
-    self.read_xml_decl()
+    let decl = self.read_xml_decl()
+    // When BOM is present, lxml skips the Decl event entirely
+    if self.had_bom {
+      self.just_saw_decl = true
+      return self.read_event()
+    }
+    decl
   } else {
     // After target, must have whitespace before data, or ?> to end
     match self.peek() {
@@ -1198,24 +1206,40 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
             match self.peek() {
               Some(';') => {
                 let _ = self.advance()
-                // Expand with validation
-                let entity_ref = "&" + entity_name + ";"
-                let seen : Map[String, Bool] = {}
-                let expanded = expand_entity_value(
-                  entity_ref,
-                  self.entities,
-                  seen,
-                )
-                // Normalize line endings in expanded value
-                let normalized = normalize_line_endings(expanded)
-                // Check if expanded value contains actual markup (not just &lt;)
-                // Only parse as markup if it forms valid well-formed content
-                if has_markup(normalized) && is_well_formed_content(normalized) {
-                  // Parse entity content as XML (entity markup expansion)
-                  self.parse_entity_content(normalized)
-                } else {
-                  // Push entity value as separate text event
-                  self.pending_events.push(Text(normalized))
+                // Get the stored entity value (may still have &#38; etc.)
+                match self.entities.get(entity_name) {
+                  Some(stored_value) => {
+                    // Check if stored value has markup and is well-formed
+                    // Use stored value (with &#38; intact) for well-formedness check
+                    if has_markup(stored_value) &&
+                      is_well_formed_content(stored_value) {
+                      // Parse stored entity content as XML (handles &#38; correctly)
+                      self.parse_entity_content(stored_value)
+                    } else {
+                      // Expand fully and return as text
+                      let entity_ref = "&" + entity_name + ";"
+                      let seen : Map[String, Bool] = {}
+                      let expanded = expand_entity_value(
+                        entity_ref,
+                        self.entities,
+                        seen,
+                      )
+                      let normalized = normalize_line_endings(expanded)
+                      self.pending_events.push(Text(normalized))
+                    }
+                  }
+                  None => {
+                    // Built-in entity (like &amp;) - expand and push as text
+                    let entity_ref = "&" + entity_name + ";"
+                    let seen : Map[String, Bool] = {}
+                    let expanded = expand_entity_value(
+                      entity_ref,
+                      self.entities,
+                      seen,
+                    )
+                    let normalized = normalize_line_endings(expanded)
+                    self.pending_events.push(Text(normalized))
+                  }
                 }
               }
               _ => raise InvalidSyntax("entity reference must end with ';'")
@@ -1285,9 +1309,13 @@ fn Reader::read_whitespace_only(self : Reader) -> Event raise XmlError {
         } else {
           raise InvalidSyntax("character reference before root element")
         }
-      Some(c) =>
+      Some(c) => {
+        let code = c.to_int()
         if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
           buf.write_char(c)
+          let _ = self.advance()
+        } else if code == 0xFEFF {
+          // Skip BOM (byte order mark) - don't include in output
           let _ = self.advance()
           // Non-whitespace content not allowed outside root element
         } else if self.root_closed {
@@ -1295,6 +1323,7 @@ fn Reader::read_whitespace_only(self : Reader) -> Event raise XmlError {
         } else {
           raise InvalidSyntax("content before root element")
         }
+      }
       None => break
     }
   }
@@ -1852,6 +1881,10 @@ fn is_whitespace(c : Char) -> Bool {
     return true
   }
   let code = c.to_int()
+  // U+FEFF (BOM - byte order mark, treated as whitespace/ignored)
+  if code == 0xFEFF {
+    return true
+  }
   // U+00A0 (NBSP - non-breaking space)
   if code == 0xA0 {
     return true

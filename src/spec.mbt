@@ -41,6 +41,7 @@ pub struct Reader {
   pending_events : Array[Event] // Queue of events to return (for text splitting)
   internal_subset_events : Array[Event] // PIs/comments from internal subset (emit after prolog whitespace)
   mut just_saw_doctype : Bool // Track if we just returned DocType to handle internal subset events
+  had_bom : Bool // Whether input started with BOM (affects Decl emission)
 }
 
 ///|
