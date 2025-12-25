@@ -238,6 +238,9 @@ test "preserve whitespace in text" {
 ///|
 test "parse with leading whitespace" {
   let reader = Reader::from_string("  <root/>")
+  // Leading whitespace before root element is emitted as Text event
+  let whitespace = reader.read_event()
+  inspect(whitespace, content="Text(\"  \")")
   let event = reader.read_event()
   inspect(
     event,

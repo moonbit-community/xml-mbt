@@ -30,22 +30,21 @@ test "valid/sa/001 - empty element with DTD" {
     #|]>
     #|<doc></doc>
   let reader = Reader::from_string(xml)
-  // Skip DOCTYPE
-  let event1 = reader.read_event()
-  inspect(event1, content="DocType(\"doc\")")
-  let event2 = reader.read_event()
+  let events : Array[Event] = []
+  for {
+    match reader.read_event() {
+      Eof => {
+        events.push(Eof)
+        break
+      }
+      event => events.push(event)
+    }
+  }
+  // Use to_libxml_format to skip prolog whitespace
+  let filtered = to_libxml_format(events)
   inspect(
-    event2,
-    content=(
-      #|Start({name: "doc", attributes: []})
-    ),
-  )
-  let event3 = reader.read_event()
-  inspect(
-    event3,
-    content=(
-      #|End("doc")
-    ),
+    filtered,
+    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
 }
 
@@ -58,6 +57,7 @@ test "valid/sa/003 - whitespace in start tag" {
     #|<doc ></doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let event = reader.read_event()
   inspect(
     event,
@@ -77,6 +77,7 @@ test "valid/sa/004 - attribute with value" {
     #|<doc a1="v1"></doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let event = reader.read_event()
   inspect(
     event,
@@ -96,6 +97,7 @@ test "valid/sa/005 - multiple attributes" {
     #|<doc a1="v1" a2="v2"></doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let event = reader.read_event()
   inspect(
     event,
@@ -114,6 +116,7 @@ test "valid/sa/006 - numeric character reference" {
     #|<doc>&#32;</doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
   inspect(
@@ -133,6 +136,7 @@ test "valid/sa/007 - hex character reference" {
     #|<doc>&#x20;</doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
   inspect(
@@ -152,6 +156,7 @@ test "valid/sa/008 - built-in entity lt" {
     #|<doc>&lt;</doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
   inspect(
@@ -171,6 +176,7 @@ test "valid/sa/009 - built-in entity gt" {
     #|<doc>&gt;</doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
   inspect(
@@ -190,6 +196,7 @@ test "valid/sa/010 - built-in entity amp" {
     #|<doc>&amp;</doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
   inspect(
@@ -209,6 +216,7 @@ test "valid/sa/011 - built-in entity apos" {
     #|<doc>&apos;</doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
   inspect(
@@ -228,6 +236,7 @@ test "valid/sa/012 - built-in entity quot" {
     #|<doc>&quot;</doc>
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // DOCTYPE
+  let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
   inspect(
