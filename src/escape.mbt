@@ -62,6 +62,64 @@ pub fn unescape(text : String) -> String raise XmlError {
 }
 
 ///|
+/// Expand only character references (&#NN; &#xHH;), leaving entity refs as-is.
+/// Used for processing entity replacement text per XML spec 4.5.
+pub fn expand_char_refs_only(text : String) -> String raise XmlError {
+  let buf = StringBuilder::new()
+  let chars = text.to_array()
+  let len = chars.length()
+  let mut i = 0
+  while i < len {
+    if chars[i] == '&' && i + 1 < len && chars[i + 1] == '#' {
+      // Character reference - find the end and decode
+      let start = i
+      i += 2
+      while i < len && chars[i] != ';' {
+        i += 1
+      }
+      if i >= len {
+        raise InvalidEntity(substring_chars(chars, start, len))
+      }
+      let entity = substring_chars(chars, start, i + 1)
+      let decoded = decode_char_ref(entity)
+      buf.write_string(decoded)
+      i += 1
+    } else {
+      buf.write_char(chars[i])
+      i += 1
+    }
+  }
+  buf.to_string()
+}
+
+///|
+/// Decode a character reference (&#NN; or &#xHH;) only
+fn decode_char_ref(entity : String) -> String raise XmlError {
+  if entity.has_prefix("&#") && entity.has_suffix(";") {
+    let chars = entity.to_array()
+    let inner_start = 2
+    let inner_end = chars.length() - 1
+    let first_inner = chars[inner_start]
+    let code_point = if first_inner == 'x' {
+      parse_hex_chars(chars, inner_start + 1, inner_end)
+    } else if first_inner == 'X' {
+      raise InvalidEntity(
+        "hex character reference must use lowercase 'x': " + entity,
+      )
+    } else {
+      parse_decimal_chars(chars, inner_start, inner_end)
+    }
+    if is_valid_xml_char(code_point) {
+      Int::unsafe_to_char(code_point).to_string()
+    } else {
+      raise InvalidEntity(entity)
+    }
+  } else {
+    raise InvalidEntity(entity)
+  }
+}
+
+///|
 fn substring_chars(chars : Array[Char], start : Int, end : Int) -> String {
   let buf = StringBuilder::new()
   for i = start; i < end; i = i + 1 {

@@ -1121,6 +1121,9 @@ fn has_markup(s : String) -> Bool {
           return true
         }
       }
+    } else if chars[i] == '&' {
+      // Entity references also count as "markup" for text splitting purposes
+      return true
     }
     i += 1
   }
@@ -1573,7 +1576,10 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
                   // Only validate and store if not duplicate
                   if not(is_duplicate) {
                     validate_entity_value(raw_value)
-                    let value = unescape(raw_value) catch { _ => raw_value }
+                    // Per XML spec 4.5: expand only char refs, keep entity refs
+                    let value = expand_char_refs_only(raw_value) catch {
+                      _ => raw_value
+                    }
                     self.entities.set(name, value)
                   }
                   self.skip_to_char_strict('>')
@@ -1585,7 +1591,10 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
                   // Only validate and store if not duplicate
                   if not(is_duplicate) {
                     validate_entity_value(raw_value)
-                    let value = unescape(raw_value) catch { _ => raw_value }
+                    // Per XML spec 4.5: expand only char refs, keep entity refs
+                    let value = expand_char_refs_only(raw_value) catch {
+                      _ => raw_value
+                    }
                     self.entities.set(name, value)
                   }
                   self.skip_to_char_strict('>')
