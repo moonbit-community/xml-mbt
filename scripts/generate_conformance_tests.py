@@ -4,16 +4,18 @@ Generate MoonBit conformance tests from W3C XML Test Suite.
 
 Covers: XML 1.0 + Namespaces 1.0
 
-Uses libxml2 (xmllint) for well-formedness checking.
-For not-wf tests, we verify that IF libxml2 rejects it AND our parser rejects it,
-we expect an error. Otherwise we skip (parser is lenient).
+Uses xml_reference.py (lxml) to generate expected event sequences.
+For not-wf tests, we verify that the parser rejects the input.
 """
 
 import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+
+# Import the reference parser
+from xml_reference import parse_xml, escape_for_debug
 
 XMLCONF_DIR = Path(__file__).parent.parent / "xmlconf"
 OUTPUT_FILE = Path(__file__).parent.parent / "src" / "w3c_conformance_test.mbt"
@@ -112,28 +114,7 @@ def check_well_formed_libxml(xml_content: str) -> bool:
     except Exception:
         return False
 
-def check_well_formed_moonbit(xml_content: str) -> bool:
-    """Check if XML is well-formed using our MoonBit parser."""
-    # Write test file and run
-    test_code = f'''
-test "check" {{
-  let xml = "{escape_moonbit_string(xml_content)}"
-  let reader = @xml.Reader::from_string(xml)
-  let mut has_error = false
-  for i = 0; i < 10000 && not(has_error); i = i + 1 {{
-    try reader.read_event() catch {{ _ => has_error = true }} noraise {{ Eof => break; _ => continue }}
-  }}
-  // If no error, test passes. If error, test fails.
-  if has_error {{
-    raise @test.T::fail()
-  }}
-}}
-'''
-    # This is slow, so we'll batch it later
-    # For now, just return True (assume lenient)
-    return True
-
-def load_test_file(file_path: str) -> str | None:
+def load_test_file(file_path: str) -> Optional[str]:
     """Load test XML file content."""
     try:
         with open(file_path, 'rb') as f:
@@ -154,8 +135,43 @@ def load_test_file(file_path: str) -> str | None:
     except:
         return None
 
-def generate_valid_test(test_id: str, content: str, description: str) -> str:
-    """Generate a test for valid XML - verify parser doesn't error."""
+def get_expected_events(content: str) -> Optional[str]:
+    """Get expected events from reference parser."""
+    try:
+        success, result = parse_xml(content)
+        if success:
+            return result
+        return None
+    except Exception as e:
+        return None
+
+def generate_valid_test_with_events(test_id: str, content: str, description: str, expected_events: str) -> str:
+    """Generate a test for valid XML with expected event sequence."""
+    safe_name = sanitize_test_name(test_id)
+    escaped = escape_moonbit_string(content)
+    desc = clean_description(description)
+    # Escape the expected events string for use inside a MoonBit string literal
+    escaped_events = escape_moonbit_string(expected_events)
+
+    return f'''///|
+test "w3c/valid/{safe_name}" {{
+  // {desc}
+  let xml = "{escaped}"
+  let reader = Reader::from_string(xml)
+  let events : Array[Event] = []
+  for {{
+    match reader.read_event() {{
+      Eof => {{ events.push(Eof); break }}
+      event => events.push(event)
+    }}
+  }}
+  inspect(events, content="{escaped_events}")
+}}
+
+'''
+
+def generate_valid_test_error_only(test_id: str, content: str, description: str) -> str:
+    """Generate a test for valid XML - only verify no error (fallback)."""
     safe_name = sanitize_test_name(test_id)
     escaped = escape_moonbit_string(content)
     desc = clean_description(description)
@@ -165,9 +181,12 @@ test "w3c/valid/{safe_name}" {{
   // {desc}
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
-  let mut has_error = false
-  for {{
-    try reader.read_event() catch {{ _ => {{ has_error = true; break }} }} noraise {{ Eof => break; _ => continue }}
+  let has_error = for {{
+    match (try? reader.read_event()) {{
+      Err(_) => break true
+      Ok(Eof) => break false
+      Ok(_) => continue
+    }}
   }}
   inspect(has_error, content="false")
 }}
@@ -187,9 +206,12 @@ test "w3c/not-wf/{safe_name}" {{
   // {desc}{suffix}
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
-  let mut has_error = false
-  for {{
-    try reader.read_event() catch {{ _ => {{ has_error = true; break }} }} noraise {{ Eof => break; _ => continue }}
+  let has_error = for {{
+    match (try? reader.read_event()) {{
+      Err(_) => break true
+      Ok(Eof) => break false
+      Ok(_) => continue
+    }}
   }}
   inspect(has_error, content="{expected}")
 }}
@@ -198,7 +220,7 @@ test "w3c/not-wf/{safe_name}" {{
 
 def main():
     print("Generating W3C conformance tests (XML 1.0 + Namespaces 1.0)...")
-    print("Phase 1: Collecting tests and checking with libxml2...")
+    print("Phase 1: Collecting tests...")
 
     try:
         subprocess.run(['xmllint', '--version'], capture_output=True, text=True)
@@ -231,62 +253,102 @@ def main():
     valid_tests = []
     not_wf_tests = []
     skipped = 0
+    skipped_reasons = {
+        'encoding': 0,
+        'large': 0,
+        'external_entity': 0,
+        'xml11': 0,
+        'libxml_accepts': 0,
+        'reference_failed': 0,
+    }
 
-    for test_id, test_type, file_path, description in all_tests:
+    print("\nPhase 2: Processing tests and generating expected events...")
+
+    for i, (test_id, test_type, file_path, description) in enumerate(all_tests):
+        if (i + 1) % 100 == 0:
+            print(f"  Processing {i + 1}/{len(all_tests)}...")
+
         content = load_test_file(file_path)
         if content is None:
             skipped += 1
+            skipped_reasons['encoding'] += 1
             continue
 
         if len(content) > 50000:
             skipped += 1
+            skipped_reasons['large'] += 1
             continue
 
         if '<!ENTITY' in content and ('SYSTEM' in content or 'PUBLIC' in content):
             skipped += 1
+            skipped_reasons['external_entity'] += 1
             continue
 
         if 'version="1.1"' in content or "version='1.1'" in content:
             skipped += 1
+            skipped_reasons['xml11'] += 1
             continue
 
         normalized = content.replace('\r\n', '\n').replace('\r', '\n')
 
         if test_type == "valid":
-            valid_tests.append((test_id, content, description))
+            # Get expected events from reference parser
+            expected_events = get_expected_events(normalized)
+            if expected_events:
+                valid_tests.append((test_id, content, description, expected_events))
+            else:
+                # Fallback: reference parser failed, just check no error
+                skipped_reasons['reference_failed'] += 1
+                valid_tests.append((test_id, content, description, None))
         elif test_type == "not-wf":
             libxml_ok = check_well_formed_libxml(normalized)
-            not_wf_tests.append((test_id, content, description, not libxml_ok))
+            if not libxml_ok:
+                not_wf_tests.append((test_id, content, description, True))
+            else:
+                # libxml2 accepts - skip (both are lenient)
+                skipped += 1
+                skipped_reasons['libxml_accepts'] += 1
 
-    print(f"\nPhase 2: Generating {len(valid_tests)} valid + {len(not_wf_tests)} not-wf tests...")
+    print(f"\nPhase 3: Generating test file...")
 
     # Generate output
     output_lines = [LICENSE_HEADER]
 
-    for test_id, content, description in valid_tests:
-        output_lines.append(generate_valid_test(test_id, content, description))
-
-    # For not-wf tests, we need to know if our parser errors
-    # For now, generate with expects_error=True only for tests libxml2 rejects
-    # User will need to run and update based on actual behavior
-    libxml_rejects = 0
-    for test_id, content, description, libxml_errors in not_wf_tests:
-        if libxml_errors:
-            # libxml2 rejects - generate test expecting error
-            # But our parser might be lenient, so this might fail
-            output_lines.append(generate_not_wf_test(test_id, content, description, expects_error=True))
-            libxml_rejects += 1
+    valid_with_events = 0
+    valid_error_only = 0
+    for test_id, content, description, expected_events in valid_tests:
+        if expected_events:
+            output_lines.append(generate_valid_test_with_events(test_id, content, description, expected_events))
+            valid_with_events += 1
         else:
-            # libxml2 accepts - skip (both are lenient)
-            skipped += 1
+            output_lines.append(generate_valid_test_error_only(test_id, content, description))
+            valid_error_only += 1
+
+    for test_id, content, description, expects_error in not_wf_tests:
+        output_lines.append(generate_not_wf_test(test_id, content, description, expects_error))
 
     OUTPUT_FILE.write_text(''.join(output_lines), encoding='utf-8')
 
-    print(f"\nGenerated: {len(valid_tests)} valid + {libxml_rejects} not-wf = {len(valid_tests) + libxml_rejects} tests")
-    print(f"Skipped: {skipped}")
-    print(f"Output: {OUTPUT_FILE}")
-    print(f"\nNote: Run 'moon test' to see which not-wf tests our parser is lenient on.")
-    print("Then run this script with --update-lenient to mark those as lenient.")
+    print(f"\nGenerated:")
+    print(f"  Valid tests with expected events: {valid_with_events}")
+    print(f"  Valid tests (error-only check):   {valid_error_only}")
+    print(f"  Not-well-formed tests:            {len(not_wf_tests)}")
+    print(f"  Total:                            {valid_with_events + valid_error_only + len(not_wf_tests)}")
+    print(f"\nSkipped: {skipped}")
+    for reason, count in skipped_reasons.items():
+        if count > 0:
+            print(f"  {reason}: {count}")
+    print(f"\nOutput: {OUTPUT_FILE}")
+
+    # Format the generated file
+    print("\nFormatting generated file...")
+    try:
+        subprocess.run(['moon', 'fmt', str(OUTPUT_FILE)], check=True)
+        print("Formatted successfully.")
+    except subprocess.CalledProcessError:
+        print("Warning: moon fmt failed")
+    except FileNotFoundError:
+        print("Warning: moon not found, skipping format")
 
 if __name__ == "__main__":
     main()

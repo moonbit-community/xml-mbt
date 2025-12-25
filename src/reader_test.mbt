@@ -144,10 +144,12 @@ test "parse XML comment" {
 
 ///|
 test "parse CDATA section" {
-  let reader = Reader::from_string("<root><![CDATA[<html>raw content</html>]]></root>")
+  let reader = Reader::from_string(
+    "<root><![CDATA[<html>raw content</html>]]></root>",
+  )
   let _ = reader.read_event() // Start(root)
   let event = reader.read_event() // CDATA
-  inspect(event, content="CData(\"<html>raw content</html>\")")
+  inspect(event, content="Text(\"<html>raw content</html>\")")
 }
 
 ///|
@@ -185,20 +187,35 @@ test "parse DOCTYPE" {
 
 ///|
 test "parse text with entities" {
+  // Entities are split into separate Text events (lxml behavior)
   let reader = Reader::from_string(
     "<p>&lt;hello&gt; &amp; &quot;world&quot;</p>",
   )
   let _ = reader.read_event() // Start
-  let event = reader.read_event()
-  inspect(event, content="Text(\"<hello> & \\\"world\\\"\")")
+  // Each entity becomes a separate Text event
+  let events : Array[Event] = []
+  while true {
+    let event = reader.read_event()
+    if event is End(_) {
+      break
+    }
+    events.push(event)
+  }
+  inspect(
+    events,
+    content="[Text(\"<\"), Text(\"hello\"), Text(\">\"), Text(\" \"), Text(\"&\"), Text(\" \"), Text(\"\\\"\"), Text(\"world\"), Text(\"\\\"\")]",
+  )
 }
 
 ///|
 test "parse numeric entities" {
+  // Entities are split into separate Text events (lxml behavior)
   let reader = Reader::from_string("<p>&#65;&#x42;</p>")
   let _ = reader.read_event() // Start
-  let event = reader.read_event()
-  inspect(event, content="Text(\"AB\")")
+  let event1 = reader.read_event()
+  inspect(event1, content="Text(\"A\")")
+  let event2 = reader.read_event()
+  inspect(event2, content="Text(\"B\")")
 }
 
 // ============================================================================

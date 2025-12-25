@@ -36,6 +36,10 @@ pub struct Reader {
   mut seen_root : Bool // Whether we've seen the root element
   mut root_closed : Bool // Whether the root element has been closed
   mut seen_content : Bool // Whether any content has been parsed (for XML decl position check)
+  mut just_saw_decl : Bool // Skip whitespace after XML declaration (lxml behavior)
+  pending_events : Array[Event] // Queue of events to return (for text splitting)
+  internal_subset_events : Array[Event] // PIs/comments from internal subset (emit after prolog whitespace)
+  mut just_saw_doctype : Bool // Track if we just returned DocType to handle internal subset events
 }
 
 ///|

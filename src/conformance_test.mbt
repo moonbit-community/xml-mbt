@@ -274,7 +274,10 @@ test "not-wf/sa/027 - comments must end with -->" {
   let _ = reader.read_event() // Start
   let result = try? reader.read_event()
   // Comment has -- not followed by >, which is invalid
-  inspect(result, content="Err(InvalidSyntax(\"'--' is not allowed in comments\"))")
+  inspect(
+    result,
+    content="Err(InvalidSyntax(\"'--' is not allowed in comments\"))",
+  )
 }
 
 ///|
@@ -295,7 +298,7 @@ test "valid - CDATA section" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(event, content="CData(\"<greeting>Hello</greeting>\")")
+  inspect(event, content="Text(\"<greeting>Hello</greeting>\")")
 }
 
 ///|
@@ -304,7 +307,7 @@ test "valid - CDATA with special chars" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(event, content="CData(\"a]b]]c]\")")
+  inspect(event, content="Text(\"a]b]]c]\")")
 }
 
 // ============================================================================

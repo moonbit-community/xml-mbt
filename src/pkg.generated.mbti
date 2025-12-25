@@ -8,7 +8,19 @@ import(
 // Values
 pub fn escape(String) -> String
 
+pub fn expand_entity_value(String, Map[String, String], Map[String, Bool]) -> String raise XmlError
+
+pub fn parse_attlist(Reader) -> Unit raise XmlError
+
+pub fn parse_element_decl(Reader) -> Unit raise XmlError
+
 pub fn unescape(String) -> String raise XmlError
+
+pub fn validate_entity_refs(String, Map[String, String]) -> Unit raise XmlError
+
+pub fn validate_entity_value(String) -> Unit raise XmlError
+
+pub fn validate_pe_value(String) -> Unit raise XmlError
 
 // Errors
 pub(all) suberror XmlError {
@@ -45,6 +57,13 @@ pub struct Reader {
   entities : Map[String, String]
   base_path : String
   tag_stack : Array[String]
+  mut seen_root : Bool
+  mut root_closed : Bool
+  mut seen_content : Bool
+  mut just_saw_decl : Bool
+  pending_events : Array[Event]
+  internal_subset_events : Array[Event]
+  mut just_saw_doctype : Bool
 }
 pub fn Reader::column(Self) -> Int
 pub fn Reader::from_file(String) -> Self raise @fs.IOError
