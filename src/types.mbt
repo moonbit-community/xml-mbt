@@ -45,6 +45,15 @@ fn transform_attrs_for_libxml(
 }
 
 ///|
+/// Strip namespace prefix from element name (a:foo -> foo)
+fn strip_ns_prefix(name : String) -> String {
+  match name.find(":") {
+    Some(idx) => (try! name[idx + 1:]).to_string()
+    None => name
+  }
+}
+
+///|
 pub fn XmlElement::new(name : String) -> XmlElement {
   { name, attributes: [] }
 }
@@ -142,7 +151,7 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
         }
         decl_event = Some(Decl(version~, encoding=enc, standalone=std))
       }
-      DocType(name) => doctype_event = Some(DocType(name))
+      DocType(name) => doctype_event = Some(DocType(strip_ns_prefix(name)))
       Text(_) => () // Skip prolog whitespace
       PI(target~, data~) => {
         // lxml trims leading whitespace from PI data
@@ -170,9 +179,10 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
     let event = events[i]
     match event {
       Start(elem) => {
-        // Transform attributes for lxml compatibility
+        // Transform element name and attributes for lxml compatibility
+        let elem_name = strip_ns_prefix(elem.name)
         let filtered_elem = XmlElement::with_attrs(
-          elem.name,
+          elem_name,
           transform_attrs_for_libxml(elem.attributes),
         )
         // Check if next event is matching End (empty element)
@@ -191,12 +201,21 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
         result.push(Start(filtered_elem))
       }
       Empty(elem) => {
-        // Transform attributes for lxml compatibility
+        // Transform element name and attributes for lxml compatibility
+        let elem_name = strip_ns_prefix(elem.name)
         let filtered_elem = XmlElement::with_attrs(
-          elem.name,
+          elem_name,
           transform_attrs_for_libxml(elem.attributes),
         )
         result.push(Empty(filtered_elem))
+      }
+      End(name) => {
+        // Strip namespace prefix from end tag
+        result.push(End(strip_ns_prefix(name)))
+      }
+      DocType(name) => {
+        // Strip namespace prefix from doctype name
+        result.push(DocType(strip_ns_prefix(name)))
       }
       PI(target~, data~) => {
         // lxml trims leading whitespace from PI data

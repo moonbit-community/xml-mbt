@@ -942,16 +942,8 @@ fn Reader::normalize_attr_by_type(
   let key = elem_name + ":" + attr_name
   let attr_type = self.attr_types.get(key).unwrap_or("CDATA")
   if attr_type == "CDATA" {
-    // CDATA: only replace tabs/newlines with spaces
-    let buf = StringBuilder::new()
-    for c in value {
-      if c == '\t' || c == '\n' || c == '\r' {
-        buf.write_char(' ')
-      } else {
-        buf.write_char(c)
-      }
-    }
-    buf.to_string()
+    // CDATA: preserve character references, return as-is (lxml behavior)
+    value
   } else {
     // Tokenized types: collapse whitespace and trim
     let buf = StringBuilder::new()
@@ -1047,7 +1039,14 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
                 self.entities,
                 seen,
               )
-              buf.write_string(expanded)
+              // Normalize whitespace in entity expansion (unlike char refs, which are preserved)
+              for c in expanded {
+                if c == '\t' || c == '\n' || c == '\r' {
+                  buf.write_char(' ')
+                } else {
+                  buf.write_char(c)
+                }
+              }
             }
           }
           _ =>
