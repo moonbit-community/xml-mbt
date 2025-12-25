@@ -48,30 +48,23 @@ while true {
 
 ## W3C Conformance
 
-This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using libxml2 as the reference for well-formedness checking.
+This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using libxml2 (lxml) as the reference parser.
 
-**Current status: 735 W3C tests**
+**Current status: 800/800 tests passing**
 
 | Category | Tests | Description |
 |----------|-------|-------------|
-| Valid | 454 | Parser does not error on valid XML |
-| Not-well-formed (strict) | 28 | Parser correctly rejects (same as libxml2) |
-| Not-well-formed (lenient) | 253 | Parser accepts (libxml2 rejects) |
+| Valid (with events) | 448 | Parser produces correct event sequence |
+| Valid (error-only) | 6 | Parser does not error on valid XML |
+| Not-well-formed | 281 | Parser correctly rejects malformed XML |
+| Unit tests | 65 | Reader, writer, escape, conformance tests |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
 - XML 1.0 Errata 2nd/3rd/4th edition
 - Namespaces 1.0
 - Sun Microsystems tests
-
-### Parser Leniency
-
-Like [quick-xml](https://github.com/tafia/quick-xml), this parser is lenient on some malformed XML that libxml2 would reject:
-- Element/attribute names with invalid starting characters
-- Processing instructions without proper targets
-- Some character encoding edge cases
-
-This allows processing of "real world" XML that may not be strictly conformant.
+- IBM XML 1.0 tests
 
 ### Running Conformance Tests
 
