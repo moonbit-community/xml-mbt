@@ -260,10 +260,11 @@ test "w3c/valid/valid_sa_012" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc : CDATA #IMPLIED>\n]>\n<doc :=\"v1\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="false")
@@ -3089,10 +3090,11 @@ test "w3c/valid/x_ibm_1_0_5_valid_P04_ibm04v01_xml" {
   let xml = "<!DOCTYPE LegalNameStartChar [\n<!ELEMENT LegalNameStartChar ANY>\n<!ELEMENT :LegalNameStartChar ANY>\n<!ELEMENT ÀLegalNameStartChar ANY>\n<!ELEMENT ÁLegalNameStartChar ANY>\n<!ELEMENT ˾LegalNameStartChar ANY>\n<!ELEMENT ˿LegalNameStartChar ANY>\n<!ELEMENT ͰLegalNameStartChar ANY>\n<!ELEMENT ͱLegalNameStartChar ANY>\n<!ELEMENT ͼLegalNameStartChar ANY>\n<!ELEMENT ͽLegalNameStartChar ANY>\n<!ELEMENT ͿLegalNameStartChar ANY>\n<!ELEMENT ΀LegalNameStartChar ANY>\n<!ELEMENT ῾LegalNameStartChar ANY>\n<!ELEMENT ῿LegalNameStartChar ANY>\n<!ELEMENT ‌LegalNameStartChar ANY>\n<!ELEMENT ‍LegalNameStartChar ANY>\n<!ELEMENT ⁰LegalNameStartChar ANY>\n<!ELEMENT ⁱLegalNameStartChar ANY>\n<!ELEMENT ↎LegalNameStartChar ANY>\n<!ELEMENT ↏LegalNameStartChar ANY>\n<!ELEMENT ⰀLegalNameStartChar ANY>\n<!ELEMENT ⰁLegalNameStartChar ANY>\n<!ELEMENT ⿮LegalNameStartChar ANY>\n<!ELEMENT ⿯LegalNameStartChar ANY>\n<!ELEMENT 、LegalNameStartChar ANY>\n<!ELEMENT 。LegalNameStartChar ANY>\n<!ELEMENT ퟾LegalNameStartChar ANY>\n<!ELEMENT ퟿LegalNameStartChar ANY>\n<!ELEMENT 豈LegalNameStartChar ANY>\n<!ELEMENT 更LegalNameStartChar ANY>\n]>\n<!-- LegalNameChar  0x3A,0xC0,,0xC1,0x2FE,0xC0,,0xC1,0x2FE,0x2FF,0x370,0x371,0x37C,0x37D,0x37F,0x380,0x1FFE,0x1FFF,0x200C,0x200D,0x2070,0x2071,0x218E,0x218F,0x2C00,0x2C01,0x2FEE,0x2FEF,0x3001,0x3002,0xD7FE,0xD7FF,0xF900,0xF901,0xEFFFF,0xFFFFF\nin p02:   -->\n<LegalNameStartChar>\t<:LegalNameStartChar/>\n\t<ÀLegalNameStartChar/>\n\t<ÁLegalNameStartChar/>\n\t<˾LegalNameStartChar/>\n\t<˿LegalNameStartChar/>\n\t<ͰLegalNameStartChar/>\n\t<ͱLegalNameStartChar/>\n\t<ͼLegalNameStartChar/>\n\t<ͽLegalNameStartChar/>\n\t<ͿLegalNameStartChar/>\n\t<΀LegalNameStartChar/>\n\t<῾LegalNameStartChar/>\n\t<῿LegalNameStartChar/>\n\t<‌LegalNameStartChar/>\n\t<‍LegalNameStartChar/>\n\t<⁰LegalNameStartChar/>\n\t<ⁱLegalNameStartChar/>\n\t<↎LegalNameStartChar/>\n\t<↏LegalNameStartChar/>\n\t<ⰀLegalNameStartChar/>\n\t<ⰁLegalNameStartChar/>\n\t<⿮LegalNameStartChar/>\n\t<⿯LegalNameStartChar/>\n\t<、LegalNameStartChar/>\n\t<。LegalNameStartChar/>\n\t<퟾LegalNameStartChar/>\n\t<퟿LegalNameStartChar/>\n\t<豈LegalNameStartChar/>\n\t<更LegalNameStartChar/>\n\n</LegalNameStartChar>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="false")
@@ -3125,10 +3127,11 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v01_xml" {
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n<!ELEMENT LegalName: ANY>\n<!ELEMENT LegalNameÀ ANY>\n<!ELEMENT LegalNameÁ ANY>\n<!ELEMENT LegalName˾ ANY>\n<!ELEMENT LegalNameÂ ANY>\n<!ELEMENT LegalNameÃ ANY>\n<!ELEMENT LegalName˽ ANY>\n<!ELEMENT LegalName˿ ANY>\n<!ELEMENT LegalNameͰ ANY>\n<!ELEMENT LegalNameͱ ANY>\n<!ELEMENT LegalNameͼͽ ANY>\n<!ELEMENT LegalNameͽͿ ANY>\n<!ELEMENT LegalNameͿ΀ ANY>\n<!ELEMENT LegalName΀῾ ANY>\n<!ELEMENT LegalName῾῿ ANY>\n<!ELEMENT LegalName῿‌ ANY>\n<!ELEMENT LegalName‌‍ ANY>\n<!ELEMENT LegalName‍⁰ ANY>\n<!ELEMENT LegalName⁰ⁱ ANY>\n<!ELEMENT LegalNameⁱ↎ ANY>\n<!ELEMENT LegalName↎↏Ⰰ ANY>\n<!ELEMENT LegalName↏ⰀⰁ ANY>\n<!ELEMENT LegalNameⰀⰁ⿮ ANY>\n<!ELEMENT LegalNameⰁ⿮⿯ ANY>\n<!ELEMENT LegalName⿮⿯、 ANY>\n<!ELEMENT LegalName⿯、。 ANY>\n<!ELEMENT LegalName、。퟾ ANY>\n<!ELEMENT LegalName。퟾퟿ ANY>\n<!ELEMENT LegalName퟾퟿豈 ANY>\n<!ELEMENT LegalName퟿豈更 ANY>\n<!ELEMENT LegalName豈퟿퟾。 ANY>\n<!ELEMENT LegalName更豈퟿퟾ ANY>\n<!ELEMENT LegalName�更豈퟿ ANY>\n<!ELEMENT LegalName-�更豈 ANY>\n<!ELEMENT LegalName.-�更 ANY>\n<!ELEMENT LegalNameA.-� ANY>\n<!ELEMENT LegalNamezA.- ANY>\n<!ELEMENT LegalName0zA. ANY>\n<!ELEMENT LegalName·0zA ANY>\n<!ELEMENT LegalNamè·0z ANY>\n<!ELEMENT LegalNamé̀·0 ANY>\n<!ELEMENT LegalNameͮ́̀· ANY>\n<!ELEMENT LegalNameͯͮ́̀ ANY>\n<!ELEMENT LegalName‿ͯͮ́ ANY>\n<!ELEMENT LegalName⁀‿ͯͮ ANY>\n<!ELEMENT LegalNamenull⁀‿ͯ ANY>\n<!ELEMENT LegalNamenullnull⁀‿ ANY>\n<!ELEMENT LegalNamenullnullnull⁀ ANY>\n]>\n<!-- LegalName  0x300,0x333,0x369,0x37E,0x2000,0x2001,0x2002,0x2005,0x200B,0x200E,x200F,0x2069,0x2190,0x23FF,0x280F,0x2A00,0x2EDC,0x2FED,0x2FFF,0x3000,0xD800,0xD801,0xDAFF,0xDFFF,0xEFFF,0xF1FF,0xF8FF,0xFFFFF,0x2D,0x2E, 0x41,0x7A ,0x30, 0xB7, 0x0300, 0x0301, 0xx036E, 0x036F, 0x203F, 0x203E, 0x2039, 0x2040; \nin p02:   -->\n<LegalName>\t<LegalName:/>\n\t<LegalNameÀ/>\n\t<LegalNameÁ/>\n\t<LegalName˾/>\n\t<LegalNameÂ/>\n\t<LegalNameÃ/>\n\t<LegalName˽/>\n\t<LegalName˿/>\n\t<LegalNameͰ/>\n\t<LegalNameͱ/>\n\t<LegalNameͼͽ/>\n\t<LegalNameͽͿ/>\n\t<LegalNameͿ΀/>\n\t<LegalName΀῾/>\n\t<LegalName῾῿/>\n\t<LegalName῿‌/>\n\t<LegalName‌‍/>\n\t<LegalName‍⁰/>\n\t<LegalName⁰ⁱ/>\n\t<LegalNameⁱ↎/>\n\t<LegalName↎↏Ⰰ/>\n\t<LegalName↏ⰀⰁ/>\n\t<LegalNameⰀⰁ⿮/>\n\t<LegalNameⰁ⿮⿯/>\n\t<LegalName⿮⿯、/>\n\t<LegalName⿯、。/>\n\t<LegalName、。퟾/>\n\t<LegalName。퟾퟿/>\n\t<LegalName퟾퟿豈/>\n\t<LegalName퟿豈更/>\n\t<LegalName豈퟿퟾。/>\n\t<LegalName更豈퟿퟾/>\n\t<LegalName�更豈퟿/>\n\t<LegalName-�更豈/>\n\t<LegalName.-�更/>\n\t<LegalNameA.-�/>\n\t<LegalNamezA.-/>\n\t<LegalName0zA./>\n\t<LegalName·0zA/>\n\t<LegalNamè·0z/>\n\t<LegalNamé̀·0/>\n\t<LegalNameͮ́̀·/>\n\t<LegalNameͯͮ́̀/>\n\t<LegalName‿ͯͮ́/>\n\t<LegalName⁀‿ͯͮ/>\n\t<LegalNamenull⁀‿ͯ/>\n\t<LegalNamenullnull⁀‿/>\n\t<LegalNamenullnullnull⁀/>\n</LegalName>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="false")
@@ -3140,10 +3143,11 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v02_xml" {
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n]>\n<!-- Legal Names containing one to four characters in order from the list below  used in PI Target Names.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 -->\n<LegalName>\n\t<?PITarget: \tTest\t PIData?>\n\t<?PITargetÀ \tTest\t PIData?>\n\t<?PITargetÁ \tTest\t PIData?>\n\t<?PITarget˾ \tTest\t PIData?>\n\t<?PITargetÂ \tTest\t PIData?>\n\t<?PITargetÃ \tTest\t PIData?>\n\t<?PITarget˽ \tTest\t PIData?>\n\t<?PITarget˿ \tTest\t PIData?>\n\t<?PITargetͰ \tTest\t PIData?>\n\t<?PITargetͱ \tTest\t PIData?>\n\t<?PITargetͼͽ \tTest\t PIData?>\n\t<?PITargetͽͿ \tTest\t PIData?>\n\t<?PITargetͿ΀ \tTest\t PIData?>\n\t<?PITarget΀῾ \tTest\t PIData?>\n\t<?PITarget῾῿ \tTest\t PIData?>\n\t<?PITarget῿‌ \tTest\t PIData?>\n\t<?PITarget‌‍ \tTest\t PIData?>\n\t<?PITarget‍⁰ \tTest\t PIData?>\n\t<?PITarget⁰ⁱ \tTest\t PIData?>\n\t<?PITargetⁱ↎ \tTest\t PIData?>\n\t<?PITarget↎↏Ⰰ \tTest\t PIData?>\n\t<?PITarget↏ⰀⰁ \tTest\t PIData?>\n\t<?PITargetⰀⰁ⿮ \tTest\t PIData?>\n\t<?PITargetⰁ⿮⿯ \tTest\t PIData?>\n\t<?PITarget⿮⿯、 \tTest\t PIData?>\n\t<?PITarget⿯、。 \tTest\t PIData?>\n\t<?PITarget、。퟾ \tTest\t PIData?>\n\t<?PITarget。퟾퟿ \tTest\t PIData?>\n\t<?PITarget퟾퟿豈 \tTest\t PIData?>\n\t<?PITarget퟿豈更 \tTest\t PIData?>\n\t<?PITarget豈퟿퟾。 \tTest\t PIData?>\n\t<?PITarget更豈퟿퟾ \tTest\t PIData?>\n\t<?PITarget�更豈퟿ \tTest\t PIData?>\n\t<?PITarget-�更豈 \tTest\t PIData?>\n\t<?PITarget.-�更 \tTest\t PIData?>\n\t<?PITargetA.-� \tTest\t PIData?>\n\t<?PITargetzA.- \tTest\t PIData?>\n\t<?PITarget0zA. \tTest\t PIData?>\n\t<?PITarget·0zA \tTest\t PIData?>\n\t<?PITarget̀·0z \tTest\t PIData?>\n\t<?PITarget́̀·0 \tTest\t PIData?>\n\t<?PITargetͮ́̀· \tTest\t PIData?>\n\t<?PITargetͯͮ́̀ \tTest\t PIData?>\n\t<?PITarget‿ͯͮ́ \tTest\t PIData?>\n\t<?PITarget⁀‿ͯͮ \tTest\t PIData?>\n\t<?PITargetnull⁀‿ͯ \tTest\t PIData?>\n\t<?PITargetnullnull⁀‿ \tTest\t PIData?>\n\t<?PITargetnullnullnull⁀ \tTest\t PIData?>\n</LegalName>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="false")
@@ -3155,10 +3159,11 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v03_xml" {
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n<!ATTLIST LegalName :attr CDATA #IMPLIED>\n<!ATTLIST LegalName Àattr CDATA #IMPLIED>\n<!ATTLIST LegalName Áattr CDATA #IMPLIED>\n<!ATTLIST LegalName ˾attr CDATA #IMPLIED>\n<!ATTLIST LegalName Âattr CDATA #IMPLIED>\n<!ATTLIST LegalName Ãattr CDATA #IMPLIED>\n<!ATTLIST LegalName ˽attr CDATA #IMPLIED>\n<!ATTLIST LegalName ˿attr CDATA #IMPLIED>\n<!ATTLIST LegalName Ͱattr CDATA #IMPLIED>\n<!ATTLIST LegalName ͱattr CDATA #IMPLIED>\n<!ATTLIST LegalName ͼͽattr CDATA #IMPLIED>\n<!ATTLIST LegalName ͽͿattr CDATA #IMPLIED>\n<!ATTLIST LegalName Ϳ΀attr CDATA #IMPLIED>\n<!ATTLIST LegalName ΀῾attr CDATA #IMPLIED>\n<!ATTLIST LegalName ῾῿attr CDATA #IMPLIED>\n<!ATTLIST LegalName ῿‌attr CDATA #IMPLIED>\n<!ATTLIST LegalName ‌‍attr CDATA #IMPLIED>\n<!ATTLIST LegalName ‍⁰attr CDATA #IMPLIED>\n<!ATTLIST LegalName ⁰ⁱattr CDATA #IMPLIED>\n<!ATTLIST LegalName ⁱ↎attr CDATA #IMPLIED>\n<!ATTLIST LegalName ↎↏Ⰰattr CDATA #IMPLIED>\n<!ATTLIST LegalName ↏ⰀⰁattr CDATA #IMPLIED>\n<!ATTLIST LegalName ⰀⰁ⿮attr CDATA #IMPLIED>\n<!ATTLIST LegalName Ⰱ⿮⿯attr CDATA #IMPLIED>\n<!ATTLIST LegalName ⿮⿯、attr CDATA #IMPLIED>\n<!ATTLIST LegalName ⿯、。attr CDATA #IMPLIED>\n<!ATTLIST LegalName 、。퟾attr CDATA #IMPLIED>\n<!ATTLIST LegalName 。퟾퟿attr CDATA #IMPLIED>\n<!ATTLIST LegalName ퟾퟿豈attr CDATA #IMPLIED>\n<!ATTLIST LegalName ퟿豈更attr CDATA #IMPLIED>\n<!ATTLIST LegalName 豈퟿퟾。attr CDATA #IMPLIED>\n<!ATTLIST LegalName 更豈퟿퟾attr CDATA #IMPLIED>\n<!ATTLIST LegalName �更豈퟿attr CDATA #IMPLIED>\n<!ATTLIST LegalName attr-�更豈 CDATA #IMPLIED>\n<!ATTLIST LegalName attr.-�更 CDATA #IMPLIED>\n<!ATTLIST LegalName A.-�attr CDATA #IMPLIED>\n<!ATTLIST LegalName zA.-attr CDATA #IMPLIED>\n<!ATTLIST LegalName attr0zA. CDATA #IMPLIED>\n<!ATTLIST LegalName attr·0zA CDATA #IMPLIED>\n<!ATTLIST LegalName attr̀·0z CDATA #IMPLIED>\n<!ATTLIST LegalName attŕ̀·0 CDATA #IMPLIED>\n<!ATTLIST LegalName attrͮ́̀· CDATA #IMPLIED>\n<!ATTLIST LegalName attrͯͮ́̀ CDATA #IMPLIED>\n<!ATTLIST LegalName attr‿ͯͮ́ CDATA #IMPLIED>\n<!ATTLIST LegalName attr⁀‿ͯͮ CDATA #IMPLIED>\n<!ATTLIST LegalName null⁀‿ͯattr CDATA #IMPLIED>\n<!ATTLIST LegalName nullnull⁀‿attr CDATA #IMPLIED>\n<!ATTLIST LegalName nullnullnull⁀attr CDATA #IMPLIED>\n]>\n<!-- Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 -->\n<LegalName \n \t:attr=\"attrValue\"\n \tÀattr=\"attrValue\"\n \tÁattr=\"attrValue\"\n \t˾attr=\"attrValue\"\n \tÂattr=\"attrValue\"\n \tÃattr=\"attrValue\"\n \t˽attr=\"attrValue\"\n \t˿attr=\"attrValue\"\n \tͰattr=\"attrValue\"\n \tͱattr=\"attrValue\"\n \tͼͽattr=\"attrValue\"\n \tͽͿattr=\"attrValue\"\n \tͿ΀attr=\"attrValue\"\n \t΀῾attr=\"attrValue\"\n \t῾῿attr=\"attrValue\"\n \t῿‌attr=\"attrValue\"\n \t‌‍attr=\"attrValue\"\n \t‍⁰attr=\"attrValue\"\n \t⁰ⁱattr=\"attrValue\"\n \tⁱ↎attr=\"attrValue\"\n \t↎↏Ⰰattr=\"attrValue\"\n \t↏ⰀⰁattr=\"attrValue\"\n \tⰀⰁ⿮attr=\"attrValue\"\n \tⰁ⿮⿯attr=\"attrValue\"\n \t⿮⿯、attr=\"attrValue\"\n \t⿯、。attr=\"attrValue\"\n \t、。퟾attr=\"attrValue\"\n \t。퟾퟿attr=\"attrValue\"\n \t퟾퟿豈attr=\"attrValue\"\n \t퟿豈更attr=\"attrValue\"\n \t豈퟿퟾。attr=\"attrValue\"\n \t更豈퟿퟾attr=\"attrValue\"\n \t�更豈퟿attr=\"attrValue\"\n \tattr-�更豈=\"attrValue\"\n \tattr.-�更=\"attrValue\"\n \tA.-�attr=\"attrValue\"\n \tzA.-attr=\"attrValue\"\n \tattr0zA.=\"attrValue\"\n \tattr·0zA=\"attrValue\"\n \tattr̀·0z=\"attrValue\"\n \tattŕ̀·0=\"attrValue\"\n \tattrͮ́̀·=\"attrValue\"\n \tattrͯͮ́̀=\"attrValue\"\n \tattr‿ͯͮ́=\"attrValue\"\n \tattr⁀‿ͯͮ=\"attrValue\"\n \tnull⁀‿ͯattr=\"attrValue\"\n \tnullnull⁀‿attr=\"attrValue\"\n \tnullnullnull⁀attr=\"attrValue\"\n />"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="false")
@@ -3193,10 +3198,11 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v05_xml" {
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n<!ELEMENT LegalName0 ANY>\n<!ATTLIST LegalName0 attr0 CDATA #IMPLIED>\n<!ELEMENT LegalName1 ANY>\n<!ATTLIST LegalName1 attr1 CDATA #IMPLIED>\n<!ELEMENT LegalName2 ANY>\n<!ATTLIST LegalName2 attr2 CDATA #IMPLIED>\n<!ELEMENT LegalName3 ANY>\n<!ATTLIST LegalName3 attr3 CDATA #IMPLIED>\n<!ELEMENT LegalName4 ANY>\n<!ATTLIST LegalName4 attr4 CDATA #IMPLIED>\n<!ELEMENT LegalName5 ANY>\n<!ATTLIST LegalName5 attr5 CDATA #IMPLIED>\n<!ELEMENT LegalName6 ANY>\n<!ATTLIST LegalName6 attr6 CDATA #IMPLIED>\n<!ELEMENT LegalName7 ANY>\n<!ATTLIST LegalName7 attr7 CDATA #IMPLIED>\n<!ELEMENT LegalName8 ANY>\n<!ATTLIST LegalName8 attr8 CDATA #IMPLIED>\n<!ELEMENT LegalName9 ANY>\n<!ATTLIST LegalName9 attr9 CDATA #IMPLIED>\n<!ELEMENT LegalName10 ANY>\n<!ATTLIST LegalName10 attr10 CDATA #IMPLIED>\n<!ELEMENT LegalName11 ANY>\n<!ATTLIST LegalName11 attr11 CDATA #IMPLIED>\n<!ELEMENT LegalName12 ANY>\n<!ATTLIST LegalName12 attr12 CDATA #IMPLIED>\n<!ELEMENT LegalName13 ANY>\n<!ATTLIST LegalName13 attr13 CDATA #IMPLIED>\n<!ELEMENT LegalName14 ANY>\n<!ATTLIST LegalName14 attr14 CDATA #IMPLIED>\n<!ELEMENT LegalName15 ANY>\n<!ATTLIST LegalName15 attr15 CDATA #IMPLIED>\n<!ELEMENT LegalName16 ANY>\n<!ATTLIST LegalName16 attr16 CDATA #IMPLIED>\n<!ELEMENT LegalName17 ANY>\n<!ATTLIST LegalName17 attr17 CDATA #IMPLIED>\n<!ELEMENT LegalName18 ANY>\n<!ATTLIST LegalName18 attr18 CDATA #IMPLIED>\n<!ELEMENT LegalName19 ANY>\n<!ATTLIST LegalName19 attr19 CDATA #IMPLIED>\n<!ELEMENT LegalName20 ANY>\n<!ATTLIST LegalName20 attr20 CDATA #IMPLIED>\n<!ELEMENT LegalName21 ANY>\n<!ATTLIST LegalName21 attr21 CDATA #IMPLIED>\n<!ELEMENT LegalName22 ANY>\n<!ATTLIST LegalName22 attr22 CDATA #IMPLIED>\n<!ELEMENT LegalName23 ANY>\n<!ATTLIST LegalName23 attr23 CDATA #IMPLIED>\n<!ELEMENT LegalName24 ANY>\n<!ATTLIST LegalName24 attr24 CDATA #IMPLIED>\n<!ELEMENT LegalName25 ANY>\n<!ATTLIST LegalName25 attr25 CDATA #IMPLIED>\n<!ELEMENT LegalName26 ANY>\n<!ATTLIST LegalName26 attr26 CDATA #IMPLIED>\n<!ELEMENT LegalName27 ANY>\n<!ATTLIST LegalName27 attr27 CDATA #IMPLIED>\n<!ELEMENT LegalName28 ANY>\n<!ATTLIST LegalName28 attr28 CDATA #IMPLIED>\n<!ELEMENT LegalName29 ANY>\n<!ATTLIST LegalName29 attr29 CDATA #IMPLIED>\n<!ELEMENT LegalName30 ANY>\n<!ATTLIST LegalName30 attr30 CDATA #IMPLIED>\n<!ELEMENT LegalName31 ANY>\n<!ATTLIST LegalName31 attr31 CDATA #IMPLIED>\n<!ELEMENT LegalName32 ANY>\n<!ATTLIST LegalName32 attr32 CDATA #IMPLIED>\n<!ELEMENT LegalName33 ANY>\n<!ATTLIST LegalName33 attr33 CDATA #IMPLIED>\n<!ELEMENT LegalName34 ANY>\n<!ATTLIST LegalName34 attr34 CDATA #IMPLIED>\n<!ELEMENT LegalName35 ANY>\n<!ATTLIST LegalName35 attr35 CDATA #IMPLIED>\n<!ELEMENT LegalName36 ANY>\n<!ATTLIST LegalName36 attr36 CDATA #IMPLIED>\n<!ELEMENT LegalName37 ANY>\n<!ATTLIST LegalName37 attr37 CDATA #IMPLIED>\n<!ELEMENT LegalName38 ANY>\n<!ATTLIST LegalName38 attr38 CDATA #IMPLIED>\n<!ELEMENT LegalName39 ANY>\n<!ATTLIST LegalName39 attr39 CDATA #IMPLIED>\n<!ELEMENT LegalName40 ANY>\n<!ATTLIST LegalName40 attr40 CDATA #IMPLIED>\n<!ELEMENT LegalName41 ANY>\n<!ATTLIST LegalName41 attr41 CDATA #IMPLIED>\n<!ELEMENT LegalName42 ANY>\n<!ATTLIST LegalName42 attr42 CDATA #IMPLIED>\n<!ELEMENT LegalName43 ANY>\n<!ATTLIST LegalName43 attr43 CDATA #IMPLIED>\n<!ENTITY Name: \"Test\">\n<!ENTITY NameÀ \"Test\">\n<!ENTITY NameÁ \"Test\">\n<!ENTITY Name˾ \"Test\">\n<!ENTITY NameÂ \"Test\">\n<!ENTITY NameÃ \"Test\">\n<!ENTITY Name˽ \"Test\">\n<!ENTITY Name˿ \"Test\">\n<!ENTITY NameͰ \"Test\">\n<!ENTITY Nameͱ \"Test\">\n<!ENTITY Nameͼ \"Test\">\n<!ENTITY Nameͽ \"Test\">\n<!ENTITY NameͿ \"Test\">\n<!ENTITY Name΀ \"Test\">\n<!ENTITY Name῾ \"Test\">\n<!ENTITY Name῿ \"Test\">\n<!ENTITY Name‌ \"Test\">\n<!ENTITY Name‍ \"Test\">\n<!ENTITY Name⁰ \"Test\">\n<!ENTITY Nameⁱ \"Test\">\n<!ENTITY Name↎ \"Test\">\n<!ENTITY Name↏ \"Test\">\n<!ENTITY NameⰀ \"Test\">\n<!ENTITY NameⰁ \"Test\">\n<!ENTITY Name⿮ \"Test\">\n<!ENTITY Name⿯ \"Test\">\n<!ENTITY Name、 \"Test\">\n<!ENTITY Name。 \"Test\">\n<!ENTITY Name퟾ \"Test\">\n<!ENTITY Name퟿ \"Test\">\n<!ENTITY Name豈 \"Test\">\n<!ENTITY Name更 \"Test\">\n<!ENTITY Name� \"Test\">\n<!ENTITY Name- \"Test\">\n<!ENTITY Name. \"Test\">\n<!ENTITY NameA \"Test\">\n<!ENTITY Namez \"Test\">\n<!ENTITY Name0 \"Test\">\n<!ENTITY Name· \"Test\">\n<!ENTITY Namè \"Test\">\n<!ENTITY Namé \"Test\">\n<!ENTITY Nameͮ \"Test\">\n<!ENTITY Nameͯ \"Test\">\n<!ENTITY Name‿ \"Test\">\n]>\n<!-- Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 -->\n<LegalName>\n<LegalName0 attr0=\"Name:\"\t/>\n<LegalName1 attr1=\"NameÀ\"\t/>\n<LegalName2 attr2=\"NameÁ\"\t/>\n<LegalName3 attr3=\"Name˾\"\t/>\n<LegalName4 attr4=\"NameÂ\"\t/>\n<LegalName5 attr5=\"NameÃ\"\t/>\n<LegalName6 attr6=\"Name˽\"\t/>\n<LegalName7 attr7=\"Name˿\"\t/>\n<LegalName8 attr8=\"NameͰ\"\t/>\n<LegalName9 attr9=\"Nameͱ\"\t/>\n<LegalName10 attr10=\"Nameͼ\"\t/>\n<LegalName11 attr11=\"Nameͽ\"\t/>\n<LegalName12 attr12=\"NameͿ\"\t/>\n<LegalName13 attr13=\"Name΀\"\t/>\n<LegalName14 attr14=\"Name῾\"\t/>\n<LegalName15 attr15=\"Name῿\"\t/>\n<LegalName16 attr16=\"Name‌\"\t/>\n<LegalName17 attr17=\"Name‍\"\t/>\n<LegalName18 attr18=\"Name⁰\"\t/>\n<LegalName19 attr19=\"Nameⁱ\"\t/>\n<LegalName20 attr20=\"Name↎\"\t/>\n<LegalName21 attr21=\"Name↏\"\t/>\n<LegalName22 attr22=\"NameⰀ\"\t/>\n<LegalName23 attr23=\"NameⰁ\"\t/>\n<LegalName24 attr24=\"Name⿮\"\t/>\n<LegalName25 attr25=\"Name⿯\"\t/>\n<LegalName26 attr26=\"Name、\"\t/>\n<LegalName27 attr27=\"Name。\"\t/>\n<LegalName28 attr28=\"Name퟾\"\t/>\n<LegalName29 attr29=\"Name퟿\"\t/>\n<LegalName30 attr30=\"Name豈\"\t/>\n<LegalName31 attr31=\"Name更\"\t/>\n<LegalName32 attr32=\"Name�\"\t/>\n<LegalName33 attr33=\"Name-\"\t/>\n<LegalName34 attr34=\"Name.\"\t/>\n<LegalName35 attr35=\"NameA\"\t/>\n<LegalName36 attr36=\"Namez\"\t/>\n<LegalName37 attr37=\"Name0\"\t/>\n<LegalName38 attr38=\"Name·\"\t/>\n<LegalName39 attr39=\"Namè\"\t/>\n<LegalName40 attr40=\"Namé\"\t/>\n<LegalName41 attr41=\"Nameͮ\"\t/>\n<LegalName42 attr42=\"Nameͯ\"\t/>\n<LegalName43 attr43=\"Name‿\"\t/>\n</LegalName>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="false")
@@ -9529,10 +9535,11 @@ test "w3c/not-wf/not_wf_sa_001" {
   let xml = "<doc>\n<doc\n?\n<a</a>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9544,10 +9551,11 @@ test "w3c/not-wf/not_wf_sa_002" {
   let xml = "<doc>\n<.doc></.doc>\n</doc>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9559,10 +9567,11 @@ test "w3c/not-wf/not_wf_sa_003" {
   let xml = "<doc><? ?></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9574,10 +9583,11 @@ test "w3c/not-wf/not_wf_sa_004" {
   let xml = "<doc><?target some data></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9589,10 +9599,11 @@ test "w3c/not-wf/not_wf_sa_005" {
   let xml = "<doc><?target some data?</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9604,10 +9615,11 @@ test "w3c/not-wf/not_wf_sa_006" {
   let xml = "<doc><!-- a comment -- another --></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9619,10 +9631,11 @@ test "w3c/not-wf/not_wf_sa_007" {
   let xml = "<doc>&amp no refc</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9634,10 +9647,11 @@ test "w3c/not-wf/not_wf_sa_008" {
   let xml = "<doc>&.entity;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9649,10 +9663,11 @@ test "w3c/not-wf/not_wf_sa_009" {
   let xml = "<doc>&#RE;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9664,10 +9679,11 @@ test "w3c/not-wf/not_wf_sa_010" {
   let xml = "<doc>A & B</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9679,10 +9695,11 @@ test "w3c/not-wf/not_wf_sa_011" {
   let xml = "<doc a1></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9694,10 +9711,11 @@ test "w3c/not-wf/not_wf_sa_012" {
   let xml = "<doc a1=v1></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9709,10 +9727,11 @@ test "w3c/not-wf/not_wf_sa_013" {
   let xml = "<doc a1=\"v1'></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9724,10 +9743,11 @@ test "w3c/not-wf/not_wf_sa_014" {
   let xml = "<doc a1=\"<foo>\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9739,10 +9759,11 @@ test "w3c/not-wf/not_wf_sa_015" {
   let xml = "<doc a1=></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9754,10 +9775,11 @@ test "w3c/not-wf/not_wf_sa_016" {
   let xml = "<doc a1=\"v1\" \"v2\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9769,10 +9791,11 @@ test "w3c/not-wf/not_wf_sa_017" {
   let xml = "<doc><![CDATA[</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9784,10 +9807,11 @@ test "w3c/not-wf/not_wf_sa_018" {
   let xml = "<doc><![CDATA [ stuff]]></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9799,10 +9823,11 @@ test "w3c/not-wf/not_wf_sa_019" {
   let xml = "<doc></>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9814,10 +9839,11 @@ test "w3c/not-wf/not_wf_sa_020" {
   let xml = "<doc a1=\"A & B\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9829,10 +9855,11 @@ test "w3c/not-wf/not_wf_sa_021" {
   let xml = "<doc a1=\"a&b\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9844,10 +9871,11 @@ test "w3c/not-wf/not_wf_sa_022" {
   let xml = "<doc a1=\"&#123:\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9859,10 +9887,11 @@ test "w3c/not-wf/not_wf_sa_023" {
   let xml = "<doc 12=\"34\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9874,10 +9903,11 @@ test "w3c/not-wf/not_wf_sa_024" {
   let xml = "<doc>\n<123></123>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9889,10 +9919,11 @@ test "w3c/not-wf/not_wf_sa_025" {
   let xml = "<doc>]]></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9904,10 +9935,11 @@ test "w3c/not-wf/not_wf_sa_026" {
   let xml = "<doc>]]]></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9919,10 +9951,11 @@ test "w3c/not-wf/not_wf_sa_027" {
   let xml = "<doc>\n<!-- abc\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9934,10 +9967,11 @@ test "w3c/not-wf/not_wf_sa_028" {
   let xml = "<doc>\n<?a pi that is not closed\n</doc>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9949,10 +9983,11 @@ test "w3c/not-wf/not_wf_sa_029" {
   let xml = "<doc>abc]]]>def</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9964,10 +9999,11 @@ test "w3c/not-wf/not_wf_sa_030" {
   let xml = "<doc>A form feed () is not legal in data</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9979,10 +10015,11 @@ test "w3c/not-wf/not_wf_sa_031" {
   let xml = "<doc><?pi a form feed () is not allowed in a pi?></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -9994,10 +10031,11 @@ test "w3c/not-wf/not_wf_sa_032" {
   let xml = "<doc><!-- a form feed () is not allowed in a comment --></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10009,10 +10047,11 @@ test "w3c/not-wf/not_wf_sa_033" {
   let xml = "<doc>abcdef</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10024,10 +10063,11 @@ test "w3c/not-wf/not_wf_sa_034" {
   let xml = "<doc>A form-feed is not white space or a name character</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10039,10 +10079,11 @@ test "w3c/not-wf/not_wf_sa_035" {
   let xml = "<doc>1 < 2 but not in XML</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10054,10 +10095,11 @@ test "w3c/not-wf/not_wf_sa_036" {
   let xml = "<doc></doc>\nIllegal data\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10069,10 +10111,11 @@ test "w3c/not-wf/not_wf_sa_037" {
   let xml = "<doc></doc>\n&#32;\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10084,10 +10127,11 @@ test "w3c/not-wf/not_wf_sa_038" {
   let xml = "<doc x=\"foo\" y=\"bar\" x=\"baz\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10099,10 +10143,11 @@ test "w3c/not-wf/not_wf_sa_039" {
   let xml = "<doc><a></aa></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10114,10 +10159,11 @@ test "w3c/not-wf/not_wf_sa_040" {
   let xml = "<doc></doc>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10129,10 +10175,11 @@ test "w3c/not-wf/not_wf_sa_041" {
   let xml = "<doc/>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10144,10 +10191,11 @@ test "w3c/not-wf/not_wf_sa_042" {
   let xml = "<doc/></doc/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10159,10 +10207,11 @@ test "w3c/not-wf/not_wf_sa_043" {
   let xml = "<doc/>\nIllegal data\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10174,10 +10223,11 @@ test "w3c/not-wf/not_wf_sa_044" {
   let xml = "<doc/><doc/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10189,10 +10239,11 @@ test "w3c/not-wf/not_wf_sa_045" {
   let xml = "<doc>\n<a/\n</doc>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10204,10 +10255,11 @@ test "w3c/not-wf/not_wf_sa_046" {
   let xml = "<doc>\n<a/</a>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10219,10 +10271,11 @@ test "w3c/not-wf/not_wf_sa_047" {
   let xml = "<doc>\n<a / >\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10234,10 +10287,11 @@ test "w3c/not-wf/not_wf_sa_048" {
   let xml = "<doc>\n</doc>\n<![CDATA[]]>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10249,10 +10303,11 @@ test "w3c/not-wf/not_wf_sa_049" {
   let xml = "<doc>\n<a><![CDATA[xyz]]]></a>\n<![CDATA[]]></a>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10264,10 +10319,11 @@ test "w3c/not-wf/not_wf_sa_050" {
   let xml = ""
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10279,10 +10335,11 @@ test "w3c/not-wf/not_wf_sa_051" {
   let xml = "<!-- a comment -->\n<![CDATA[]]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10294,10 +10351,11 @@ test "w3c/not-wf/not_wf_sa_052" {
   let xml = "<!-- a comment -->\n&#32;\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10309,10 +10367,11 @@ test "w3c/not-wf/not_wf_sa_053" {
   let xml = "<doc></DOC>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10324,10 +10383,11 @@ test "w3c/not-wf/not_wf_sa_055" {
   let xml = "<!DOCTYPE doc [\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10339,10 +10399,11 @@ test "w3c/not-wf/not_wf_sa_056" {
   let xml = "<!DOCTYPE doc -- a comment -- []>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10354,10 +10415,11 @@ test "w3c/not-wf/not_wf_sa_057" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"whatever\" -- a comment -->\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10369,10 +10431,11 @@ test "w3c/not-wf/not_wf_sa_058" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 (foo,bar) #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10384,10 +10447,11 @@ test "w3c/not-wf/not_wf_sa_059" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 NMTOKEN v1>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10399,10 +10463,11 @@ test "w3c/not-wf/not_wf_sa_060" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 NAME #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10414,10 +10479,11 @@ test "w3c/not-wf/not_wf_sa_062" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY foo\"some text\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10429,10 +10495,11 @@ test "w3c/not-wf/not_wf_sa_063" {
   let xml = "<!DOCTYPE doc [\n<![INCLUDE[ ]]>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10444,10 +10511,11 @@ test "w3c/not-wf/not_wf_sa_064" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST e a1 CDATA\"foo\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10459,10 +10527,11 @@ test "w3c/not-wf/not_wf_sa_065" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1(foo|bar) #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10474,10 +10543,11 @@ test "w3c/not-wf/not_wf_sa_066" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 (foo|bar)#IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10489,10 +10559,11 @@ test "w3c/not-wf/not_wf_sa_067" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 (foo)\"foo\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10504,10 +10575,11 @@ test "w3c/not-wf/not_wf_sa_068" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 NOTATION(foo) #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10519,10 +10591,11 @@ test "w3c/not-wf/not_wf_sa_070" {
   let xml = "<!-- a comment ending with three dashes --->\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10534,10 +10607,11 @@ test "w3c/not-wf/not_wf_sa_071" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e1 \"&e2;\">\n<!ENTITY e2 \"&e3;\">\n<!ENTITY e3 \"&e1;\">\n]>\n<doc>&e1;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10549,10 +10623,11 @@ test "w3c/not-wf/not_wf_sa_072" {
   let xml = "<doc>&foo;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10564,10 +10639,11 @@ test "w3c/not-wf/not_wf_sa_073" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"whatever\">\n]>\n<doc>&f;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10579,10 +10655,11 @@ test "w3c/not-wf/not_wf_sa_074" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"</foo><foo>\">\n]>\n<doc>\n<foo>&e;</foo>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10594,10 +10671,11 @@ test "w3c/not-wf/not_wf_sa_075" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e1 \"&e2;\">\n<!ENTITY e2 \"&e3;\">\n<!ENTITY e3 \"&e1;\">\n]>\n<doc a=\"&e1;\"></doc>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10609,10 +10687,11 @@ test "w3c/not-wf/not_wf_sa_076" {
   let xml = "<doc a=\"&foo;\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10624,10 +10703,11 @@ test "w3c/not-wf/not_wf_sa_077" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY foo \"&bar;\">\n]>\n<doc a=\"&foo;\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10639,10 +10719,11 @@ test "w3c/not-wf/not_wf_sa_078" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA \"&foo;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10654,10 +10735,11 @@ test "w3c/not-wf/not_wf_sa_079" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e1 \"&e2;\">\n<!ENTITY e2 \"&e3;\">\n<!ENTITY e3 \"&e1;\">\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA \"&e1;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10669,10 +10751,11 @@ test "w3c/not-wf/not_wf_sa_080" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e1 \"&e2;\">\n<!ENTITY e2 \"&e3;\">\n<!ENTITY e3 \"&e1;\">\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA #FIXED \"&e1;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10684,10 +10767,11 @@ test "w3c/not-wf/not_wf_sa_085" {
   let xml = "<!DOCTYPE doc PUBLIC \"[\" \"null.ent\">\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10699,10 +10783,11 @@ test "w3c/not-wf/not_wf_sa_087" {
   let xml = "<!DOCTYPE doc [\n<!NOTATION foo PUBLIC \"[\" \"null.ent\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10714,10 +10799,11 @@ test "w3c/not-wf/not_wf_sa_088" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA #IMPLIED>\n<!ENTITY e '\"'>\n]>\n<doc a=\"&e;></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10729,10 +10815,11 @@ test "w3c/not-wf/not_wf_sa_090" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"<foo a='&#60;'></foo>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10744,10 +10831,11 @@ test "w3c/not-wf/not_wf_sa_092" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"<foo a='&#38;'></foo>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10759,10 +10847,11 @@ test "w3c/not-wf/not_wf_sa_093" {
   let xml = "<doc>&#X58;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10774,10 +10863,11 @@ test "w3c/not-wf/not_wf_sa_094" {
   let xml = "<?xml VERSION=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10789,10 +10879,11 @@ test "w3c/not-wf/not_wf_sa_095" {
   let xml = "<?xml encoding=\"UTF-8\" version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10804,10 +10895,11 @@ test "w3c/not-wf/not_wf_sa_096" {
   let xml = "<?xml version=\"1.0\"encoding=\"UTF-8\" ?>\n<doc></doc>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10819,10 +10911,11 @@ test "w3c/not-wf/not_wf_sa_097" {
   let xml = "<?xml version=\"1.0' encoding=\"UTF-8\" ?>\n<doc></doc>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10834,10 +10927,11 @@ test "w3c/not-wf/not_wf_sa_098" {
   let xml = "<?xml version=\"1.0\" version=\"1.0\"?>\n<doc></doc>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10849,10 +10943,11 @@ test "w3c/not-wf/not_wf_sa_099" {
   let xml = "<?xml version=\"1.0\" valid=\"no\" ?>\n<doc></doc>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10864,10 +10959,11 @@ test "w3c/not-wf/not_wf_sa_100" {
   let xml = "<?xml version=\"1.0\" standalone=\"YES\" ?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10879,10 +10975,11 @@ test "w3c/not-wf/not_wf_sa_101" {
   let xml = "<?xml version=\"1.0\" encoding=\" UTF-8\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10894,10 +10991,11 @@ test "w3c/not-wf/not_wf_sa_102" {
   let xml = "<?xml version=\"1.0 \" ?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10909,10 +11007,11 @@ test "w3c/not-wf/not_wf_sa_103" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#60;foo>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10924,10 +11023,11 @@ test "w3c/not-wf/not_wf_sa_104" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"<foo>\">\n]>\n<doc>&e;</foo></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10939,10 +11039,11 @@ test "w3c/not-wf/not_wf_sa_105" {
   let xml = "<?pi stuff?>\n<![CDATA[]]>\n<doc>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10954,10 +11055,11 @@ test "w3c/not-wf/not_wf_sa_106" {
   let xml = "<?pi data?>\n&#32;<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10969,10 +11071,11 @@ test "w3c/not-wf/not_wf_sa_107" {
   let xml = "<!DOCTYPE doc [\n<![CDATA[]]>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10984,10 +11087,11 @@ test "w3c/not-wf/not_wf_sa_108" {
   let xml = "<doc>\n<![CDATA [  ]]>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -10999,10 +11103,11 @@ test "w3c/not-wf/not_wf_sa_109" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"<doc></doc>\">\n]>\n&e;\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11014,10 +11119,11 @@ test "w3c/not-wf/not_wf_sa_110" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"\">\n]>\n<doc></doc>\n&e;\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11029,10 +11135,11 @@ test "w3c/not-wf/not_wf_sa_111" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"foo='bar'\">\n]>\n<doc &e;></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11044,10 +11151,11 @@ test "w3c/not-wf/not_wf_sa_112" {
   let xml = "<doc>\n<![cdata[data]]>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11059,10 +11167,11 @@ test "w3c/not-wf/not_wf_sa_113" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY % foo \"&\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11074,10 +11183,11 @@ test "w3c/not-wf/not_wf_sa_114" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY foo \"&\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11089,10 +11199,11 @@ test "w3c/not-wf/not_wf_sa_115" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;\">\n]>\n<doc a=\"&e;\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11104,10 +11215,11 @@ test "w3c/not-wf/not_wf_sa_116" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;#9\">\n]>\n<doc>&e;7;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11119,10 +11231,11 @@ test "w3c/not-wf/not_wf_sa_117" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;\">\n]>\n<doc>&e;#97;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11134,10 +11247,11 @@ test "w3c/not-wf/not_wf_sa_118" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"#\">\n]>\n<doc>&&e;97;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11149,10 +11263,11 @@ test "w3c/not-wf/not_wf_sa_119" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;\">\n]>\n<doc>\n&e;#38;\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11164,10 +11279,11 @@ test "w3c/not-wf/not_wf_sa_120" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;\">\n]>\n<doc>\n&e;\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11179,10 +11295,11 @@ test "w3c/not-wf/not_wf_sa_121" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY #DEFAULT \"default\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11194,10 +11311,11 @@ test "w3c/not-wf/not_wf_sa_122" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a, (b) | c)?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11209,10 +11327,11 @@ test "w3c/not-wf/not_wf_sa_123" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc ((doc?)))>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11224,10 +11343,11 @@ test "w3c/not-wf/not_wf_sa_124" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (doc|#PCDATA)*>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11239,10 +11359,11 @@ test "w3c/not-wf/not_wf_sa_125" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc ((#PCDATA))>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11254,10 +11375,11 @@ test "w3c/not-wf/not_wf_sa_126" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)+>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11269,10 +11391,11 @@ test "w3c/not-wf/not_wf_sa_127" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11284,10 +11407,11 @@ test "w3c/not-wf/not_wf_sa_128" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc CDATA>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11299,10 +11423,11 @@ test "w3c/not-wf/not_wf_sa_129" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc - - (#PCDATA)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11314,10 +11439,11 @@ test "w3c/not-wf/not_wf_sa_130" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (doc?) +(foo)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11329,10 +11455,11 @@ test "w3c/not-wf/not_wf_sa_131" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (doc?) -(foo)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11344,10 +11471,11 @@ test "w3c/not-wf/not_wf_sa_132" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a, (b, c), (d, (e, f) | g))?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11359,10 +11487,11 @@ test "w3c/not-wf/not_wf_sa_133" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a *)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11374,10 +11503,11 @@ test "w3c/not-wf/not_wf_sa_134" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a) *>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11389,10 +11519,11 @@ test "w3c/not-wf/not_wf_sa_135" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a & b)?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11404,10 +11535,11 @@ test "w3c/not-wf/not_wf_sa_136" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc O O (#PCDATA)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11419,10 +11551,11 @@ test "w3c/not-wf/not_wf_sa_137" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc(#PCDATA)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11434,10 +11567,11 @@ test "w3c/not-wf/not_wf_sa_138" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (doc*?)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11449,10 +11583,11 @@ test "w3c/not-wf/not_wf_sa_139" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc ()>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11464,10 +11599,11 @@ test "w3c/not-wf/not_wf_sa_142" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#0;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11479,10 +11615,11 @@ test "w3c/not-wf/not_wf_sa_143" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#31;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11494,10 +11631,11 @@ test "w3c/not-wf/not_wf_sa_144" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#xFFFF;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11509,10 +11647,11 @@ test "w3c/not-wf/not_wf_sa_145" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#xD800;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11524,10 +11663,11 @@ test "w3c/not-wf/not_wf_sa_146" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#x110000;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11539,10 +11679,11 @@ test "w3c/not-wf/not_wf_sa_147" {
   let xml = "\n<?xml version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11554,10 +11695,11 @@ test "w3c/not-wf/not_wf_sa_148" {
   let xml = "<!-- -->\n<?xml version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11569,10 +11711,11 @@ test "w3c/not-wf/not_wf_sa_149" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<?xml version=\"1.0\"?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11584,10 +11727,11 @@ test "w3c/not-wf/not_wf_sa_150" {
   let xml = "<doc>\n<?xml version=\"1.0\"?>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11599,10 +11743,11 @@ test "w3c/not-wf/not_wf_sa_151" {
   let xml = "<doc>\n</doc>\n<?xml version=\"1.0\"?>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11614,10 +11759,11 @@ test "w3c/not-wf/not_wf_sa_152" {
   let xml = "<?xml encoding=\"UTF-8\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11629,10 +11775,11 @@ test "w3c/not-wf/not_wf_sa_153" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY e \"<?xml encoding='UTF-8'?>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11644,10 +11791,11 @@ test "w3c/not-wf/not_wf_sa_154" {
   let xml = "<?XML version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11659,10 +11807,11 @@ test "w3c/not-wf/not_wf_sa_155" {
   let xml = "<?xmL version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11674,10 +11823,11 @@ test "w3c/not-wf/not_wf_sa_156" {
   let xml = "<doc>\n<?xMl version=\"1.0\"?>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11689,10 +11839,11 @@ test "w3c/not-wf/not_wf_sa_157" {
   let xml = "<doc>\n<?xmL?>\n</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11704,10 +11855,11 @@ test "w3c/not-wf/not_wf_sa_158" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!NOTATION gif PUBLIC \"image/gif\" \"\">\n<!ATTLIST #NOTATION gif a1 CDATA #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11719,10 +11871,11 @@ test "w3c/not-wf/not_wf_sa_159" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY e \"<![CDATA[Tim & Michael]]>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11734,10 +11887,11 @@ test "w3c/not-wf/not_wf_sa_160" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e \"\">\n<!ENTITY foo \"%e;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11749,10 +11903,11 @@ test "w3c/not-wf/not_wf_sa_161" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY % e \"#PCDATA\">\n<!ELEMENT doc (%e;)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11764,10 +11919,11 @@ test "w3c/not-wf/not_wf_sa_162" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e1 \"\">\n<!ENTITY % e2 \"%e1;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11779,10 +11935,11 @@ test "w3c/not-wf/not_wf_sa_163" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e \"\">\n]>\n%e;\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11794,10 +11951,11 @@ test "w3c/not-wf/not_wf_sa_164" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e \"\">\n] %e; >\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11809,10 +11967,11 @@ test "w3c/not-wf/not_wf_sa_165" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY% e \"\">\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11824,10 +11983,11 @@ test "w3c/not-wf/not_wf_sa_166" {
   let xml = "<doc>￿</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11839,10 +11999,11 @@ test "w3c/not-wf/not_wf_sa_167" {
   let xml = "<doc>￾</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11854,10 +12015,11 @@ test "w3c/not-wf/not_wf_sa_171" {
   let xml = "<!-- ￿ -->\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11869,10 +12031,11 @@ test "w3c/not-wf/not_wf_sa_172" {
   let xml = "<?pi ￿?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11884,10 +12047,11 @@ test "w3c/not-wf/not_wf_sa_173" {
   let xml = "<doc a=\"￿\"></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11899,10 +12063,11 @@ test "w3c/not-wf/not_wf_sa_174" {
   let xml = "<doc><![CDATA[￿]]></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11914,10 +12079,11 @@ test "w3c/not-wf/not_wf_sa_175" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e \"￿\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11929,10 +12095,11 @@ test "w3c/not-wf/not_wf_sa_176" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11944,10 +12111,11 @@ test "w3c/not-wf/not_wf_sa_177" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>A￿</doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11959,10 +12127,11 @@ test "w3c/not-wf/not_wf_sa_178" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA #IMPLIED>\n]>\n<doc a=\"&#34;></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11974,10 +12143,11 @@ test "w3c/not-wf/not_wf_sa_179" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#34;>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -11989,10 +12159,11 @@ test "w3c/not-wf/not_wf_sa_180" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA \"&e;\">\n<!ENTITY e \"v\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12004,10 +12175,11 @@ test "w3c/not-wf/not_wf_sa_181" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#60;![CDATA[\">\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&e;]]></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12019,10 +12191,11 @@ test "w3c/not-wf/not_wf_sa_182" {
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#60;!--\">\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&e;--></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12034,10 +12207,11 @@ test "w3c/not-wf/not_wf_sa_183" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA | foo*)* >\n<!ELEMENT foo EMPTY>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12049,10 +12223,11 @@ test "w3c/not-wf/not_wf_sa_184" {
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA | (foo))* >\n<!ELEMENT foo EMPTY>\n]>\n<doc></doc>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12064,10 +12239,11 @@ test "w3c/not-wf/not_wf_sa_186" {
   let xml = "<!DOCTYPE a [\n<!ELEMENT a EMPTY>\n<!ATTLIST a b CDATA #IMPLIED d CDATA #IMPLIED>\n]>\n<a b=\"c\"d=\"e\"/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12079,10 +12255,11 @@ test "w3c/not-wf/rmt_ns10_035" {
   let xml = "<?xml version=\"1.0\"?>\n<!-- Attribute uniqueness: repeated identical attribute -->\n<foo xmlns:a=\"http://example.org/~wilbur\"\n     xmlns:b=\"http://example.org/~wilbur\">\n\n<bar a:attr=\"1\" a:attr=\"2\"/>\n\n</foo>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12094,10 +12271,11 @@ test "w3c/not-wf/attlist01" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNUTOKEN\t\"1\"\n\t>\n\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12109,10 +12287,11 @@ test "w3c/not-wf/attlist02" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNUTOKENS\t\"1 2 3\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12124,10 +12303,11 @@ test "w3c/not-wf/attlist03" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tchoice\t(a,b,c)\t\"a\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12139,10 +12319,11 @@ test "w3c/not-wf/attlist04" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNUMBER\t\"1\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12154,10 +12335,11 @@ test "w3c/not-wf/attlist05" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumbers\tNUMBERS\t\"1 2 3 4\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12169,10 +12351,11 @@ test "w3c/not-wf/attlist06" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNAME\t\"Elvis\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12184,10 +12367,11 @@ test "w3c/not-wf/attlist07" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNAMES\t\"The King\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12199,10 +12383,11 @@ test "w3c/not-wf/attlist08" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute default -->\n\n    <!ATTLIST root\n\tlanguage\tCDATA\t#CURRENT\n\t>\n\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12214,10 +12399,11 @@ test "w3c/not-wf/attlist09" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  illegal attribute default -->\n\n    <!ATTLIST root\n\tlanguage\tCDATA\t#CONREF\n\t>\n\n]>\n\n<root language=\"Dutch\"/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12229,10 +12415,11 @@ test "w3c/not-wf/attlist10" {
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ATTLIST root att1 CDATA #IMPLIED>\n<!ATTLIST root att2 CDATA #IMPLIED>\n]>\n<root att1=\"value1\"att2=\"value2\">\n    <!-- whitespace required between attributes -->\n</root>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12244,10 +12431,11 @@ test "w3c/not-wf/attlist11" {
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ATTLIST root att1 CDATA #IMPLIED>\n<!ATTLIST root att2 CDATA #IMPLIED>\n]>\n<root att1=\"value1\"att2=\"value2\"/>\n    <!-- whitespace required between attributes -->\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12259,10 +12447,11 @@ test "w3c/not-wf/content01" {
   let xml = "<!DOCTYPE root [\n    <!-- no whitespace before '?', '*', '+' -->\n    <!ELEMENT root ((root) ?)>\n]>\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12274,10 +12463,11 @@ test "w3c/not-wf/content02" {
   let xml = "<!DOCTYPE root [\n    <!-- no whitespace before '?', '*', '+' -->\n    <!ELEMENT root ((root) *)>\n]>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12289,10 +12479,11 @@ test "w3c/not-wf/content03" {
   let xml = "<!DOCTYPE root [\n    <!-- no whitespace before '?', '*', '+' -->\n    <!ELEMENT root (root +)>\n]>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12304,10 +12495,11 @@ test "w3c/not-wf/nwf_dtd00" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root (foo, bar? foo)>\n\t<!-- comma omitted -->\n    <!ELEMENT foo EMPTY>\n    <!ELEMENT bar EMPTY>\n]>\n\n<root> <foo/> <foo/> </root>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12319,10 +12511,11 @@ test "w3c/not-wf/nwf_dtd01" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root (foo, bar? | foo)>\n\t<!-- comma swapped for vertical bar -->\n    <!ELEMENT foo EMPTY>\n    <!ELEMENT bar EMPTY>\n]>\n\n<root> <foo/> <foo/> </root>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12334,10 +12527,11 @@ test "w3c/not-wf/dtd02" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n    <!-- correct PE ref syntax -->\n    <!ENTITY % foo \"<!ATTLIST root>\">\n    % foo;\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12349,10 +12543,11 @@ test "w3c/not-wf/dtd03" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n    <!-- correct PE ref syntax -->\n    <!ENTITY % foo \"<!ATTLIST root>\">\n    %foo\n    ;\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12364,10 +12559,11 @@ test "w3c/not-wf/element00" {
   let xml = "<root>\n    Incomplete end tag.\n</ro"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12379,10 +12575,11 @@ test "w3c/not-wf/element01" {
   let xml = "<root>\n    Incomplete end tag.\n</root"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12394,10 +12591,11 @@ test "w3c/not-wf/element02" {
   let xml = "<!DOCTYPE html [ <!ELEMENT html ANY> ]>\n<html>\n    <% @ LANGUAGE=\"VBSCRIPT\" %>\n</html>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12409,10 +12607,11 @@ test "w3c/not-wf/element03" {
   let xml = "<!DOCTYPE html [ <!ELEMENT html ANY> ]>\n<html>\n    <% document.println (\"hello, world\"); %>\n</html>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12424,10 +12623,11 @@ test "w3c/not-wf/element04" {
   let xml = "<!DOCTYPE root [ <!ELEMENT root ANY> ]>\n<root>\n    <!ELEMENT foo EMPTY>\n</root>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12439,10 +12639,11 @@ test "w3c/not-wf/encoding01" {
   let xml = "<?xml version=\"1.0\" encoding=\" utf-8\"?>\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12454,10 +12655,11 @@ test "w3c/not-wf/encoding02" {
   let xml = "<?xml version=\"1.0\" encoding=\"a/b\"?>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12469,10 +12671,11 @@ test "w3c/not-wf/encoding03" {
   let xml = "<?xml version=\"1.0\" encoding=\"just&#41;word\"?>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12484,10 +12687,11 @@ test "w3c/not-wf/encoding04" {
   let xml = "<?xml version=\"1.0\" encoding=\"utf:8\"?>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12499,10 +12703,11 @@ test "w3c/not-wf/encoding05" {
   let xml = "<?xml version=\"1.0\" encoding=\"@import(sys-encoding)\"?>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12514,10 +12719,11 @@ test "w3c/not-wf/encoding06" {
   let xml = "<?xml version=\"1.0\" encoding=\"XYZ+999\"?>\n\n<!-- WF ... but illegal encoding name, also a fatal error --> \n\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12529,10 +12735,11 @@ test "w3c/not-wf/pi" {
   let xml = "<!DOCTYPE root [\n<!ELEMENT root EMPTY>\n<!-- space before PI data and ?> -->\n<?bad-pi+?>\n]>\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12544,10 +12751,11 @@ test "w3c/not-wf/sgml01" {
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  omitted end tag -->\n]>\n\n<root>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12559,10 +12767,11 @@ test "w3c/not-wf/sgml02" {
   let xml = " <?xml version=\"1.0\"?>\n    <!-- SGML-ism:  XML PI not at beginning -->\n<!DOCTYPE root [ <!ELEMENT root EMPTY> ]>\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12574,10 +12783,11 @@ test "w3c/not-wf/sgml03" {
   let xml = "<!DOCTYPE root [ <!ELEMENT root EMPTY> ]>\n\n    <!-- SGML-ism:  -- inside comment -->\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12589,10 +12799,11 @@ test "w3c/not-wf/sgml04" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  multiple attlist types -->\n\n    <!ELEMENT root EMPTY>\n    <!ELEMENT branch EMPTY>\n\n    <!ATTLIST (root|branch)\n\tTreeType CDATA #REQUIRED\n\t>\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12604,10 +12815,11 @@ test "w3c/not-wf/sgml05" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  multiple element types -->\n\n    <!ELEMENT root EMPTY>\n    <!ELEMENT leaves EMPTY>\n    <!ELEMENT branch EMPTY>\n\n    <!ELEMENT (bush|tree) (root,leaves,branch)>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12619,10 +12831,11 @@ test "w3c/not-wf/sgml06" {
   let xml = "<!DOCTYPE root [\n    <!-- Web-SGML-ism:  global attlist types -->\n\n    <!ELEMENT root EMPTY>\n\n    <!ATTLIST #ALL\n\tTreeType CDATA #REQUIRED\n\t>\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12634,10 +12847,11 @@ test "w3c/not-wf/sgml07" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  omitted tag minimzation spec -->\n    <!ELEMENT root - o EMPTY>\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12649,10 +12863,11 @@ test "w3c/not-wf/sgml08" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  omitted tag minimzation spec -->\n    <!ELEMENT root - - EMPTY>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12664,10 +12879,11 @@ test "w3c/not-wf/sgml09" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  exception spec -->\n\n    <!ELEMENT footnote (para*) -footnote>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12679,10 +12895,11 @@ test "w3c/not-wf/sgml10" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  exception spec -->\n    <!ELEMENT section (header,(para|section))* +(annotation|todo)>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12694,10 +12911,11 @@ test "w3c/not-wf/sgml11" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  CDATA content type -->\n    <!ELEMENT ROOT CDATA>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12709,10 +12927,11 @@ test "w3c/not-wf/sgml12" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  RCDATA content type -->\n    <!ELEMENT ROOT RCDATA>\n]>\n\n<root/>\n\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12724,10 +12943,11 @@ test "w3c/not-wf/sgml13" {
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  unordered content type -->\n    <!ELEMENT ROOT (a & b & c)>\n    <!ELEMENT a EMPTY>\n    <!ELEMENT b EMPTY>\n    <!ELEMENT c EMPTY>\n]>\n\n<root><b/><c/><a/></root>\n\n\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12739,10 +12959,11 @@ test "w3c/not-wf/rmt_e2e_61" {
   let xml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12754,10 +12975,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n02_xml" {
   let xml = "<!DOCTYPE ̳IllegalNameStartChar [\n<!ELEMENT ̳IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar P4: #0x333 -->\n<̳IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12769,10 +12991,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n03_xml" {
   let xml = "<!DOCTYPE ͩIllegalNameStartChar [\n<!ELEMENT ͩIllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x369  -->\n<ͩIllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12784,10 +13007,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n04_xml" {
   let xml = "<!DOCTYPE ;IllegalNameStartChar [\n<!ELEMENT ;IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar  #0x37E  -->\n<;IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12799,10 +13023,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n05_xml" {
   let xml = "<!DOCTYPE  IllegalNameStartChar [\n<!ELEMENT  IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x2000  -->\n< IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12814,10 +13039,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n06_xml" {
   let xml = "<!DOCTYPE  IllegalNameStartChar [\n<!ELEMENT  IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x2001 -->\n< IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12829,10 +13055,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n07_xml" {
   let xml = "<!DOCTYPE  IllegalNameStartChar [\n<!ELEMENT  IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x2002 -->\n< IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12844,10 +13071,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n08_xml" {
   let xml = "<!DOCTYPE  IllegalNameStartChar [\n<!ELEMENT  IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x2005 -->\n< IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12859,10 +13087,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n09_xml" {
   let xml = "<!DOCTYPE ​IllegalNameStartChar [\n<!ELEMENT ​IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x200B -->\n<​IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12874,10 +13103,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n10_xml" {
   let xml = "<!DOCTYPE ‎IllegalNameStartChar [\n<!ELEMENT ‎IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x200E -->\n<‎IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12889,10 +13119,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n11_xml" {
   let xml = "<!DOCTYPE ‏IllegalNameStartChar [\n<!ELEMENT ‏IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x200F  -->\n<‏IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12904,10 +13135,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n12_xml" {
   let xml = "<!DOCTYPE ⁩IllegalNameStartChar [\n<!ELEMENT ⁩IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2069 -->\n<⁩IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12919,10 +13151,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n13_xml" {
   let xml = "<!DOCTYPE ←IllegalNameStartChar [\n<!ELEMENT ←IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2190 -->\n<←IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12934,10 +13167,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n14_xml" {
   let xml = "<!DOCTYPE ⏿IllegalNameStartChar [\n<!ELEMENT ⏿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x23FF -->\n<⏿IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12949,10 +13183,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n15_xml" {
   let xml = "<!DOCTYPE ⠏IllegalNameStartChar [\n<!ELEMENT ⠏IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x280F  -->\n<⠏IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12964,10 +13199,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n16_xml" {
   let xml = "<!DOCTYPE ⨀IllegalNameStartChar [\n<!ELEMENT ⨀IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2A00 -->\n<⨀IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12979,10 +13215,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n17_xml" {
   let xml = "<!DOCTYPE ⬀IllegalNameStartChar [\n<!ELEMENT ⬀IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2B00  -->\n<⬀IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -12994,10 +13231,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n18_xml" {
   let xml = "<!DOCTYPE ⯿IllegalNameStartChar [\n<!ELEMENT ⯿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar x2BFF \nin p02:   -->\n<⯿IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13009,10 +13247,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n19_xml" {
   let xml = "<!DOCTYPE ⿿IllegalNameStartChar [\n<!ELEMENT ⿿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2FFF -->\n<⿿IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13024,10 +13263,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n20_xml" {
   let xml = "<!DOCTYPE 　IllegalNameStartChar [\n<!ELEMENT 　IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x3000 -->\n<　IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13039,10 +13279,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n21_xml" {
   let xml = "<!DOCTYPE í IllegalNameStartChar [\n<!ELEMENT í IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xD800 -->\n<í IllegalNameStartChar/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13054,10 +13295,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n22_xml" {
   let xml = "<!DOCTYPE í IllegalNameStartChar [\n<!ELEMENT í IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xD801 -->\n<í IllegalNameStartChar/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13069,10 +13311,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n23_xml" {
   let xml = "<!DOCTYPE í«¿IllegalNameStartChar [\n<!ELEMENT í«¿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xDAFF -->\n<í«¿IllegalNameStartChar/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13084,10 +13327,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n24_xml" {
   let xml = "<!DOCTYPE í¿¿IllegalNameStartChar [\n<!ELEMENT í¿¿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xDFFF -->\n<í¿¿IllegalNameStartChar/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13099,10 +13343,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n25_xml" {
   let xml = "<!DOCTYPE IllegalNameStartChar [\n<!ELEMENT IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xEFFF -->\n<IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13114,10 +13359,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n26_xml" {
   let xml = "<!DOCTYPE IllegalNameStartChar [\n<!ELEMENT IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xF1FF -->\n<IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13129,10 +13375,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n27_xml" {
   let xml = "<!DOCTYPE IllegalNameStartChar [\n<!ELEMENT IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xF8FF -->\n<IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13144,10 +13391,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n28_xml" {
   let xml = "<!DOCTYPE ￿IllegalNameStartChar [\n<!ELEMENT ￿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xFFFFF -->\n<￿IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13159,10 +13407,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an01_xml" {
   let xml = "<!DOCTYPE IllegalNameChar¸ [\n<!ELEMENT IllegalNameChar¸ ANY>\n]>\n<!-- IllegalNameChar #xB8 -->\n<IllegalNameChar¸/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13174,10 +13423,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an02_xml" {
   let xml = "<!DOCTYPE IllegalNameChar¡ [\n<!ELEMENT IllegalNameChar¡ ANY>\n]>\n<!-- IllegalNameChar #0xA1 -->\n<IllegalNameChar¡/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13189,10 +13439,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an03_xml" {
   let xml = "<!DOCTYPE IllegalNameChar¯ [\n<!ELEMENT IllegalNameChar¯ ANY>\n]>\n<!-- IllegalNameChar #0xAF   -->\n<IllegalNameChar¯/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13204,10 +13455,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an04_xml" {
   let xml = "<!DOCTYPE IllegalNameChar; [\n<!ELEMENT IllegalNameChar; ANY>\n]>\n<!-- IllegalNameChar #0x37E -->\n<IllegalNameChar;/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13219,10 +13471,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an05_xml" {
   let xml = "<!DOCTYPE IllegalNameChar  [\n<!ELEMENT IllegalNameChar  ANY>\n]>\n<!-- IllegalNameChar #0x2000 -->\n<IllegalNameChar />"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13234,10 +13487,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an06_xml" {
   let xml = "<!DOCTYPE IllegalNameChar  [\n<!ELEMENT IllegalNameChar  ANY>\n]>\n<!-- IllegalNameChar #0x2001 -->\n<IllegalNameChar />"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13249,10 +13503,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an07_xml" {
   let xml = "<!DOCTYPE IllegalNameChar  [\n<!ELEMENT IllegalNameChar  ANY>\n]>\n<!-- IllegalNameChar #0x2002 -->\n<IllegalNameChar />"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13264,10 +13519,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an08_xml" {
   let xml = "<!DOCTYPE IllegalNameChar  [\n<!ELEMENT IllegalNameChar  ANY>\n]>\n<!-- IllegalNameChar #0x2005 -->\n<IllegalNameChar />"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13279,10 +13535,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an09_xml" {
   let xml = "<!DOCTYPE IllegalNameChar​ [\n<!ELEMENT IllegalNameChar​ ANY>\n]>\n<!-- IllegalNameChar #0x200B -->\n<IllegalNameChar​/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13294,10 +13551,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an10_xml" {
   let xml = "<!DOCTYPE IllegalNameChar‎ [\n<!ELEMENT IllegalNameChar‎ ANY>\n]>\n<!-- IllegalNameChar #0x200E -->\n<IllegalNameChar‎/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13309,10 +13567,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an11_xml" {
   let xml = "<!DOCTYPE IllegalNameChar‽ [\n<!ELEMENT IllegalNameChar‽ ANY>\n]>\n<!-- IllegalNameChar #0x2038 -->\n<IllegalNameChar‽/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13324,10 +13583,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an12_xml" {
   let xml = "<!DOCTYPE IllegalNameChar⁁ [\n<!ELEMENT IllegalNameChar⁁ ANY>\n]>\n<!-- IllegalNameChar #0x2041 -->\n<IllegalNameChar⁁/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13339,10 +13599,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an13_xml" {
   let xml = "<!DOCTYPE IllegalNameChar← [\n<!ELEMENT IllegalNameChar← ANY>\n]>\n<!-- IllegalNameChar #0x2190 -->\n<IllegalNameChar←/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13354,10 +13615,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an14_xml" {
   let xml = "<!DOCTYPE IllegalNameChar⏿ [\n<!ELEMENT IllegalNameChar⏿ ANY>\n]>\n<!-- IllegalNameChar #0x23FF -->\n<IllegalNameChar⏿/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13369,10 +13631,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an15_xml" {
   let xml = "<!DOCTYPE IllegalNameChar⠏ [\n<!ELEMENT IllegalNameChar⠏ ANY>\n]>\n<!-- IllegalNameChar #0x280F -->\n<IllegalNameChar⠏/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13384,10 +13647,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an16_xml" {
   let xml = "<!DOCTYPE IllegalNameChar⨀ [\n<!ELEMENT IllegalNameChar⨀ ANY>\n]>\n<!-- IllegalNameChar #0x2A00 -->\n<IllegalNameChar⨀/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13399,10 +13663,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an17_xml" {
   let xml = "<!DOCTYPE IllegalNameChar﷐ [\n<!ELEMENT IllegalNameChar﷐ ANY>\n]>\n<!-- IllegalNameChar #0xFDD0 -->\n<IllegalNameChar﷐/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13414,10 +13679,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an18_xml" {
   let xml = "<!DOCTYPE IllegalNameChar﷯ [\n<!ELEMENT IllegalNameChar﷯ ANY>\n]>\n<!-- IllegalNameChar #0xFDEF -->\n<IllegalNameChar﷯/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13429,10 +13695,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an19_xml" {
   let xml = "<!DOCTYPE IllegalNameChar⿿ [\n<!ELEMENT IllegalNameChar⿿ ANY>\n]>\n<!-- IllegalNameChar #0x2FFF -->\n<IllegalNameChar⿿/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13444,10 +13711,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an20_xml" {
   let xml = "<!DOCTYPE IllegalNameChar　 [\n<!ELEMENT IllegalNameChar　 ANY>\n]>\n<!-- IllegalNameChar  #0x3000 -->\n<IllegalNameChar　/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13459,10 +13727,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an21_xml" {
   let xml = "<!DOCTYPE IllegalNameCharí  [\n<!ELEMENT IllegalNameCharí  ANY>\n]>\n<!-- IllegalNameChar #0xD800 -->\n<IllegalNameCharí />\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13474,10 +13743,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an22_xml" {
   let xml = "<!DOCTYPE IllegalNameCharí  [\n<!ELEMENT IllegalNameCharí  ANY>\n]>\n<!-- IllegalNameChar #0xD801 -->\n<IllegalNameCharí />\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13489,10 +13759,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an23_xml" {
   let xml = "<!DOCTYPE IllegalNameCharí«¿ [\n<!ELEMENT IllegalNameCharí«¿ ANY>\n]>\n<!-- IllegalNameChar #0xDAFF -->\n<IllegalNameCharí«¿/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13504,10 +13775,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an24_xml" {
   let xml = "<!DOCTYPE IllegalNameCharí¿¿ [\n<!ELEMENT IllegalNameCharí¿¿ ANY>\n]>\n<!-- IllegalNameChar #0xDFFF -->\n<IllegalNameCharí¿¿/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13519,10 +13791,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an25_xml" {
   let xml = "<!DOCTYPE IllegalNameChar [\n<!ELEMENT IllegalNameChar ANY>\n]>\n<!-- IllegalNameChar #0xEFFF -->\n<IllegalNameChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13534,10 +13807,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an26_xml" {
   let xml = "<!DOCTYPE IllegalNameChar [\n<!ELEMENT IllegalNameChar ANY>\n]>\n<!-- IllegalNameChar #0xF1FF -->\n<IllegalNameChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13549,10 +13823,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an27_xml" {
   let xml = "<!DOCTYPE IllegalNameChar [\n<!ELEMENT IllegalNameChar ANY>\n]>\n<!-- IllegalNameChar #0xF8FF -->\n<IllegalNameChar/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13564,10 +13839,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an28_xml" {
   let xml = "<!DOCTYPE IllegalNameChar￿ [\n<!ELEMENT IllegalNameChar￿ ANY>\n]>\n<!-- IllegalNameChar #0xFFFFF -->\n<IllegalNameChar￿/>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13579,10 +13855,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n01_xml" {
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT BadName EMPTY>\n]>\n<!-- BadName containing char 0x0B; -->\n<root>\n\t<BadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13594,10 +13871,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n02_xml" {
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ̀BadName EMPTY>\n]>\n<!-- BadName containing char 0x300; -->\n<root>\n\t<̀BadName/>\t\n</root>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13609,10 +13887,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n03_xml" {
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ͯBadName EMPTY>\n]>\n<!-- BadName containing char 0x36F; -->\n<root>\n\t<ͯBadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13624,10 +13903,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n04_xml" {
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ‿BadName EMPTY>\n]>\n<!-- BadName containing char 0x203F; -->\n<root>\n\t<‿BadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13639,10 +13919,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n05_xml" {
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ⁀BadName EMPTY>\n]>\n<!-- BadName containing char #x2040; -->\n<root>\n\t<⁀BadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13654,10 +13935,11 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n06_xml" {
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ·BadName EMPTY>\n]>\n<!-- BadName containing char 0xB7; -->\n<root>\n\t<·BadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13669,10 +13951,11 @@ test "w3c/not-wf/hst_bh_001" {
   let xml = "<!DOCTYPE p [\n<!ELEMENT p (#PCDATA)>\n]>\n<p>Fa&#xFF000000F6;il</p>          <!-- 32 bit integer overflow -->\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13684,10 +13967,11 @@ test "w3c/not-wf/hst_bh_002" {
   let xml = "<!DOCTYPE p [\n<!ELEMENT p (#PCDATA)>\n]>\n<p>Fa&#4294967542;il</p>           <!-- 32 bit integer overflow -->\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13699,10 +13983,11 @@ test "w3c/not-wf/hst_bh_003" {
   let xml = "<!DOCTYPE p [\n<!ELEMENT p (#PCDATA)>\n]>\n<p>Fa&#xFFFFFFFF000000F6;il</p>    <!-- 64 bit integer overflow -->\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13714,10 +13999,11 @@ test "w3c/not-wf/hst_bh_004" {
   let xml = "<!DOCTYPE p [\n<!ELEMENT p (#PCDATA)>\n]>\n<p>Fa&#18446744073709551862;il</p> <!-- 64 bit integer overflow -->\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")
@@ -13729,10 +14015,11 @@ test "w3c/not-wf/hst_lhs_009" {
   let xml = "þÿ<?xml encoding='utf-8'?><x/>\n"
   let reader = Reader::from_string(xml)
   let has_error = for {
-    match (try? reader.read_event()) {
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {
+      _ => break true
+    } noraise {
+      Eof => break false
+      _ => continue
     }
   }
   inspect(has_error, content="true")

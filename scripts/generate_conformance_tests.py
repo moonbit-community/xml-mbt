@@ -182,10 +182,11 @@ test "w3c/valid/{safe_name}" {{
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
   let has_error = for {{
-    match (try? reader.read_event()) {{
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {{
+      _ => break true
+    }} noraise {{
+      Eof => break false
+      _ => continue
     }}
   }}
   inspect(has_error, content="false")
@@ -207,10 +208,11 @@ test "w3c/not-wf/{safe_name}" {{
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
   let has_error = for {{
-    match (try? reader.read_event()) {{
-      Err(_) => break true
-      Ok(Eof) => break false
-      Ok(_) => continue
+    try reader.read_event() catch {{
+      _ => break true
+    }} noraise {{
+      Eof => break false
+      _ => continue
     }}
   }}
   inspect(has_error, content="{expected}")

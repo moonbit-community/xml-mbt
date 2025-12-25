@@ -24,7 +24,7 @@ pub struct XmlElement {
 /// - Filter out xmlns namespace declarations
 /// - Strip namespace prefixes (a:attr -> attr)
 fn transform_attrs_for_libxml(
-  attrs : Array[(String, String)]
+  attrs : Array[(String, String)],
 ) -> Array[(String, String)] {
   let result : Array[(String, String)] = []
   for attr in attrs {
@@ -153,10 +153,9 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
       }
       DocType(name) => doctype_event = Some(DocType(strip_ns_prefix(name)))
       Text(_) => () // Skip prolog whitespace
-      PI(target~, data~) => {
+      PI(target~, data~) =>
         // lxml trims leading whitespace from PI data
         prolog_others.push(PI(target~, data=data.trim_start().to_string()))
-      }
       other => prolog_others.push(other)
     }
   }
@@ -209,18 +208,15 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
         )
         result.push(Empty(filtered_elem))
       }
-      End(name) => {
+      End(name) =>
         // Strip namespace prefix from end tag
         result.push(End(strip_ns_prefix(name)))
-      }
-      DocType(name) => {
+      DocType(name) =>
         // Strip namespace prefix from doctype name
         result.push(DocType(strip_ns_prefix(name)))
-      }
-      PI(target~, data~) => {
+      PI(target~, data~) =>
         // lxml trims leading whitespace from PI data
         result.push(PI(target~, data=data.trim_start().to_string()))
-      }
       _ => result.push(event)
     }
     i += 1

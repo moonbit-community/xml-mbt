@@ -906,9 +906,7 @@ fn Reader::read_attributes(
             let raw_value = self.read_attr_value()
             // Normalize attribute value based on declared type
             let normalized_value = self.normalize_attr_by_type(
-              elem_name,
-              attr_name,
-              raw_value,
+              elem_name, attr_name, raw_value,
             )
             // Reject duplicate attributes
             let exists = attrs.iter().any(fn(pair) { pair.0 == attr_name })
@@ -1137,14 +1135,14 @@ fn is_well_formed_content(s : String) -> Bool {
   // Try to parse as XML content - if it fails, it's not well-formed
   // Wrap in root element so parser accepts CDATA, etc.
   let test_reader = Reader::from_string("<root>" + s + "</root>")
-  let result = for {
-    match (try? test_reader.read_event()) {
-      Err(_) => break false
-      Ok(Eof) => break true
-      Ok(_) => continue
+  for {
+    try test_reader.read_event() catch {
+      _ => break false
+    } noraise {
+      Eof => break true
+      _ => continue
     }
   }
-  result
 }
 
 ///|
@@ -1211,7 +1209,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                 let _ = self.advance()
                 // Get the stored entity value (may still have &#38; etc.)
                 match self.entities.get(entity_name) {
-                  Some(stored_value) => {
+                  Some(stored_value) =>
                     // Check if stored value has markup and is well-formed
                     // Use stored value (with &#38; intact) for well-formedness check
                     if has_markup(stored_value) &&
@@ -1230,7 +1228,6 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                       let normalized = normalize_line_endings(expanded)
                       self.pending_events.push(Text(normalized))
                     }
-                  }
                   None => {
                     // Built-in entity (like &amp;) - expand and push as text
                     let entity_ref = "&" + entity_name + ";"
@@ -1317,6 +1314,7 @@ fn Reader::read_whitespace_only(self : Reader) -> Event raise XmlError {
         if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
           buf.write_char(c)
           let _ = self.advance()
+
         } else if code == 0xFEFF {
           // Skip BOM (byte order mark) - don't include in output
           let _ = self.advance()

@@ -8,11 +8,15 @@ import(
 // Values
 pub fn escape(String) -> String
 
+pub fn expand_char_refs_only(String) -> String raise XmlError
+
 pub fn expand_entity_value(String, Map[String, String], Map[String, Bool]) -> String raise XmlError
 
 pub fn parse_attlist(Reader) -> Unit raise XmlError
 
 pub fn parse_element_decl(Reader) -> Unit raise XmlError
+
+pub fn to_libxml_format(Array[Event]) -> Array[Event]
 
 pub fn unescape(String) -> String raise XmlError
 
@@ -55,6 +59,7 @@ pub struct Reader {
   mut line : Int
   mut column : Int
   entities : Map[String, String]
+  attr_types : Map[String, String]
   base_path : String
   tag_stack : Array[String]
   mut seen_root : Bool
@@ -64,6 +69,7 @@ pub struct Reader {
   pending_events : Array[Event]
   internal_subset_events : Array[Event]
   mut just_saw_doctype : Bool
+  had_bom : Bool
 }
 pub fn Reader::column(Self) -> Int
 pub fn Reader::from_file(String) -> Self raise @fs.IOError

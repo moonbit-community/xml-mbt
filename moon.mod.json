@@ -7,6 +7,6 @@
   "readme": "README.md",
   "repository": "",
   "license": "Apache-2.0",
-  "keywords": [],
+  "keywords": ["xml", "parser"],
   "description": "A fast XML parser for MoonBit, inspired by quick-xml"
 }
