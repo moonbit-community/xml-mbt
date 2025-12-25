@@ -22,7 +22,7 @@ pub struct XmlElement {
 ///|
 /// Transform attributes to match lxml behavior:
 /// - Filter out xmlns namespace declarations
-/// - Strip xml: prefix (xml:lang -> lang)
+/// - Strip namespace prefixes (a:attr -> attr)
 fn transform_attrs_for_libxml(
   attrs : Array[(String, String)]
 ) -> Array[(String, String)] {
@@ -33,11 +33,10 @@ fn transform_attrs_for_libxml(
       // Skip namespace declarations
       continue
     }
-    // Strip xml: prefix (xml:lang -> lang)
-    let final_name = if name.has_prefix("xml:") {
-      (try! name[4:]).to_string()
-    } else {
-      name
+    // Strip namespace prefix (a:attr -> attr, xml:lang -> lang)
+    let final_name = match name.find(":") {
+      Some(idx) => (try! name[idx + 1:]).to_string()
+      None => name
     }
     // Attribute value is already normalized by the parser
     result.push((final_name, attr.1))
