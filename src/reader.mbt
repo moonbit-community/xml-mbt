@@ -1065,6 +1065,22 @@ fn has_markup(s : String) -> Bool {
 }
 
 ///|
+/// Check if a string forms well-formed XML content (balanced tags).
+/// This distinguishes real markup from character-reference `<` in entity values.
+fn is_well_formed_content(s : String) -> Bool {
+  // Try to parse as XML content - if it fails, it's not well-formed
+  let test_reader = Reader::from_string("<root>" + s + "</root>")
+  let result = for {
+    match (try? test_reader.read_event()) {
+      Err(_) => break false
+      Ok(Eof) => break true
+      Ok(_) => continue
+    }
+  }
+  result
+}
+
+///|
 /// Parse entity content as XML markup and push events to pending queue
 fn Reader::parse_entity_content(self : Reader, content : String) -> Unit {
   // Create a temporary reader to parse the entity content
@@ -1135,8 +1151,8 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                 // Normalize line endings in expanded value
                 let normalized = normalize_line_endings(expanded)
                 // Check if expanded value contains actual markup (not just &lt;)
-                // Markup needs at least "<X" where X is a valid name start char
-                if has_markup(normalized) {
+                // Only parse as markup if it forms valid well-formed content
+                if has_markup(normalized) && is_well_formed_content(normalized) {
                   // Parse entity content as XML (entity markup expansion)
                   self.parse_entity_content(normalized)
                 } else {
