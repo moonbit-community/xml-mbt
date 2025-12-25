@@ -1124,6 +1124,7 @@ fn has_markup(s : String) -> Bool {
 /// This distinguishes real markup from character-reference `<` in entity values.
 fn is_well_formed_content(s : String) -> Bool {
   // Try to parse as XML content - if it fails, it's not well-formed
+  // Wrap in root element so parser accepts CDATA, etc.
   let test_reader = Reader::from_string("<root>" + s + "</root>")
   let result = for {
     match (try? test_reader.read_event()) {
@@ -1146,6 +1147,8 @@ fn Reader::parse_entity_content(self : Reader, content : String) -> Unit {
   }
   // Disable root element checking for entity content
   sub_reader.seen_root = true
+  // Add dummy tag to stack so CDATA is allowed (we're inside element context)
+  sub_reader.tag_stack.push("_entity_content_")
   // Parse all events from entity content
   while true {
     let event = try? sub_reader.read_event()
