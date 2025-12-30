@@ -45,16 +45,30 @@ class MoonBitTarget:
         self.events: List[str] = []
         self.xml_source = xml_source
         self.pending_start: List[Tuple[str, str]] = []
+        self.pending_text: str = ""
 
-    def _flush_pending(self):
+    def _flush_pending_starts(self):
         """Emit any pending start elements as Start events."""
         for tag, attrs_str in self.pending_start:
             self.events.append(f'Start({{name: "{tag}", attributes: {attrs_str}}})')
         self.pending_start.clear()
 
+    def _flush_text(self):
+        """Coalesce text callbacks into a single Text(...) event.
+
+        lxml's target API may call `data()` multiple times for a single logical
+        text node (implementation-dependent chunking). We coalesce to keep the
+        generated expectations stable and comparable to our MoonBit parser.
+        """
+        if self.pending_text:
+            escaped = escape_for_debug(self.pending_text)
+            self.events.append(f'Text("{escaped}")')
+            self.pending_text = ""
+
     def start(self, tag, attrib):
         """Called for element start."""
-        self._flush_pending()
+        self._flush_pending_starts()
+        self._flush_text()
 
         if '}' in tag:
             tag = tag.split('}', 1)[1]
@@ -71,6 +85,7 @@ class MoonBitTarget:
 
     def end(self, tag):
         """Called for element end."""
+        self._flush_text()
         if '}' in tag:
             tag = tag.split('}', 1)[1]
 
@@ -81,7 +96,7 @@ class MoonBitTarget:
             else:
                 self.events.append(f'Empty({{name: "{tag}", attributes: {attrs_str}}})')
         else:
-            self._flush_pending()
+            self._flush_pending_starts()
             self.events.append(f'End("{tag}")')
 
     def _is_self_closing_in_source(self, tag: str) -> bool:
@@ -91,27 +106,29 @@ class MoonBitTarget:
 
     def data(self, data):
         """Called for text content."""
-        self._flush_pending()
+        self._flush_pending_starts()
         if data:
-            escaped = escape_for_debug(data)
-            self.events.append(f'Text("{escaped}")')
+            self.pending_text += data
 
     def comment(self, text):
         """Called for comments."""
-        self._flush_pending()
+        self._flush_pending_starts()
+        self._flush_text()
         escaped = escape_for_debug(text)
         self.events.append(f'Comment("{escaped}")')
 
     def pi(self, target, text):
         """Called for processing instructions (not XML decl)."""
-        self._flush_pending()
+        self._flush_pending_starts()
+        self._flush_text()
         text = text or ""
         text_escaped = escape_for_debug(text)
         self.events.append(f'PI(target="{target}", data="{text_escaped}")')
 
     def close(self):
         """Called at end of document."""
-        self._flush_pending()
+        self._flush_pending_starts()
+        self._flush_text()
         return self.events
 
 

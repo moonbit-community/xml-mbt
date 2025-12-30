@@ -113,6 +113,31 @@ pub(all) suberror XmlError {
 } derive(Show, Eq)
 
 ///|
+/// Push an event into `result`, coalescing adjacent `Text(...)` events.
+///
+/// lxml (and many streaming parsers) may split text into multiple adjacent
+/// chunks; for conformance testing we treat adjacent text events as equivalent
+/// by concatenating them.
+fn push_coalesced(result : Array[Event], event : Event) -> Unit {
+  match event {
+    Text(s) => {
+      let n = result.length()
+      if n > 0 {
+        match result[n - 1] {
+          Text(prev) => {
+            result[n - 1] = Text(prev + s)
+            return
+          }
+          _ => ()
+        }
+      }
+      result.push(Text(s))
+    }
+    _ => result.push(event)
+  }
+}
+
+///|
 /// Convert events to libxml2/lxml format for conformance testing.
 ///
 /// Handles known differences between our parser and lxml:
@@ -190,14 +215,14 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
             End(name) =>
               if name == elem.name {
                 // Convert Start+End to Empty
-                result.push(Empty(filtered_elem))
+                push_coalesced(result, Empty(filtered_elem))
                 i += 2
                 continue
               }
             _ => ()
           }
         }
-        result.push(Start(filtered_elem))
+        push_coalesced(result, Start(filtered_elem))
       }
       Empty(elem) => {
         // Transform element name and attributes for lxml compatibility
@@ -206,18 +231,18 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
           elem_name,
           transform_attrs_for_libxml(elem.attributes),
         )
-        result.push(Empty(filtered_elem))
+        push_coalesced(result, Empty(filtered_elem))
       }
       End(name) =>
         // Strip namespace prefix from end tag
-        result.push(End(strip_ns_prefix(name)))
+        push_coalesced(result, End(strip_ns_prefix(name)))
       DocType(name) =>
         // Strip namespace prefix from doctype name
-        result.push(DocType(strip_ns_prefix(name)))
+        push_coalesced(result, DocType(strip_ns_prefix(name)))
       PI(target~, data~) =>
         // lxml trims leading whitespace from PI data
-        result.push(PI(target~, data=data.trim_start().to_string()))
-      _ => result.push(event)
+        push_coalesced(result, PI(target~, data=data.trim_start().to_string()))
+      _ => push_coalesced(result, event)
     }
     i += 1
   }

@@ -187,7 +187,7 @@ test "w3c/valid/valid_sa_008" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"&\"), Text(\"<\"), Text(\">\"), Text(\"\\\"\"), Text(\"'\"), End(\"doc\"), Eof]",
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"&<>\\\"'\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1232,7 +1232,7 @@ test "w3c/valid/valid_sa_060" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"X\"), Text(\"\\n\"), Text(\"Y\"), End(\"doc\"), Eof]",
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"X\\nY\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1274,7 +1274,7 @@ test "w3c/valid/valid_sa_062" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"เ\"), Text(\"จ\"), Text(\"ม\"), Text(\"ส์\"), End(\"doc\"), Eof]",
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"เจมส์\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1316,7 +1316,7 @@ test "w3c/valid/valid_sa_064" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀\"), Text(\"􏿽\"), End(\"doc\"), Eof]",
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀􏿽\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -1757,7 +1757,7 @@ test "w3c/valid/valid_sa_088" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<\"), Text(\"foo>\"), End(\"doc\"), Eof]",
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<foo>\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -2009,7 +2009,7 @@ test "w3c/valid/valid_sa_103" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<\"), Text(\"doc>\"), End(\"doc\"), Eof]",
+    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<doc>\"), End(\"doc\"), Eof]",
   )
 }
 
@@ -2555,7 +2555,7 @@ test "w3c/valid/element" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Start({name: \"root\", attributes: []}), Text(\"\\n    \"), Empty({name: \"empty\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed\"), End(\"mixed1\"), Text(\"\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"<allowed>\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"<% illegal otherwise %>\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover\"), End(\"mixed3\"), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed \"), Text(\"&\"), Text(\" stuff\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" too\"), End(\"mixed3\"), Text(\"\\n\\n\"), End(\"root\"), Eof]",
+    content="[DocType(\"root\"), Start({name: \"root\", attributes: []}), Text(\"\\n    \"), Empty({name: \"empty\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed\"), End(\"mixed1\"), Text(\"\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"<allowed>\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"<% illegal otherwise %>\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover\"), End(\"mixed3\"), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed & stuff\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" too\"), End(\"mixed3\"), Text(\"\\n\\n\"), End(\"root\"), Eof]",
   )
 }
 
@@ -2765,7 +2765,7 @@ test "w3c/valid/v_pe03" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Comment(\" Example 1 from XML spec 1.0 Appendix D \"), Start({name: \"root\", attributes: []}), Start({name: \"p\", attributes: []}), Text(\"An ampersand (\"), Text(\"&\"), Text(\") may be escaped\\nnumerically (\"), Text(\"&\"), Text(\"#38) or with a general entity (\"), Text(\"&\"), Text(\"amp;).\"), End(\"p\"), End(\"root\"), Eof]",
+    content="[DocType(\"root\"), Comment(\" Example 1 from XML spec 1.0 Appendix D \"), Start({name: \"root\", attributes: []}), Start({name: \"p\", attributes: []}), Text(\"An ampersand (&) may be escaped\\nnumerically (&#38) or with a general entity (&amp;).\"), End(\"p\"), End(\"root\"), Eof]",
   )
 }
 
@@ -2933,7 +2933,7 @@ test "w3c/valid/rmt_e2e_24" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Text(\"You can use ]]\"), Text(\">\"), Text(\" or ]]\"), Text(\">\"), End(\"foo\"), Eof]",
+    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Text(\"You can use ]]> or ]]>\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -3017,7 +3017,7 @@ test "w3c/valid/rmt_e3e_05a" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Comment(\" CDATA sections may occur in Mixed content. \"), Start({name: \"foo\", attributes: []}), Text(\"a \"), Text(\"cdata section\"), Text(\" in mixed content\"), End(\"foo\"), Eof]",
+    content="[DocType(\"foo\"), Comment(\" CDATA sections may occur in Mixed content. \"), Start({name: \"foo\", attributes: []}), Text(\"a cdata section in mixed content\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -3038,7 +3038,7 @@ test "w3c/valid/rmt_e3e_05b" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Comment(\" CDATA sections, comments and PIs may occur in ANY content. \"), Start({name: \"foo\", attributes: []}), Text(\"\\na \"), Text(\"cdata section\"), Text(\" in mixed content.\\na \"), Comment(\" comment \"), Text(\" in mixed content.\\na \"), PI(target=\"processing\", data=\"instruction\"), Text(\" in mixed content.\\n\"), End(\"foo\"), Eof]",
+    content="[DocType(\"foo\"), Comment(\" CDATA sections, comments and PIs may occur in ANY content. \"), Start({name: \"foo\", attributes: []}), Text(\"\\na cdata section in mixed content.\\na \"), Comment(\" comment \"), Text(\" in mixed content.\\na \"), PI(target=\"processing\", data=\"instruction\"), Text(\" in mixed content.\\n\"), End(\"foo\"), Eof]",
   )
 }
 
@@ -3186,7 +3186,7 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v04_xml" {
   }
   inspect(
     to_libxml_format(events),
-    content="[DocType(\"LegalName\"), Comment(\" Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 \"), Start({name: \"LegalName\", attributes: []}), Text(\"\\n \\tattr0=\\\":\\\" attr00=\\\":\\\"\\n \\tattr1=\\\"\"), Text(\"À\\\" attr10=\\\"À\\\"\\n \\tattr2=\\\"Á\\\" attr20=\\\"Á\\\"\\n \\tattr3=\\\"˾\\\" attr30=\\\"˾\\\"\\n \\tattr4=\\\"Â\\\" attr40=\\\"Â\\\"\\n \\tattr5=\\\"Ã\\\" attr50=\\\"Ã\\\"\\n \\tattr6=\\\"˽\\\" attr60=\\\"˽\\\"\\n \\tattr7=\\\"˿\\\" attr70=\\\"˿\\\"\\n \\tattr8=\\\"Ͱ\\\" attr80=\\\"Ͱ\\\"\\n \\tattr9=\\\"ͱ\\\" attr90=\\\"ͱ\\\"\\n \\tattr10=\\\"ͼͽ\\\" attr100=\\\"ͼͽ\\\"\\n \\tattr11=\\\"ͽͿ\\\" attr110=\\\"ͽͿ\\\"\\n \\tattr12=\\\"Ϳ΀\\\" attr12\"), Text(\"0=\\\"Ϳ΀\\\"\\n \\tattr13=\\\"΀῾\\\" attr130=\\\"΀῾\\\"\\n \\tattr14=\\\"῾῿\\\" attr140=\\\"῾῿\\\"\\n \\tattr15=\\\"῿‌\\\" attr150=\\\"῿‌\\\"\\n \\tattr16=\\\"‌‍\\\" attr160=\\\"‌‍\\\"\\n \\tattr17=\\\"‍⁰\\\" attr170=\\\"‍⁰\\\"\\n \\tattr18=\\\"⁰ⁱ\\\" attr180=\\\"⁰ⁱ\\\"\\n \\tattr19=\\\"ⁱ↎\\\" attr190=\\\"ⁱ↎\\\"\\n \\tattr20=\\\"↎↏Ⰰ\\\" attr200=\\\"↎↏Ⰰ\\\"\\n \\tattr2\"), Text(\"1=\\\"↏ⰀⰁ\\\" attr210=\\\"↏ⰀⰁ\\\"\\n \\tattr22=\\\"ⰀⰁ⿮\\\" attr220=\\\"ⰀⰁ⿮\\\"\\n \\tattr23=\\\"Ⰱ⿮⿯\\\" attr230=\\\"Ⰱ⿮⿯\\\"\\n \\tattr24=\\\"⿮⿯、\\\" attr240=\\\"⿮⿯、\\\"\\n \\tattr25=\\\"⿯、。\\\" attr250=\\\"⿯、。\\\"\\n \\tattr26=\\\"、。퟾\\\" attr260=\\\"、。퟾\\\"\\n \\tattr27=\\\"。퟾퟿\\\" attr270=\\\"。퟾퟿\\\"\\n \\tattr28=\\\"퟾퟿豈\\\"\"), Text(\" attr280=\\\"퟾퟿豈\\\"\\n \\tattr29=\\\"퟿豈更\\\" attr290=\\\"퟿豈更\\\"\\n \\tattr30=\\\"豈퟿퟾。\\\" attr300=\\\"豈퟿퟾。\\\"\\n \\tattr31=\\\"更豈퟿퟾\\\" attr310=\\\"更豈퟿퟾\\\"\\n \\tattr32=\\\"�更豈퟿\\\" attr320=\\\"�更豈퟿\\\"\\n \\tattr33=\\\"-�更豈\\\" attr330=\\\"-�更豈\\\"\\n \\tattr34=\\\".-�更\\\" attr340=\\\".-�更\\\"\\n \\tattr35=\\\"A.-�\"), Text(\"\\\" attr350=\\\"A.-�\\\"\\n \\tattr36=\\\"zA.-\\\" attr360=\\\"zA.-\\\"\\n \\tattr37=\\\"0zA.\\\" attr370=\\\"0zA.\\\"\\n \\tattr38=\\\"·0zA\\\" attr380=\\\"·0zA\\\"\\n \\tattr39=\\\"̀·0z\\\" attr390=\\\"̀·0z\\\"\\n \\tattr40=\\\"́̀·0\\\" attr400=\\\"́̀·0\\\"\\n \\tattr41=\\\"ͮ́̀·\\\" attr410=\\\"ͮ́̀·\\\"\\n \\tattr42=\\\"ͯͮ́̀\\\" attr420=\\\"ͯͮ́̀\\\"\\n \\tattr43=\\\"‿ͯͮ́\\\" attr430=\\\"‿ͯͮ\"), Text(\"́\\\"\\n \\tattr44=\\\"⁀‿ͯͮ\\\" attr440=\\\"⁀‿ͯͮ\\\"\\n \\tattr45=\\\"null⁀‿ͯ\\\" attr450=\\\"null⁀‿ͯ\\\"\\n \\tattr46=\\\"nullnull⁀‿\\\" attr460=\\\"nullnull⁀‿\\\"\\n \\tattr47=\\\"nullnullnull⁀\\\" attr470=\\\"nullnullnull⁀\\\"\\n\"), End(\"LegalName\"), Eof]",
+    content="[DocType(\"LegalName\"), Comment(\" Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 \"), Start({name: \"LegalName\", attributes: []}), Text(\"\\n \\tattr0=\\\":\\\" attr00=\\\":\\\"\\n \\tattr1=\\\"À\\\" attr10=\\\"À\\\"\\n \\tattr2=\\\"Á\\\" attr20=\\\"Á\\\"\\n \\tattr3=\\\"˾\\\" attr30=\\\"˾\\\"\\n \\tattr4=\\\"Â\\\" attr40=\\\"Â\\\"\\n \\tattr5=\\\"Ã\\\" attr50=\\\"Ã\\\"\\n \\tattr6=\\\"˽\\\" attr60=\\\"˽\\\"\\n \\tattr7=\\\"˿\\\" attr70=\\\"˿\\\"\\n \\tattr8=\\\"Ͱ\\\" attr80=\\\"Ͱ\\\"\\n \\tattr9=\\\"ͱ\\\" attr90=\\\"ͱ\\\"\\n \\tattr10=\\\"ͼͽ\\\" attr100=\\\"ͼͽ\\\"\\n \\tattr11=\\\"ͽͿ\\\" attr110=\\\"ͽͿ\\\"\\n \\tattr12=\\\"Ϳ΀\\\" attr120=\\\"Ϳ΀\\\"\\n \\tattr13=\\\"΀῾\\\" attr130=\\\"΀῾\\\"\\n \\tattr14=\\\"῾῿\\\" attr140=\\\"῾῿\\\"\\n \\tattr15=\\\"῿‌\\\" attr150=\\\"῿‌\\\"\\n \\tattr16=\\\"‌‍\\\" attr160=\\\"‌‍\\\"\\n \\tattr17=\\\"‍⁰\\\" attr170=\\\"‍⁰\\\"\\n \\tattr18=\\\"⁰ⁱ\\\" attr180=\\\"⁰ⁱ\\\"\\n \\tattr19=\\\"ⁱ↎\\\" attr190=\\\"ⁱ↎\\\"\\n \\tattr20=\\\"↎↏Ⰰ\\\" attr200=\\\"↎↏Ⰰ\\\"\\n \\tattr21=\\\"↏ⰀⰁ\\\" attr210=\\\"↏ⰀⰁ\\\"\\n \\tattr22=\\\"ⰀⰁ⿮\\\" attr220=\\\"ⰀⰁ⿮\\\"\\n \\tattr23=\\\"Ⰱ⿮⿯\\\" attr230=\\\"Ⰱ⿮⿯\\\"\\n \\tattr24=\\\"⿮⿯、\\\" attr240=\\\"⿮⿯、\\\"\\n \\tattr25=\\\"⿯、。\\\" attr250=\\\"⿯、。\\\"\\n \\tattr26=\\\"、。퟾\\\" attr260=\\\"、。퟾\\\"\\n \\tattr27=\\\"。퟾퟿\\\" attr270=\\\"。퟾퟿\\\"\\n \\tattr28=\\\"퟾퟿豈\\\" attr280=\\\"퟾퟿豈\\\"\\n \\tattr29=\\\"퟿豈更\\\" attr290=\\\"퟿豈更\\\"\\n \\tattr30=\\\"豈퟿퟾。\\\" attr300=\\\"豈퟿퟾。\\\"\\n \\tattr31=\\\"更豈퟿퟾\\\" attr310=\\\"更豈퟿퟾\\\"\\n \\tattr32=\\\"�更豈퟿\\\" attr320=\\\"�更豈퟿\\\"\\n \\tattr33=\\\"-�更豈\\\" attr330=\\\"-�更豈\\\"\\n \\tattr34=\\\".-�更\\\" attr340=\\\".-�更\\\"\\n \\tattr35=\\\"A.-�\\\" attr350=\\\"A.-�\\\"\\n \\tattr36=\\\"zA.-\\\" attr360=\\\"zA.-\\\"\\n \\tattr37=\\\"0zA.\\\" attr370=\\\"0zA.\\\"\\n \\tattr38=\\\"·0zA\\\" attr380=\\\"·0zA\\\"\\n \\tattr39=\\\"̀·0z\\\" attr390=\\\"̀·0z\\\"\\n \\tattr40=\\\"́̀·0\\\" attr400=\\\"́̀·0\\\"\\n \\tattr41=\\\"ͮ́̀·\\\" attr410=\\\"ͮ́̀·\\\"\\n \\tattr42=\\\"ͯͮ́̀\\\" attr420=\\\"ͯͮ́̀\\\"\\n \\tattr43=\\\"‿ͯͮ́\\\" attr430=\\\"‿ͯͮ́\\\"\\n \\tattr44=\\\"⁀‿ͯͮ\\\" attr440=\\\"⁀‿ͯͮ\\\"\\n \\tattr45=\\\"null⁀‿ͯ\\\" attr450=\\\"null⁀‿ͯ\\\"\\n \\tattr46=\\\"nullnull⁀‿\\\" attr460=\\\"nullnull⁀‿\\\"\\n \\tattr47=\\\"nullnullnull⁀\\\" attr470=\\\"nullnullnull⁀\\\"\\n\"), End(\"LegalName\"), Eof]",
   )
 }
 
