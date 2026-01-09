@@ -158,13 +158,7 @@ test "w3c/valid/{safe_name}" {{
   // {desc}
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
-  let events : Array[Event] = []
-  for {{
-    match reader.read_event() {{
-      Eof => {{ events.push(Eof); break }}
-      event => events.push(event)
-    }}
-  }}
+  let events = reader.read_events_until_eof()
   inspect(to_libxml_format(events), content="{escaped_events}")
 }}
 
@@ -181,15 +175,9 @@ test "w3c/valid/{safe_name}" {{
   // {desc}
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
-  let has_error = for {{
-    try reader.read_event() catch {{
-      _ => break true
-    }} noraise {{
-      Eof => break false
-      _ => continue
-    }}
-  }}
-  inspect(has_error, content="false")
+  // Verify parsing succeeds
+  let events = reader.read_events_until_eof()
+  assert_true(events.length() > 0)
 }}
 
 '''
@@ -207,15 +195,8 @@ test "w3c/not-wf/{safe_name}" {{
   // {desc}{suffix}
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
-  let has_error = for {{
-    try reader.read_event() catch {{
-      _ => break true
-    }} noraise {{
-      Eof => break false
-      _ => continue
-    }}
-  }}
-  inspect(has_error, content="{expected}")
+  let has_error = (try? reader.read_events_until_eof()) is Err(_)
+  assert_true(has_error)
 }}
 
 '''

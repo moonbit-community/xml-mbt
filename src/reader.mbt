@@ -114,6 +114,25 @@ pub fn Reader::column(self : Reader) -> Int {
 }
 
 ///|
+/// Read all events until EOF (inclusive) as an Array.
+/// Includes the final Eof event in the result.
+/// Raises XmlError if parsing fails.
+pub fn Reader::read_events_until_eof(
+  self : Reader,
+) -> Array[Event] raise XmlError {
+  let events : Array[Event] = []
+  while true {
+    let event = self.read_event()
+    events.push(event)
+    match event {
+      Eof => return events
+      _ => ()
+    }
+  }
+  abort("unreachable")
+}
+
+///|
 /// Peek at current character without advancing
 fn Reader::peek(self : Reader) -> Char? {
   if self.pos < self.input.length() {

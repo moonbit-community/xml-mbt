@@ -86,6 +86,17 @@ pub fn Reader::column(self : Reader) -> Int {
   ...
 }
 
+///|
+/// Read all events until EOF (inclusive) as an Array.
+/// Includes the final Eof event in the result.
+/// Raises XmlError if parsing fails.
+#declaration_only
+pub fn Reader::read_events_until_eof(
+  self : Reader,
+) -> Array[Event] raise XmlError {
+  ...
+}
+
 // ============================================================================
 // Writer API
 // ============================================================================
