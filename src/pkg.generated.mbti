@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/xml/src"
+package "Milky2018/xml"
 
 import(
   "moonbitlang/x/fs"
@@ -77,6 +77,7 @@ pub fn Reader::from_string(String) -> Self
 pub fn Reader::is_eof(Self) -> Bool
 pub fn Reader::line(Self) -> Int
 pub fn Reader::read_event(Self) -> Event raise XmlError
+pub fn Reader::read_events_until_eof(Self) -> Array[Event] raise XmlError
 
 pub struct Writer {
   buffer : StringBuilder
