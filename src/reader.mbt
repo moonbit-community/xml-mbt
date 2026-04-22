@@ -176,7 +176,6 @@ fn Reader::advance(self : Reader) -> Char? {
 fn Reader::skip_whitespace(self : Reader) -> Unit {
   while self.peek() is Some(c) && is_whitespace(c) {
     let _ = self.advance()
-
   }
 }
 
@@ -202,7 +201,6 @@ fn Reader::skip_ws_and_control(self : Reader) -> Unit {
         if is_whitespace(c) ||
           (code < 0x20 && c != '\t' && c != '\n' && c != '\r') {
           let _ = self.advance()
-
         } else {
           break
         }
@@ -219,7 +217,6 @@ fn Reader::read_while(self : Reader, pred : (Char) -> Bool) -> String {
   while self.peek() is Some(c) && pred(c) {
     buf.write_char(c)
     let _ = self.advance()
-
   }
   buf.to_string()
 }
@@ -230,7 +227,7 @@ fn Reader::read_until(self : Reader, end : String) -> String raise XmlError {
   let buf = StringBuilder::new()
   let end_chars = end.to_array()
   let end_len = end_chars.length()
-  while !(self.is_eof()) {
+  while !self.is_eof() {
     // Check if we're at the end marker
     let mut found = true
     for i = 0; i < end_len; i = i + 1 {
@@ -249,7 +246,7 @@ fn Reader::read_until(self : Reader, end : String) -> String raise XmlError {
       Some(c) => {
         // Validate character is allowed in XML content
         let code = c.to_int()
-        if !(is_valid_xml_content_char(code)) {
+        if !is_valid_xml_content_char(code) {
           raise InvalidSyntax("invalid character in content")
         }
         buf.write_char(c)
@@ -273,7 +270,6 @@ fn Reader::skip_string(self : Reader, s : String) -> Bool {
   // All matched, advance
   for i = 0; i < chars.length(); i = i + 1 {
     let _ = self.advance()
-
   }
   true
 }
@@ -313,7 +309,7 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
       raise InvalidSyntax("unclosed element: <" + unclosed + ">")
     }
     // Empty document is not valid
-    if !(self.seen_root) {
+    if !self.seen_root {
       raise InvalidSyntax("empty document - no root element")
     }
     return Eof
@@ -337,7 +333,7 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
           // Empty element: if no root seen yet, this is the root and it's now closed
           if self.root_closed {
             raise InvalidSyntax("content after root element")
-          } else if !(self.seen_root) {
+          } else if !self.seen_root {
             self.seen_root = true
             self.root_closed = true
           }
@@ -355,7 +351,7 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
           if self.root_closed {
             raise InvalidSyntax("CDATA section after root element")
           }
-          if !(self.seen_root) || self.tag_stack.length() == 0 {
+          if !self.seen_root || self.tag_stack.length() == 0 {
             raise InvalidSyntax("CDATA section not allowed in prolog")
           }
         }
@@ -389,7 +385,6 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
         while self.peek() is Some(c) {
           if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
             let _ = self.advance()
-
           } else if c == '<' {
             // There's more content - could be comment or PI
             break
@@ -401,14 +396,13 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
         }
         // After skipping whitespace, try to read the next event
         return self.read_event()
-      } else if !(self.seen_root) {
+      } else if !self.seen_root {
         // Before root element: only literal whitespace is allowed
         if self.just_saw_decl {
           // Skip whitespace after XML declaration (lxml behavior)
           while self.peek() is Some(c) {
             if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
               let _ = self.advance()
-
             } else if c == '<' {
               break
             } else if c == '&' {
@@ -452,7 +446,7 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
         raise InvalidSyntax("unclosed element: <" + unclosed + ">")
       }
       // Empty document is not valid
-      if !(self.seen_root) {
+      if !self.seen_root {
         raise InvalidSyntax("empty document - no root element")
       }
       Eof
@@ -554,7 +548,7 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
     if self.root_closed {
       raise InvalidSyntax("CDATA section after root element")
     }
-    if !(self.seen_root) || self.tag_stack.length() == 0 {
+    if !self.seen_root || self.tag_stack.length() == 0 {
       raise InvalidSyntax("CDATA section not allowed in prolog")
     }
     // Report as Text to match lxml behavior
@@ -567,7 +561,7 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
     let _ = self.skip_string("DOCTYPE")
     self.skip_whitespace()
     let name = self.read_while(fn(c) {
-      c != '>' && c != '[' && !(is_whitespace(c))
+      c != '>' && c != '[' && !is_whitespace(c)
     })
     // Parse external ID if present (SYSTEM or PUBLIC)
     self.skip_whitespace()
@@ -594,7 +588,6 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
         )
       } else {
         let _ = self.advance()
-
       }
     }
     // Check for internal subset
@@ -611,7 +604,6 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
         )
       }
       let _ = self.advance()
-
     }
     let _ = self.advance() // consume '>'
     DocType(name)
@@ -624,7 +616,7 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
 /// Read comment content, validating that it doesn't contain "--" and ends with ">"
 fn Reader::read_comment_content(self : Reader) -> String raise XmlError {
   let buf = StringBuilder::new()
-  while !(self.is_eof()) {
+  while !self.is_eof() {
     // Check for "--"
     if self.check_string("--") {
       let _ = self.skip_string("--")
@@ -640,7 +632,7 @@ fn Reader::read_comment_content(self : Reader) -> String raise XmlError {
     match self.advance() {
       Some(c) => {
         let code = c.to_int()
-        if !(is_valid_xml_content_char(code)) {
+        if !is_valid_xml_content_char(code) {
           raise InvalidSyntax("invalid character in comment")
         }
         buf.write_char(c)
@@ -702,7 +694,7 @@ fn Reader::read_pi(self : Reader) -> Event raise XmlError {
 /// Read PI data, validating characters
 fn Reader::read_pi_data(self : Reader) -> String raise XmlError {
   let buf = StringBuilder::new()
-  while !(self.is_eof()) {
+  while !self.is_eof() {
     // Check if we're at the end marker ?>
     if self.check_string("?>") {
       return buf.to_string()
@@ -710,7 +702,7 @@ fn Reader::read_pi_data(self : Reader) -> String raise XmlError {
     match self.advance() {
       Some(c) => {
         let code = c.to_int()
-        if !(is_valid_xml_content_char(code)) {
+        if !is_valid_xml_content_char(code) {
           raise InvalidSyntax("invalid character in processing instruction")
         }
         buf.write_char(c)
@@ -747,13 +739,13 @@ fn Reader::read_xml_decl(self : Reader) -> Event raise XmlError {
   let mut seen_standalone = false
   let mut need_whitespace = false
   self.skip_whitespace()
-  while !(self.check_string("?>")) {
+  while !self.check_string("?>") {
     // Check for required whitespace between pseudo-attributes
     let had_whitespace = self.skip_whitespace_count() > 0
     if self.check_string("?>") {
       break
     }
-    if need_whitespace && !(had_whitespace) {
+    if need_whitespace && !had_whitespace {
       raise InvalidSyntax(
         "whitespace required between XML declaration pseudo-attributes",
       )
@@ -766,7 +758,6 @@ fn Reader::read_xml_decl(self : Reader) -> Event raise XmlError {
     match self.peek() {
       Some('=') => {
         let _ = self.advance()
-
       }
       _ => raise InvalidSyntax("expected '=' in XML declaration")
     }
@@ -782,7 +773,7 @@ fn Reader::read_xml_decl(self : Reader) -> Event raise XmlError {
           raise InvalidSyntax("'version' must come first in XML declaration")
         }
         // Validate version format: VersionNum ::= '1.' [0-9]+
-        if !(is_valid_version(value)) {
+        if !is_valid_version(value) {
           raise InvalidSyntax("invalid version: " + value)
         }
         seen_version = true
@@ -792,14 +783,14 @@ fn Reader::read_xml_decl(self : Reader) -> Event raise XmlError {
         if seen_encoding {
           raise InvalidSyntax("duplicate 'encoding' in XML declaration")
         }
-        if !(seen_version) {
+        if !seen_version {
           raise InvalidSyntax("'version' must come before 'encoding'")
         }
         if seen_standalone {
           raise InvalidSyntax("'encoding' must come before 'standalone'")
         }
         // Validate encoding name: [A-Za-z]([A-Za-z0-9._-])*
-        if !(is_valid_encoding_name(value)) {
+        if !is_valid_encoding_name(value) {
           raise InvalidSyntax("invalid encoding name: " + value)
         }
         seen_encoding = true
@@ -809,7 +800,7 @@ fn Reader::read_xml_decl(self : Reader) -> Event raise XmlError {
         if seen_standalone {
           raise InvalidSyntax("duplicate 'standalone' in XML declaration")
         }
-        if !(seen_version) {
+        if !seen_version {
           raise InvalidSyntax("'version' must come before 'standalone'")
         }
         // standalone must be exactly "yes" or "no" (case-sensitive)
@@ -889,7 +880,6 @@ fn Reader::read_name(self : Reader) -> String raise XmlError {
       while self.peek() is Some(nc) && is_name_char(nc) {
         buf.write_char(nc)
         let _ = self.advance()
-
       }
       buf.to_string()
     }
@@ -913,7 +903,7 @@ fn Reader::read_attributes(
     match self.peek() {
       Some(c) if is_name_start_char(c) => {
         // Whitespace required between attributes (but not before the first)
-        if need_whitespace && !(had_whitespace) {
+        if need_whitespace && !had_whitespace {
           raise InvalidSyntax("whitespace required between attributes")
         }
         let attr_name = self.read_name()
@@ -976,7 +966,7 @@ fn Reader::normalize_attr_by_type(
     let mut need_space = false
     for c in value {
       if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
-        if !(in_whitespace) {
+        if !in_whitespace {
           need_space = true
           in_whitespace = true
         }
@@ -1004,7 +994,7 @@ fn Reader::read_raw_attr_value(self : Reader) -> String raise XmlError {
   }
   let _ = self.advance() // consume opening quote
   let buf = StringBuilder::new()
-  while !(self.is_eof()) {
+  while !self.is_eof() {
     match self.peek() {
       Some(c) if c == quote => {
         let _ = self.advance()
@@ -1013,7 +1003,6 @@ fn Reader::read_raw_attr_value(self : Reader) -> String raise XmlError {
       Some(c) => {
         buf.write_char(c)
         let _ = self.advance()
-
       }
       None => break
     }
@@ -1031,7 +1020,7 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
   }
   let _ = self.advance() // consume opening quote
   let buf = StringBuilder::new()
-  while !(self.is_eof()) {
+  while !self.is_eof() {
     match self.peek() {
       Some(c) if c == quote => {
         let _ = self.advance()
@@ -1082,7 +1071,7 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
       Some(c) => {
         // Check for invalid XML characters
         let code = c.to_int()
-        if !(is_valid_xml_content_char(code)) {
+        if !is_valid_xml_content_char(code) {
           raise InvalidSyntax("invalid character in attribute value")
         }
         // Normalize whitespace: tab, newline, CR -> space
@@ -1092,7 +1081,6 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
           buf.write_char(c)
         }
         let _ = self.advance()
-
       }
       None => break
     }
@@ -1192,7 +1180,7 @@ fn Reader::parse_entity_content(self : Reader, content : String) -> Unit {
 /// Read text content - splits on entities to match lxml behavior
 fn Reader::read_text(self : Reader) -> Event raise XmlError {
   let buf = StringBuilder::new()
-  while !(self.is_eof()) {
+  while !self.is_eof() {
     match self.peek() {
       Some('<') => break
       Some('&') => {
@@ -1274,12 +1262,11 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
         }
         buf.write_char(']')
         let _ = self.advance()
-
       }
       Some(c) => {
         // Check for invalid XML characters
         let code = c.to_int()
-        if !(is_valid_xml_content_char(code)) {
+        if !is_valid_xml_content_char(code) {
           raise InvalidSyntax("invalid character in content")
         }
         // Normalize line endings: \r\n -> \n, \r -> \n
@@ -1288,13 +1275,11 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
           // Check if followed by \n
           if self.peek() == Some('\n') {
             let _ = self.advance()
-
           }
           buf.write_char('\n')
         } else {
           buf.write_char(c)
           let _ = self.advance()
-
         }
       }
       None => break
@@ -1318,7 +1303,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
 /// Rejects any character references, entity references, or non-whitespace
 fn Reader::read_whitespace_only(self : Reader) -> Event raise XmlError {
   let buf = StringBuilder::new()
-  while !(self.is_eof()) {
+  while !self.is_eof() {
     match self.peek() {
       Some('<') => break
       Some('&') =>
@@ -1333,7 +1318,6 @@ fn Reader::read_whitespace_only(self : Reader) -> Event raise XmlError {
         if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
           buf.write_char(c)
           let _ = self.advance()
-
         } else if code == 0xFEFF {
           // Skip BOM (byte order mark) - don't include in output
           let _ = self.advance()
@@ -1403,14 +1387,12 @@ fn is_valid_encoding_name(name : String) -> Bool {
   // Rest must be letters, digits, '.', '_', or '-'
   for i = 1; i < chars.length(); i = i + 1 {
     let c = chars[i]
-    if !(
-        (c >= 'A' && c <= 'Z') ||
-        (c >= 'a' && c <= 'z') ||
-        (c >= '0' && c <= '9') ||
-        c == '.' ||
-        c == '_' ||
-        c == '-',
-      ) {
+    if !((c >= 'A' && c <= 'Z') ||
+      (c >= 'a' && c <= 'z') ||
+      (c >= '0' && c <= '9') ||
+      c == '.' ||
+      c == '_' ||
+      c == '-') {
       return false
     }
   }
@@ -1425,22 +1407,18 @@ fn Reader::skip_quoted_string(self : Reader) -> Unit {
       let _ = self.advance()
       while self.peek() is Some(c) && c != '"' {
         let _ = self.advance()
-
       }
       if self.peek() == Some('"') {
         let _ = self.advance()
-
       }
     }
     Some('\'') => {
       let _ = self.advance()
       while self.peek() is Some(c) && c != '\'' {
         let _ = self.advance()
-
       }
       if self.peek() == Some('\'') {
         let _ = self.advance()
-
       }
     }
     _ => ()
@@ -1458,17 +1436,15 @@ fn Reader::read_and_validate_public_id(self : Reader) -> Unit raise XmlError {
   }
   let _ = self.advance() // consume opening quote
   while self.peek() is Some(c) && c != quote {
-    if !(is_pubid_char(c)) {
+    if !is_pubid_char(c) {
       raise InvalidSyntax(
         "invalid character in public ID: '" + c.to_string() + "'",
       )
     }
     let _ = self.advance()
-
   }
   if self.peek() == Some(quote) {
     let _ = self.advance()
-
   }
 }
 
@@ -1507,7 +1483,7 @@ fn is_pubid_char(c : Char) -> Bool {
 /// Parse DTD internal subset content until ]
 /// Extracts entity declarations and stores them
 fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
-  while !(self.is_eof()) {
+  while !self.is_eof() {
     self.skip_whitespace()
     match self.peek() {
       Some(']') => {
@@ -1591,7 +1567,7 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
                   let raw_value = self.read_entity_value('"')
                   let _ = self.advance() // closing quote
                   // Only validate and store if not duplicate
-                  if !(is_duplicate) {
+                  if !is_duplicate {
                     validate_entity_value(raw_value)
                     // Per XML spec 4.5: expand only char refs, keep entity refs
                     let value = expand_char_refs_only(raw_value) catch {
@@ -1606,7 +1582,7 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
                   let raw_value = self.read_entity_value('\'')
                   let _ = self.advance() // closing quote
                   // Only validate and store if not duplicate
-                  if !(is_duplicate) {
+                  if !is_duplicate {
                     validate_entity_value(raw_value)
                     // Per XML spec 4.5: expand only char refs, keep entity refs
                     let value = expand_char_refs_only(raw_value) catch {
@@ -1668,7 +1644,7 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
             // Comment in DTD: <!-- ... -->
             let _ = self.skip_string("--")
             let comment_buf = StringBuilder::new()
-            while !(self.is_eof()) {
+            while !self.is_eof() {
               if self.check_string("--") {
                 let _ = self.skip_string("--")
                 if self.peek() == Some('>') {
@@ -1730,7 +1706,7 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
               let _ = self.advance()
               // Read PI data
               let data_buf = StringBuilder::new()
-              while !(self.is_eof()) {
+              while !self.is_eof() {
                 if self.check_string("?>") {
                   let _ = self.skip_string("?>")
                   break
@@ -1762,7 +1738,6 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
         } else {
           // Unknown - skip
           let _ = self.advance()
-
         }
       }
       Some('%') => {
@@ -1777,7 +1752,6 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
             match self.peek() {
               Some(';') => {
                 let _ = self.advance()
-
               }
               _ =>
                 raise InvalidSyntax(
@@ -1790,7 +1764,6 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
       }
       Some(_) => {
         let _ = self.advance()
-
       }
       None => return
     }
@@ -1810,10 +1783,8 @@ fn Reader::skip_to_char_strict(
       )
     }
     let _ = self.advance()
-
   }
   let _ = self.advance()
-
 }
 
 ///|
@@ -1825,18 +1796,14 @@ fn Reader::skip_declaration(self : Reader) -> Unit raise XmlError {
       let _ = self.advance()
       while self.peek() is Some(c2) && c2 != '"' {
         let _ = self.advance()
-
       }
       let _ = self.advance()
-
     } else if c == '\'' {
       let _ = self.advance()
       while self.peek() is Some(c2) && c2 != '\'' {
         let _ = self.advance()
-
       }
       let _ = self.advance()
-
     } else if c == '-' && self.check_string("--") {
       // SGML-style comments are not allowed in XML
       raise InvalidSyntax(
@@ -1844,11 +1811,9 @@ fn Reader::skip_declaration(self : Reader) -> Unit raise XmlError {
       )
     } else {
       let _ = self.advance()
-
     }
   }
   let _ = self.advance()
-
 }
 
 ///|
@@ -1858,7 +1823,6 @@ fn Reader::read_name_lenient(self : Reader) -> String {
   while self.peek() is Some(c) && is_name_char_lenient(c) {
     buf.write_char(c)
     let _ = self.advance()
-
   }
   buf.to_string()
 }
@@ -1866,19 +1830,17 @@ fn Reader::read_name_lenient(self : Reader) -> String {
 ///|
 /// Lenient name character check for DTD parsing
 fn is_name_char_lenient(c : Char) -> Bool {
-  !(
-    c == ' ' ||
-    c == '\t' ||
-    c == '\n' ||
-    c == '\r' ||
-    c == '<' ||
-    c == '>' ||
-    c == '"' ||
-    c == '\'' ||
-    c == '=' ||
-    c == '[' ||
-    c == ']',
-  )
+  !(c == ' ' ||
+  c == '\t' ||
+  c == '\n' ||
+  c == '\r' ||
+  c == '<' ||
+  c == '>' ||
+  c == '"' ||
+  c == '\'' ||
+  c == '=' ||
+  c == '[' ||
+  c == ']')
 }
 
 ///|
@@ -1891,12 +1853,11 @@ fn Reader::read_entity_value(
   while self.peek() is Some(c) && c != quote {
     // Validate character
     let code = c.to_int()
-    if !(is_valid_xml_content_char(code)) {
+    if !is_valid_xml_content_char(code) {
       raise InvalidSyntax("invalid character in entity value")
     }
     buf.write_char(c)
     let _ = self.advance()
-
   }
   buf.to_string()
 }
