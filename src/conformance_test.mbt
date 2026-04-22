@@ -31,7 +31,7 @@ test "valid/sa/001 - empty element with DTD" {
     #|<doc></doc>
   let reader = Reader::from_string(xml)
   let events : Array[Event] = []
-  for {
+  for ;; {
     match reader.read_event() {
       Eof => {
         events.push(Eof)
