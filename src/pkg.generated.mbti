@@ -1,9 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/xml"
 
-import(
-  "moonbitlang/x/fs"
-)
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/x/fs",
+}
 
 // Values
 pub fn escape(String) -> String
@@ -33,8 +34,7 @@ pub(all) suberror XmlError {
   UnmatchedTag(expected~ : String, found~ : String)
   InvalidAttribute(String)
   InvalidEntity(String)
-}
-pub impl Eq for XmlError
+} derive(Eq, @debug.Debug)
 pub impl Show for XmlError
 
 // Types and methods
@@ -49,8 +49,7 @@ pub(all) enum Event {
   Decl(version~ : String, encoding~ : String?, standalone~ : String?)
   DocType(String)
   Eof
-}
-pub impl Eq for Event
+} derive(Eq, @debug.Debug)
 pub impl Show for Event
 
 pub struct Reader {
@@ -97,11 +96,10 @@ pub fn Writer::write_event(Self, Event) -> Unit
 pub struct XmlElement {
   name : String
   attributes : Array[(String, String)]
-}
+} derive(Eq, @debug.Debug)
 pub fn XmlElement::get(Self, String) -> String?
 pub fn XmlElement::new(String) -> Self
 pub fn XmlElement::with_attrs(String, Array[(String, String)]) -> Self
-pub impl Eq for XmlElement
 pub impl Show for XmlElement
 
 // Type aliases
