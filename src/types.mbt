@@ -17,7 +17,7 @@
 pub struct XmlElement {
   name : String
   attributes : Array[(String, String)]
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 /// Transform attributes to match lxml behavior:
@@ -100,7 +100,7 @@ pub(all) enum Event {
   DocType(String)
   /// End of file
   Eof
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 /// XML parsing error
@@ -110,7 +110,22 @@ pub(all) suberror XmlError {
   UnmatchedTag(expected~ : String, found~ : String)
   InvalidAttribute(String)
   InvalidEntity(String)
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for XmlElement with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
+
+///|
+pub impl Show for Event with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
+
+///|
+pub impl Show for XmlError with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Push an event into `result`, coalescing adjacent `Text(...)` events.
