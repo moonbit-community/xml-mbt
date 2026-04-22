@@ -860,7 +860,7 @@ fn parse_enumeration(reader : Reader) -> Unit raise XmlError {
   skip_nmtoken(reader)
 
   // Read remaining values
-  for {
+  for ;; {
     skip_ws(reader)
     match reader.peek() {
       Some(')') => {

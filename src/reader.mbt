@@ -1154,7 +1154,7 @@ fn is_well_formed_content(s : String) -> Bool {
   // Try to parse as XML content - if it fails, it's not well-formed
   // Wrap in root element so parser accepts CDATA, etc.
   let test_reader = Reader::from_string("<root>" + s + "</root>")
-  for {
+  for ;; {
     try test_reader.read_event() catch {
       _ => break false
     } noraise {
