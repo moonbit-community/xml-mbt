@@ -114,17 +114,98 @@ pub(all) suberror XmlError {
 
 ///|
 pub impl Show for XmlElement with output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_string("{name: ")
+  logger.write_object(self.name)
+  logger.write_string(", attributes: ")
+  logger.write_object(self.attributes)
+  logger.write_string("}")
 }
 
 ///|
 pub impl Show for Event with output(self, logger) {
-  logger.write_object(to_repr(self))
+  match self {
+    Start(elem) => {
+      logger.write_string("Start(")
+      logger.write_object(elem)
+      logger.write_string(")")
+    }
+    End(name) => {
+      logger.write_string("End(")
+      logger.write_object(name)
+      logger.write_string(")")
+    }
+    Empty(elem) => {
+      logger.write_string("Empty(")
+      logger.write_object(elem)
+      logger.write_string(")")
+    }
+    Text(content) => {
+      logger.write_string("Text(")
+      logger.write_object(content)
+      logger.write_string(")")
+    }
+    CData(content) => {
+      logger.write_string("CData(")
+      logger.write_object(content)
+      logger.write_string(")")
+    }
+    Comment(content) => {
+      logger.write_string("Comment(")
+      logger.write_object(content)
+      logger.write_string(")")
+    }
+    PI(target~, data~) => {
+      logger.write_string("PI(target=")
+      logger.write_object(target)
+      logger.write_string(", data=")
+      logger.write_object(data)
+      logger.write_string(")")
+    }
+    Decl(version~, encoding~, standalone~) => {
+      logger.write_string("Decl(version=")
+      logger.write_object(version)
+      logger.write_string(", encoding=")
+      logger.write_object(encoding)
+      logger.write_string(", standalone=")
+      logger.write_object(standalone)
+      logger.write_string(")")
+    }
+    DocType(name) => {
+      logger.write_string("DocType(")
+      logger.write_object(name)
+      logger.write_string(")")
+    }
+    Eof => logger.write_string("Eof")
+  }
 }
 
 ///|
 pub impl Show for XmlError with output(self, logger) {
-  logger.write_object(to_repr(self))
+  match self {
+    UnexpectedEof => logger.write_string("UnexpectedEof")
+    InvalidSyntax(message) => {
+      logger.write_string("InvalidSyntax(")
+      logger.write_object(message)
+      logger.write_string(")")
+    }
+    UnmatchedTag(expected~, found~) => {
+      logger.write_string("UnmatchedTag(expected=")
+      logger.write_object(expected)
+      logger.write_string(", found=")
+      logger.write_object(found)
+      logger.write_string(")")
+    }
+    InvalidAttribute(message) => {
+      logger.write_string("InvalidAttribute(")
+      logger.write_object(message)
+      logger.write_string(")")
+    }
+    InvalidEntity(message) => {
+      logger.write_string("InvalidEntity(")
+      logger.write_object(message)
+      logger.write_string(")")
+    }
+  }
 }
 
 ///|
