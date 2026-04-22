@@ -2,4 +2,4 @@ target
 xmlconf/
 tools/quickxml-ref/target/
 __pycache__/
-_build
+_build/
