@@ -23,7 +23,7 @@ pub fn validate_pe_value(value : String) -> Unit raise XmlError {
     let c = chars[i]
     // Check for invalid XML characters
     let code = c.to_int()
-    if !(is_valid_xml_char(code)) {
+    if !is_valid_xml_char(code) {
       raise InvalidEntity("invalid character in parameter entity value")
     }
     // Check for PE reference
@@ -136,7 +136,7 @@ pub fn validate_entity_value(value : String) -> Unit raise XmlError {
           } else {
             c >= '0' && c <= '9'
           }
-          if !(valid) {
+          if !valid {
             raise InvalidEntity(
               "invalid character in character reference in entity value",
             )
@@ -158,7 +158,7 @@ pub fn validate_entity_value(value : String) -> Unit raise XmlError {
           parse_decimal_code(chars, digit_start, i)
         }
         // Check for valid XML character
-        if !(is_valid_xml_char(code_point)) {
+        if !is_valid_xml_char(code_point) {
           raise InvalidEntity("invalid character reference in entity value")
         }
         // After expanding, check if it produces a bare &
@@ -197,7 +197,7 @@ pub fn validate_entity_value(value : String) -> Unit raise XmlError {
                 "character reference &#38; produces incomplete character reference",
               )
             }
-          } else if !(is_name_start_char(next)) {
+          } else if !is_name_start_char(next) {
             raise InvalidEntity(
               "character reference &#38; produces bare '&' not followed by valid reference",
             )
@@ -218,11 +218,11 @@ pub fn validate_entity_value(value : String) -> Unit raise XmlError {
       } else {
         // Entity reference: &name;
         // Must start with letter or underscore
-        if !(is_name_start_char(chars[i])) {
+        if !is_name_start_char(chars[i]) {
           raise InvalidEntity("bare '&' not followed by valid reference")
         }
         while i < len && chars[i] != ';' {
-          if !(is_name_char(chars[i])) {
+          if !is_name_char(chars[i]) {
             raise InvalidEntity("invalid character in entity reference")
           }
           i += 1
@@ -370,7 +370,7 @@ fn validate_no_incomplete_markup(
                 }
                 j += 1
               }
-              if !(found_end) {
+              if !found_end {
                 raise InvalidEntity(
                   "incomplete comment in entity value (missing -->)",
                 )
@@ -418,7 +418,7 @@ fn validate_no_incomplete_markup(
                 }
                 i += 1
               }
-              if !(found_end) {
+              if !found_end {
                 raise InvalidEntity("unclosed element in entity value")
               }
             }
@@ -494,7 +494,7 @@ fn validate_literal_markup(
           }
           i += 1
         }
-        if !(is_empty) {
+        if !is_empty {
           stack.push(name)
         }
       }
@@ -577,7 +577,7 @@ pub fn validate_entity_refs(
         if i < len && chars[i] == ';' {
           let name = substring_from_chars(chars, name_start, i)
           // Check if entity is defined (including predefined entities)
-          if !(is_predefined_entity(name)) && !(entities.contains(name)) {
+          if !is_predefined_entity(name) && !entities.contains(name) {
             raise InvalidEntity("undefined entity reference: &" + name + ";")
           }
           i += 1 // skip ;
@@ -729,13 +729,13 @@ pub fn parse_attlist(reader : Reader) -> Unit raise XmlError {
   skip_ws(reader)
 
   // Read element name
-  if !(peek_is_name_start(reader)) {
+  if !peek_is_name_start(reader) {
     raise InvalidSyntax("expected element name in ATTLIST")
   }
   let elem_name = read_name(reader)
 
   // Parse attribute definitions until >
-  while !(reader.is_eof()) {
+  while !reader.is_eof() {
     skip_ws(reader)
     match reader.peek() {
       Some('>') => {
@@ -757,7 +757,7 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
   let attr_name = read_name(reader)
 
   // Require whitespace between name and type
-  if !(peek_is_whitespace(reader)) {
+  if !peek_is_whitespace(reader) {
     raise InvalidSyntax("whitespace required between attribute name and type")
   }
   skip_ws(reader)
@@ -783,7 +783,7 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
         | "NMTOKENS" => type_name
         "NOTATION" => {
           // NOTATION requires whitespace then (name|name...)
-          if !(peek_is_whitespace(reader)) {
+          if !peek_is_whitespace(reader) {
             raise InvalidSyntax("whitespace required after NOTATION keyword")
           }
           skip_ws(reader)
@@ -801,12 +801,12 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
 
   // Store attribute type (first declaration wins per XML spec)
   let key = elem_name + ":" + attr_name
-  if !(reader.attr_types.contains(key)) {
+  if !reader.attr_types.contains(key) {
     reader.attr_types.set(key, attr_type)
   }
 
   // Require whitespace between type and default
-  if !(peek_is_whitespace(reader)) {
+  if !peek_is_whitespace(reader) {
     match reader.peek() {
       Some('"') | Some('\'') | Some('#') | Some('>') =>
         raise InvalidSyntax(
@@ -830,7 +830,6 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
           // Expand entity references to validate them (detects undefined and recursive refs)
           let seen : Map[String, Bool] = {}
           let _ = expand_entity_value(value, reader.entities, seen)
-
         }
         _ =>
           raise InvalidSyntax("invalid attribute default keyword: #" + keyword)
@@ -841,7 +840,6 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
       // Expand entity references to validate them (detects undefined and recursive refs)
       let seen : Map[String, Bool] = {}
       let _ = expand_entity_value(value, reader.entities, seen)
-
     }
     _ => raise InvalidSyntax("expected attribute default value or keyword")
   }
@@ -854,7 +852,7 @@ fn parse_enumeration(reader : Reader) -> Unit raise XmlError {
   skip_ws(reader)
 
   // Read first value - enumeration values are NMTOKENs (can start with digits)
-  if !(peek_is_nmtoken_char(reader)) {
+  if !peek_is_nmtoken_char(reader) {
     raise InvalidSyntax("expected name in enumeration")
   }
   skip_nmtoken(reader)
@@ -870,7 +868,7 @@ fn parse_enumeration(reader : Reader) -> Unit raise XmlError {
       Some('|') => {
         let _ = reader.advance()
         skip_ws(reader)
-        if !(peek_is_nmtoken_char(reader)) {
+        if !peek_is_nmtoken_char(reader) {
           raise InvalidSyntax("expected name after '|' in enumeration")
         }
         skip_nmtoken(reader)
@@ -894,7 +892,6 @@ fn read_quoted_value(reader : Reader) -> String raise XmlError {
   while reader.peek() is Some(c) && c != quote {
     buf.write_char(c)
     let _ = reader.advance()
-
   }
   if reader.peek() != Some(quote) {
     raise InvalidSyntax("unterminated quoted value")
@@ -908,7 +905,6 @@ fn skip_ws(reader : Reader) -> Unit {
   while reader.peek() is Some(c) &&
         (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
     let _ = reader.advance()
-
   }
 }
 
@@ -916,7 +912,6 @@ fn skip_ws(reader : Reader) -> Unit {
 fn skip_name(reader : Reader) -> Unit {
   while reader.peek() is Some(c) && is_name_char(c) {
     let _ = reader.advance()
-
   }
 }
 
@@ -926,7 +921,6 @@ fn read_name(reader : Reader) -> String {
   while reader.peek() is Some(c) && is_name_char(c) {
     buf.write_char(c)
     let _ = reader.advance()
-
   }
   buf.to_string()
 }
@@ -959,7 +953,6 @@ fn peek_is_nmtoken_char(reader : Reader) -> Bool {
 fn skip_nmtoken(reader : Reader) -> Unit {
   while reader.peek() is Some(c) && is_name_char(c) {
     let _ = reader.advance()
-
   }
 }
 
@@ -1023,13 +1016,13 @@ pub fn parse_element_decl(reader : Reader) -> Unit raise XmlError {
   skip_ws(reader)
 
   // Read element name
-  if !(peek_is_name_start(reader)) {
+  if !peek_is_name_start(reader) {
     raise InvalidSyntax("expected element name in ELEMENT declaration")
   }
   skip_name(reader)
 
   // Require whitespace between name and content model
-  if !(peek_is_whitespace(reader)) {
+  if !peek_is_whitespace(reader) {
     raise InvalidSyntax(
       "whitespace required between element name and content model",
     )
@@ -1058,7 +1051,6 @@ pub fn parse_element_decl(reader : Reader) -> Unit raise XmlError {
     raise InvalidSyntax("expected '>' at end of ELEMENT declaration")
   }
   let _ = reader.advance()
-
 }
 
 ///|
@@ -1088,7 +1080,6 @@ fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlError {
         match reader.peek() {
           Some('*') => {
             let _ = reader.advance()
-
           }
           Some('+') =>
             raise InvalidSyntax("(#PCDATA) cannot use '+', only '*' is allowed")
@@ -1105,7 +1096,7 @@ fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlError {
           if reader.peek() == Some('#') {
             raise InvalidSyntax("#PCDATA must come first in mixed content")
           }
-          if !(peek_is_name_start(reader)) {
+          if !peek_is_name_start(reader) {
             raise InvalidSyntax("expected name in mixed content")
           }
           skip_name(reader)
@@ -1119,7 +1110,6 @@ fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlError {
         match reader.peek() {
           Some('*') => {
             let _ = reader.advance()
-
           }
           Some('+') =>
             raise InvalidSyntax("mixed content must use '*', not '+'")
@@ -1153,7 +1143,7 @@ fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlError {
   let mut need_connector = false // true if we need a connector before next element
   let mut connector : Char = ' ' // ' ' means not set yet
   let mut paren_depth = 1
-  while paren_depth > 0 && !(reader.is_eof()) {
+  while paren_depth > 0 && !reader.is_eof() {
     skip_ws(reader)
     match reader.peek() {
       Some(')') => {
@@ -1212,7 +1202,6 @@ fn skip_occurrence(reader : Reader) -> Unit {
   match reader.peek() {
     Some('?') | Some('*') | Some('+') => {
       let _ = reader.advance()
-
     }
     _ => ()
   }
