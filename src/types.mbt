@@ -35,7 +35,7 @@ fn transform_attrs_for_libxml(
     }
     // Strip namespace prefix (a:attr -> attr, xml:lang -> lang)
     let final_name = match name.find(":") {
-      Some(idx) => (try! name[idx + 1:]).to_string()
+      Some(idx) => name[idx + 1:].to_string()
       None => name
     }
     // Attribute value is already normalized by the parser
@@ -48,7 +48,7 @@ fn transform_attrs_for_libxml(
 /// Strip namespace prefix from element name (a:foo -> foo)
 fn strip_ns_prefix(name : String) -> String {
   match name.find(":") {
-    Some(idx) => (try! name[idx + 1:]).to_string()
+    Some(idx) => name[idx + 1:].to_string()
     None => name
   }
 }
