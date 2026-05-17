@@ -31,7 +31,9 @@ test "w3c/valid/valid_sa_001" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -43,7 +45,9 @@ test "w3c/valid/valid_sa_002" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -55,7 +59,9 @@ test "w3c/valid/valid_sa_003" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -67,7 +73,13 @@ test "w3c/valid/valid_sa_004" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "v1")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -79,7 +91,13 @@ test "w3c/valid/valid_sa_005" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "v1")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -91,7 +109,13 @@ test "w3c/valid/valid_sa_006" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "v1")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -103,7 +127,15 @@ test "w3c/valid/valid_sa_007" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\" \"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text(" "),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -115,7 +147,15 @@ test "w3c/valid/valid_sa_008" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"&<>\\\"'\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("&<>\"'"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -127,7 +167,15 @@ test "w3c/valid/valid_sa_009" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\" \"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text(" "),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -139,7 +187,13 @@ test "w3c/valid/valid_sa_010" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "v1")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -151,7 +205,13 @@ test "w3c/valid/valid_sa_011" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"v1\"), (\"a2\", \"v2\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "v1"), ("a2", "v2")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -173,7 +233,13 @@ test "w3c/valid/valid_sa_013" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"_.-0123456789\", \"v1\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("_.-0123456789", "v1")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -185,7 +251,13 @@ test "w3c/valid/valid_sa_014" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"abcdefghijklmnopqrstuvwxyz\", \"v1\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("abcdefghijklmnopqrstuvwxyz", "v1")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -197,7 +269,13 @@ test "w3c/valid/valid_sa_015" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\", \"v1\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "v1")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -209,7 +287,15 @@ test "w3c/valid/valid_sa_016" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  PI(target="pi", data=""),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -221,7 +307,16 @@ test "w3c/valid/valid_sa_017" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"some data \"), PI(target=\"x\", data=\"\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  PI(target="pi", data="some data "),
+      #|  PI(target="x", data=""),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -233,7 +328,15 @@ test "w3c/valid/valid_sa_018" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<foo>\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("<foo>"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -245,7 +348,15 @@ test "w3c/valid/valid_sa_019" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<&\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("<&"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -257,7 +368,15 @@ test "w3c/valid/valid_sa_020" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<&]>]\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("<&]>]"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -269,7 +388,15 @@ test "w3c/valid/valid_sa_021" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Comment(\" a comment \"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Comment(" a comment "),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -281,7 +408,15 @@ test "w3c/valid/valid_sa_022" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Comment(\" a comment ->\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Comment(" a comment ->"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -293,7 +428,9 @@ test "w3c/valid/valid_sa_023" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -305,7 +442,15 @@ test "w3c/valid/valid_sa_024" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -317,7 +462,16 @@ test "w3c/valid/valid_sa_025" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -329,7 +483,16 @@ test "w3c/valid/valid_sa_026" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -341,7 +504,16 @@ test "w3c/valid/valid_sa_027" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -353,7 +525,14 @@ test "w3c/valid/valid_sa_028" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -365,7 +544,14 @@ test "w3c/valid/valid_sa_029" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -377,7 +563,14 @@ test "w3c/valid/valid_sa_030" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -389,7 +582,14 @@ test "w3c/valid/valid_sa_031" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -401,7 +601,14 @@ test "w3c/valid/valid_sa_032" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"yes\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("yes")),
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -413,7 +620,14 @@ test "w3c/valid/valid_sa_033" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"yes\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("yes")),
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -425,7 +639,9 @@ test "w3c/valid/valid_sa_034" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -437,7 +653,9 @@ test "w3c/valid/valid_sa_035" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -449,7 +667,14 @@ test "w3c/valid/valid_sa_036" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"data\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  PI(target="pi", data="data"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -461,7 +686,15 @@ test "w3c/valid/valid_sa_017a" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"some data ? > <?\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  PI(target="pi", data="some data ? > <?"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -473,7 +706,14 @@ test "w3c/valid/valid_sa_037" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Comment(\" comment \"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Comment(" comment "),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -485,7 +725,14 @@ test "w3c/valid/valid_sa_038" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Comment(\" comment \"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Comment(" comment "),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -497,7 +744,14 @@ test "w3c/valid/valid_sa_039" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), PI(target=\"pi\", data=\"data\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  PI(target="pi", data="data"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -509,7 +763,13 @@ test "w3c/valid/valid_sa_040" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"\\\"<&>'\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "\"<&>'")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -521,7 +781,13 @@ test "w3c/valid/valid_sa_041" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"A\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "A")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -533,7 +799,15 @@ test "w3c/valid/valid_sa_042" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"A\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("A"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -545,7 +819,13 @@ test "w3c/valid/valid_sa_043" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"foo bar\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "foo bar")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -557,7 +837,21 @@ test "w3c/valid/valid_sa_044" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a3\", \"v3\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"w1\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a2\", \"w2\"), (\"a3\", \"v3\")]}), Text(\"\\n\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("\n"),
+      #|  Empty({ name: "e", attributes: [("a3", "v3")] }),
+      #|  Text("\n"),
+      #|  Empty({ name: "e", attributes: [("a1", "w1")] }),
+      #|  Text("\n"),
+      #|  Empty({ name: "e", attributes: [("a2", "w2"), ("a3", "v3")] }),
+      #|  Text("\n"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -569,7 +863,9 @@ test "w3c/valid/valid_sa_045" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -581,7 +877,9 @@ test "w3c/valid/valid_sa_046" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -593,7 +891,15 @@ test "w3c/valid/valid_sa_047" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"X\\nY\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("X\nY"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -605,7 +911,15 @@ test "w3c/valid/valid_sa_048" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"]\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("]"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -617,7 +931,15 @@ test "w3c/valid/valid_sa_052" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀􏿽\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("𐀀􏿽"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -629,7 +951,15 @@ test "w3c/valid/valid_sa_053" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"e\", attributes: []}), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Empty({ name: "e", attributes: [] }),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -641,7 +971,9 @@ test "w3c/valid/valid_sa_054" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -653,7 +985,14 @@ test "w3c/valid/valid_sa_055" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), PI(target=\"pi\", data=\"data\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  PI(target="pi", data="data"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -665,7 +1004,15 @@ test "w3c/valid/valid_sa_056" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"A\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("A"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -677,7 +1024,9 @@ test "w3c/valid/valid_sa_057" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -689,7 +1038,13 @@ test "w3c/valid/valid_sa_058" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"1 2\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "1 2")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -701,7 +1056,21 @@ test "w3c/valid/valid_sa_059" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"v1\"), (\"a2\", \"v2\"), (\"a3\", \"v3\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"w1\"), (\"a2\", \"v2\")]}), Text(\"\\n\"), Empty({name: \"e\", attributes: [(\"a1\", \"v1\"), (\"a2\", \"w2\"), (\"a3\", \"v3\")]}), Text(\"\\n\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("\n"),
+      #|  Empty({ name: "e", attributes: [("a1", "v1"), ("a2", "v2"), ("a3", "v3")] }),
+      #|  Text("\n"),
+      #|  Empty({ name: "e", attributes: [("a1", "w1"), ("a2", "v2")] }),
+      #|  Text("\n"),
+      #|  Empty({ name: "e", attributes: [("a1", "v1"), ("a2", "w2"), ("a3", "v3")] }),
+      #|  Text("\n"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -713,7 +1082,15 @@ test "w3c/valid/valid_sa_060" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"X\\nY\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("X\nY"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -725,7 +1102,15 @@ test "w3c/valid/valid_sa_061" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"£\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("£"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -737,7 +1122,15 @@ test "w3c/valid/valid_sa_062" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"เจมส์\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("เจมส์"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -749,7 +1142,9 @@ test "w3c/valid/valid_sa_063" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"เจมส์\"), Empty({name: \"เจมส์\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("เจมส์"), Empty({ name: "เจมส์", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -761,7 +1156,15 @@ test "w3c/valid/valid_sa_064" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀􏿽\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("𐀀􏿽"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -773,7 +1176,9 @@ test "w3c/valid/valid_sa_065" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -785,7 +1190,14 @@ test "w3c/valid/valid_sa_066" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Comment(\" 34 is double quote \"), Empty({name: \"doc\", attributes: [(\"a1\", \"\\\"\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Comment(" 34 is double quote "),
+      #|  Empty({ name: "doc", attributes: [("a1", "\"")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -797,7 +1209,15 @@ test "w3c/valid/valid_sa_067" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\r\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("\r"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -809,7 +1229,15 @@ test "w3c/valid/valid_sa_068" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("\n"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -821,7 +1249,9 @@ test "w3c/valid/valid_sa_069" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -833,7 +1263,9 @@ test "w3c/valid/valid_sa_071" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -845,7 +1277,9 @@ test "w3c/valid/valid_sa_072" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -857,7 +1291,9 @@ test "w3c/valid/valid_sa_073" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -869,7 +1305,9 @@ test "w3c/valid/valid_sa_074" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -881,7 +1319,9 @@ test "w3c/valid/valid_sa_075" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -893,7 +1333,9 @@ test "w3c/valid/valid_sa_076" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -905,7 +1347,9 @@ test "w3c/valid/valid_sa_077" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -917,7 +1361,13 @@ test "w3c/valid/valid_sa_078" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"v\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "v")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -929,7 +1379,13 @@ test "w3c/valid/valid_sa_079" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"v\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "v")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -941,7 +1397,9 @@ test "w3c/valid/valid_sa_080" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -953,7 +1411,19 @@ test "w3c/valid/valid_sa_081" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"a\", attributes: []}), Empty({name: \"b\", attributes: []}), Start({name: \"c\", attributes: []}), Empty({name: \"a\", attributes: []}), End(\"c\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Empty({ name: "a", attributes: [] }),
+      #|  Empty({ name: "b", attributes: [] }),
+      #|  Start({ name: "c", attributes: [] }),
+      #|  Empty({ name: "a", attributes: [] }),
+      #|  End("c"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -965,7 +1435,9 @@ test "w3c/valid/valid_sa_084" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -977,7 +1449,9 @@ test "w3c/valid/valid_sa_085" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -989,7 +1463,9 @@ test "w3c/valid/valid_sa_086" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -1001,7 +1477,15 @@ test "w3c/valid/valid_sa_087" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"foo\", attributes: []}), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1013,7 +1497,15 @@ test "w3c/valid/valid_sa_088" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<foo>\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("<foo>"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1025,7 +1517,15 @@ test "w3c/valid/valid_sa_089" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"𐀀􏿽􏿿\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("𐀀􏿽􏿿"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1037,7 +1537,9 @@ test "w3c/valid/valid_sa_090" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -1049,7 +1551,21 @@ test "w3c/valid/valid_sa_092" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), Empty({name: \"a\", attributes: []}), Text(\"\\n    \"), Empty({name: \"a\", attributes: []}), Text(\"\\t\"), Empty({name: \"a\", attributes: []}), Text(\"\\n\\n\\n\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("\n"),
+      #|  Empty({ name: "a", attributes: [] }),
+      #|  Text("\n    "),
+      #|  Empty({ name: "a", attributes: [] }),
+      #|  Text("\t"),
+      #|  Empty({ name: "a", attributes: [] }),
+      #|  Text("\n\n\n"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1061,7 +1577,15 @@ test "w3c/valid/valid_sa_093" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\\n\\n\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("\n\n\n"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1073,7 +1597,9 @@ test "w3c/valid/valid_sa_094" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -1085,7 +1611,13 @@ test "w3c/valid/valid_sa_095" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a1\", \"1  2\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "1  2")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1097,7 +1629,9 @@ test "w3c/valid/valid_sa_096" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -1109,7 +1643,15 @@ test "w3c/valid/valid_sa_098" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), PI(target=\"pi\", data=\"x\\ny\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  PI(target="pi", data="x\ny"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1121,7 +1663,14 @@ test "w3c/valid/valid_sa_099" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"utf-8\"), standalone=Some(\"no\")), DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("utf-8"), standalone=Some("no")),
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1133,7 +1682,9 @@ test "w3c/valid/valid_sa_101" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -1145,7 +1696,13 @@ test "w3c/valid/valid_sa_102" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"\\\"\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "\"")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1157,7 +1714,15 @@ test "w3c/valid/valid_sa_103" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"<doc>\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("<doc>"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1169,7 +1734,13 @@ test "w3c/valid/valid_sa_104" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x y\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "x y")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1181,7 +1752,13 @@ test "w3c/valid/valid_sa_105" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x\\ty\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "x\ty")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1193,7 +1770,13 @@ test "w3c/valid/valid_sa_106" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x\\ny\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "x\ny")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1205,7 +1788,13 @@ test "w3c/valid/valid_sa_107" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x\\ry\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "x\ry")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1217,7 +1806,13 @@ test "w3c/valid/valid_sa_108" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x y\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "x y")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1229,7 +1824,9 @@ test "w3c/valid/valid_sa_109" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"\")]}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [("a", "")] }), Eof]
+    ),
   )
 }
 
@@ -1241,7 +1838,13 @@ test "w3c/valid/valid_sa_110" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x  y\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "x  y")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1253,7 +1856,13 @@ test "w3c/valid/valid_sa_111" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: [(\"a\", \"x y\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "x y")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1265,7 +1874,15 @@ test "w3c/valid/valid_sa_112" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Empty({name: \"a\", attributes: []}), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Empty({ name: "a", attributes: [] }),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1277,7 +1894,9 @@ test "w3c/valid/valid_sa_113" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -1289,7 +1908,15 @@ test "w3c/valid/valid_sa_114" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"&foo;\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("&foo;"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1301,7 +1928,15 @@ test "w3c/valid/valid_sa_115" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"v\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("v"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1313,7 +1948,15 @@ test "w3c/valid/valid_sa_116" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"\\n\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("\n"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1325,7 +1968,15 @@ test "w3c/valid/valid_sa_117" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"]\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("]"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1337,7 +1988,15 @@ test "w3c/valid/valid_sa_118" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Text(\"]]\"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Text("]]"),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1349,7 +2008,15 @@ test "w3c/valid/valid_sa_119" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"doc\"), Start({name: \"doc\", attributes: []}), Comment(\" -á \"), End(\"doc\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("doc"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  Comment(" -á "),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1361,7 +2028,15 @@ test "w3c/valid/rmt_ns10_001" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace name test: a perfectly good http URI \"), Empty({name: \"foo\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("foo"),
+      #|  Comment(" Namespace name test: a perfectly good http URI "),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1373,7 +2048,15 @@ test "w3c/valid/rmt_ns10_002" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace name test: a syntactically plausible URI with a \\n     fictitious scheme \"), Empty({name: \"foo\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("foo"),
+      #|  Comment(" Namespace name test: a syntactically plausible URI with a \n     fictitious scheme "),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1385,7 +2068,15 @@ test "w3c/valid/rmt_ns10_003" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace name test: a perfectly good http URI with a fragment \"), Empty({name: \"foo\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("foo"),
+      #|  Comment(" Namespace name test: a perfectly good http URI with a fragment "),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1397,7 +2088,24 @@ test "w3c/valid/rmt_ns10_007" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace inequality test: different capitalization \"), Start({name: \"foo\", attributes: []}), Text(\"\\n\\n\"), Empty({name: \"bar\", attributes: [(\"attr\", \"1\"), (\"attr\", \"2\"), (\"attr\", \"3\")]}), Text(\"\\n\\n\"), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("foo"),
+      #|  Comment(" Namespace inequality test: different capitalization "),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Text("\n\n"),
+      #|  Empty(
+      #|    {
+      #|      name: "bar",
+      #|      attributes: [("attr", "1"), ("attr", "2"), ("attr", "3")],
+      #|    },
+      #|  ),
+      #|  Text("\n\n"),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1409,7 +2117,24 @@ test "w3c/valid/rmt_ns10_008" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" Namespace inequality test: different escaping \"), Start({name: \"foo\", attributes: []}), Text(\"\\n\\n\"), Empty({name: \"bar\", attributes: [(\"attr\", \"1\"), (\"attr\", \"2\"), (\"attr\", \"3\")]}), Text(\"\\n\\n\"), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("foo"),
+      #|  Comment(" Namespace inequality test: different escaping "),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Text("\n\n"),
+      #|  Empty(
+      #|    {
+      #|      name: "bar",
+      #|      attributes: [("attr", "1"), ("attr", "2"), ("attr", "3")],
+      #|    },
+      #|  ),
+      #|  Text("\n\n"),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1421,7 +2146,9 @@ test "w3c/valid/ht_ns10_047" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Empty({name: \"foo\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("foo"), Empty({ name: "foo", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -1433,7 +2160,9 @@ test "w3c/valid/ht_ns10_048" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"x\"), Empty({name: \"x\", attributes: [(\"foo\", \"\")]}), Eof]",
+    content=(
+      #|[DocType("x"), Empty({ name: "x", attributes: [("foo", "")] }), Eof]
+    ),
   )
 }
 
@@ -1445,7 +2174,9 @@ test "w3c/valid/dtd00" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Empty({name: \"root\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("root"), Empty({ name: "root", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -1457,7 +2188,14 @@ test "w3c/valid/dtd01" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Comment(\" %these; %are; %not; %PEs; \"), Empty({name: \"root\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Comment(" %these; %are; %not; %PEs; "),
+      #|  Empty({ name: "root", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1469,7 +2207,79 @@ test "w3c/valid/element" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Start({name: \"root\", attributes: []}), Text(\"\\n    \"), Empty({name: \"empty\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed1\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed2\", attributes: []}), Text(\"\\n\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n    \"), Empty({name: \"mixed3\", attributes: []}), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed\"), End(\"mixed1\"), Text(\"\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"<allowed>\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"<% illegal otherwise %>\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover\"), End(\"mixed3\"), Text(\"\\n\\n    \"), Start({name: \"mixed1\", attributes: []}), Text(\"allowed & stuff\"), End(\"mixed1\"), Text(\"\\n\\n    \"), Start({name: \"mixed2\", attributes: []}), Text(\"also\"), End(\"mixed2\"), Text(\"\\n\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Text(\"moreover \"), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" \"), End(\"mixed3\"), Text(\"\\n    \"), Start({name: \"mixed3\", attributes: []}), Empty({name: \"empty\", attributes: []}), Text(\" too\"), End(\"mixed3\"), Text(\"\\n\\n\"), End(\"root\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Start({ name: "root", attributes: [] }),
+      #|  Text("\n    "),
+      #|  Empty({ name: "empty", attributes: [] }),
+      #|  Text("\n\n    "),
+      #|  Empty({ name: "mixed1", attributes: [] }),
+      #|  Text("\n    "),
+      #|  Empty({ name: "mixed1", attributes: [] }),
+      #|  Text("\n\n    "),
+      #|  Empty({ name: "mixed2", attributes: [] }),
+      #|  Text("\n    "),
+      #|  Empty({ name: "mixed2", attributes: [] }),
+      #|  Text("\n\n    "),
+      #|  Empty({ name: "mixed3", attributes: [] }),
+      #|  Text("\n    "),
+      #|  Empty({ name: "mixed3", attributes: [] }),
+      #|  Text("\n\n    "),
+      #|  Start({ name: "mixed1", attributes: [] }),
+      #|  Text("allowed"),
+      #|  End("mixed1"),
+      #|  Text("\n    "),
+      #|  Start({ name: "mixed1", attributes: [] }),
+      #|  Text("<allowed>"),
+      #|  End("mixed1"),
+      #|  Text("\n\n    "),
+      #|  Start({ name: "mixed2", attributes: [] }),
+      #|  Text("also"),
+      #|  End("mixed2"),
+      #|  Text("\n    "),
+      #|  Start({ name: "mixed2", attributes: [] }),
+      #|  Text("<% illegal otherwise %>"),
+      #|  End("mixed2"),
+      #|  Text("\n\n    "),
+      #|  Start({ name: "mixed3", attributes: [] }),
+      #|  Text("moreover"),
+      #|  End("mixed3"),
+      #|  Text("\n\n    "),
+      #|  Start({ name: "mixed1", attributes: [] }),
+      #|  Text("allowed & stuff"),
+      #|  End("mixed1"),
+      #|  Text("\n\n    "),
+      #|  Start({ name: "mixed2", attributes: [] }),
+      #|  Text("also"),
+      #|  End("mixed2"),
+      #|  Text("\n\n    "),
+      #|  Start({ name: "mixed3", attributes: [] }),
+      #|  Text("moreover "),
+      #|  Empty({ name: "empty", attributes: [] }),
+      #|  Text(" "),
+      #|  End("mixed3"),
+      #|  Text("\n    "),
+      #|  Start({ name: "mixed3", attributes: [] }),
+      #|  Text("moreover "),
+      #|  Empty({ name: "empty", attributes: [] }),
+      #|  Text(" "),
+      #|  End("mixed3"),
+      #|  Text("\n    "),
+      #|  Start({ name: "mixed3", attributes: [] }),
+      #|  Empty({ name: "empty", attributes: [] }),
+      #|  Text(" "),
+      #|  End("mixed3"),
+      #|  Text("\n    "),
+      #|  Start({ name: "mixed3", attributes: [] }),
+      #|  Empty({ name: "empty", attributes: [] }),
+      #|  Text(" too"),
+      #|  End("mixed3"),
+      #|  Text("\n\n"),
+      #|  End("root"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1481,7 +2291,13 @@ test "w3c/valid/required00" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"req\", \"foo\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Empty({ name: "root", attributes: [("req", "foo")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1493,7 +2309,20 @@ test "w3c/valid/sa01" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=Some(\"yes\")), DocType(\"root\"), Start({name: \"root\", attributes: []}), Text(\"\\n    \"), Start({name: \"child\", attributes: []}), Text(\"\\n    The whitespace around this element would be\\n    invalid as standalone were the DTD external.\\n    \"), End(\"child\"), Text(\"\\n\"), End(\"root\"), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("yes")),
+      #|  DocType("root"),
+      #|  Start({ name: "root", attributes: [] }),
+      #|  Text("\n    "),
+      #|  Start({ name: "child", attributes: [] }),
+      #|  Text("\n    The whitespace around this element would be\n    invalid as standalone were the DTD external.\n    "),
+      #|  End("child"),
+      #|  Text("\n"),
+      #|  End("root"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1505,7 +2334,14 @@ test "w3c/valid/v_sgml01" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Comment(\"\\n\\tSGML dislikes token reuse.  It's legal XML, so any\\n\\tXML parser must accept it, though it's discouraged\\n\\tin documents \\\"for interoperability\\\"\\n    \"), Empty({name: \"root\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Comment("\n\tSGML dislikes token reuse.  It's legal XML, so any\n\tXML parser must accept it, though it's discouraged\n\tin documents \"for interoperability\"\n    "),
+      #|  Empty({ name: "root", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1517,7 +2353,13 @@ test "w3c/valid/v_lang01" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"en\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Empty({ name: "root", attributes: [("lang", "en")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1529,7 +2371,13 @@ test "w3c/valid/v_lang02" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"en-IN\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Empty({ name: "root", attributes: [("lang", "en-IN")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1541,7 +2389,13 @@ test "w3c/valid/v_lang03" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"i-klingon-whorf\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Empty({ name: "root", attributes: [("lang", "i-klingon-whorf")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1553,7 +2407,13 @@ test "w3c/valid/v_lang04" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"x-dialect-valleygirl\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Empty({ name: "root", attributes: [("lang", "x-dialect-valleygirl")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1565,7 +2425,13 @@ test "w3c/valid/v_lang05" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"DE\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Empty({ name: "root", attributes: [("lang", "DE")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1577,7 +2443,13 @@ test "w3c/valid/v_lang06" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Empty({name: \"root\", attributes: [(\"lang\", \"X-Java\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Empty({ name: "root", attributes: [("lang", "X-Java")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1589,7 +2461,18 @@ test "w3c/valid/v_pe03" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"root\"), Comment(\" Example 1 from XML spec 1.0 Appendix D \"), Start({name: \"root\", attributes: []}), Start({name: \"p\", attributes: []}), Text(\"An ampersand (&) may be escaped\\nnumerically (&#38) or with a general entity (&amp;).\"), End(\"p\"), End(\"root\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Comment(" Example 1 from XML spec 1.0 Appendix D "),
+      #|  Start({ name: "root", attributes: [] }),
+      #|  Start({ name: "p", attributes: [] }),
+      #|  Text("An ampersand (&) may be escaped\nnumerically (&#38) or with a general entity (&amp;)."),
+      #|  End("p"),
+      #|  End("root"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1601,7 +2484,17 @@ test "w3c/valid/rmt_e2e_15e" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Text(\" \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Text(" "),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1613,7 +2506,17 @@ test "w3c/valid/rmt_e2e_15f" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Text(\" \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Text(" "),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1625,7 +2528,17 @@ test "w3c/valid/rmt_e2e_15i" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Comment(\" comment \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Comment(" comment "),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1637,7 +2550,17 @@ test "w3c/valid/rmt_e2e_15j" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), PI(target=\"pi\", data=\"xxx\"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  PI(target="pi", data="xxx"),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1649,7 +2572,17 @@ test "w3c/valid/rmt_e2e_15k" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), Comment(\" comment \"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Comment(" comment "),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1661,7 +2594,17 @@ test "w3c/valid/rmt_e2e_15l" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Empty({name: \"foo\", attributes: []}), PI(target=\"pi\", data=\"xxx\"), Empty({name: \"foo\", attributes: []}), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  PI(target="pi", data="xxx"),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1673,7 +2616,9 @@ test "w3c/valid/rmt_e2e_22" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Empty({name: \"foo\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("foo"), Empty({ name: "foo", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -1685,7 +2630,15 @@ test "w3c/valid/rmt_e2e_24" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Text(\"You can use ]]> or ]]>\"), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Text("You can use ]]> or ]]>"),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1697,7 +2650,17 @@ test "w3c/valid/rmt_e2e_29" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: [(\"lang\", \"nds\")]}), Text(\"\\n \"), Empty({name: \"foo\", attributes: [(\"lang\", \"art-lojban\")]}), Text(\"\\n\"), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Start({ name: "foo", attributes: [("lang", "nds")] }),
+      #|  Text("\n "),
+      #|  Empty({ name: "foo", attributes: [("lang", "art-lojban")] }),
+      #|  Text("\n"),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1709,7 +2672,13 @@ test "w3c/valid/rmt_e2e_41" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Empty({name: \"foo\", attributes: [(\"lang\", \"\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Empty({ name: "foo", attributes: [("lang", "")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1721,7 +2690,15 @@ test "w3c/valid/rmt_e2e_48" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Start({name: \"foo\", attributes: []}), Text(\"hello\"), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Text("hello"),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1733,7 +2710,16 @@ test "w3c/valid/rmt_e3e_05a" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Comment(\" CDATA sections may occur in Mixed content. \"), Start({name: \"foo\", attributes: []}), Text(\"a cdata section in mixed content\"), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Comment(" CDATA sections may occur in Mixed content. "),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Text("a cdata section in mixed content"),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1745,7 +2731,20 @@ test "w3c/valid/rmt_e3e_05b" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"foo\"), Comment(\" CDATA sections, comments and PIs may occur in ANY content. \"), Start({name: \"foo\", attributes: []}), Text(\"\\na cdata section in mixed content.\\na \"), Comment(\" comment \"), Text(\" in mixed content.\\na \"), PI(target=\"processing\", data=\"instruction\"), Text(\" in mixed content.\\n\"), End(\"foo\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("foo"),
+      #|  Comment(" CDATA sections, comments and PIs may occur in ANY content. "),
+      #|  Start({ name: "foo", attributes: [] }),
+      #|  Text("\na cdata section in mixed content.\na "),
+      #|  Comment(" comment "),
+      #|  Text(" in mixed content.\na "),
+      #|  PI(target="processing", data="instruction"),
+      #|  Text(" in mixed content.\n"),
+      #|  End("foo"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1757,7 +2756,15 @@ test "w3c/valid/x_rmt_008b" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[Decl(version=\"1.7\", encoding=Some(\"UTF-8\"), standalone=Some(\"no\")), DocType(\"foo\"), Comment(\" an implausibly-versioned document \"), Empty({name: \"foo\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  Decl(version="1.7", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("foo"),
+      #|  Comment(" an implausibly-versioned document "),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1769,7 +2776,14 @@ test "w3c/valid/x_rmt5_014a" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"egg\"), Comment(\" Has a \\\"long s\\\" in an ID, legal in XML 1.1, illegal in XML 1.0 \"), Empty({name: \"egg\", attributes: [(\"id\", \"eggſ\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("egg"),
+      #|  Comment(" Has a \"long s\" in an ID, legal in XML 1.1, illegal in XML 1.0 "),
+      #|  Empty({ name: "egg", attributes: [("id", "eggſ")] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1791,7 +2805,104 @@ test "w3c/valid/x_ibm_1_0_5_valid_P04_ibm04av01_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"LegalNameChar\"), Comment(\" LegalNameChars ending with\\n0x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040\\n\"), Start({name: \"LegalNameChar\", attributes: []}), Text(\"\\t\\n\\t\"), Empty({name: \"LegalNameCharÀ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharÁ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar˾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharÂ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharÃ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar˽\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar˿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͰ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͱ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͼ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͽ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͿ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar΀\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar῾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar῿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar‌\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar‍\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⁰\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharⁱ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar↎\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar↏\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharⰀ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharⰁ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⿮\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⿯\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar、\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar。\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar퟾\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar퟿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar豈\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar更\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar�\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar-\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar.\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharA\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharz\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar0\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar·\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar̀\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChaŕ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͮ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameCharͯ\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar‿\", attributes: []}), Text(\"\\n\\t\"), Empty({name: \"LegalNameChar⁀\", attributes: []}), Text(\"\\n\"), End(\"LegalNameChar\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("LegalNameChar"),
+      #|  Comment(" LegalNameChars ending with\n0x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040\n"),
+      #|  Start({ name: "LegalNameChar", attributes: [] }),
+      #|  Text("\t\n\t"),
+      #|  Empty({ name: "LegalNameCharÀ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharÁ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar˾", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharÂ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharÃ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar˽", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar˿", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharͰ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharͱ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharͼ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharͽ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharͿ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar΀", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar῾", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar῿", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar‌", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar‍", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar⁰", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharⁱ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar↎", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar↏", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharⰀ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharⰁ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar⿮", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar⿯", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar、", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar。", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar퟾", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar퟿", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar豈", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar更", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar�", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar-", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar.", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharA", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharz", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar0", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar·", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar̀", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChaŕ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharͮ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameCharͯ", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar‿", attributes: [] }),
+      #|  Text("\n\t"),
+      #|  Empty({ name: "LegalNameChar⁀", attributes: [] }),
+      #|  Text("\n"),
+      #|  End("LegalNameChar"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1833,7 +2944,16 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v04_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"LegalName\"), Comment(\" Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 \"), Start({name: \"LegalName\", attributes: []}), Text(\"\\n \\tattr0=\\\":\\\" attr00=\\\":\\\"\\n \\tattr1=\\\"À\\\" attr10=\\\"À\\\"\\n \\tattr2=\\\"Á\\\" attr20=\\\"Á\\\"\\n \\tattr3=\\\"˾\\\" attr30=\\\"˾\\\"\\n \\tattr4=\\\"Â\\\" attr40=\\\"Â\\\"\\n \\tattr5=\\\"Ã\\\" attr50=\\\"Ã\\\"\\n \\tattr6=\\\"˽\\\" attr60=\\\"˽\\\"\\n \\tattr7=\\\"˿\\\" attr70=\\\"˿\\\"\\n \\tattr8=\\\"Ͱ\\\" attr80=\\\"Ͱ\\\"\\n \\tattr9=\\\"ͱ\\\" attr90=\\\"ͱ\\\"\\n \\tattr10=\\\"ͼͽ\\\" attr100=\\\"ͼͽ\\\"\\n \\tattr11=\\\"ͽͿ\\\" attr110=\\\"ͽͿ\\\"\\n \\tattr12=\\\"Ϳ΀\\\" attr120=\\\"Ϳ΀\\\"\\n \\tattr13=\\\"΀῾\\\" attr130=\\\"΀῾\\\"\\n \\tattr14=\\\"῾῿\\\" attr140=\\\"῾῿\\\"\\n \\tattr15=\\\"῿‌\\\" attr150=\\\"῿‌\\\"\\n \\tattr16=\\\"‌‍\\\" attr160=\\\"‌‍\\\"\\n \\tattr17=\\\"‍⁰\\\" attr170=\\\"‍⁰\\\"\\n \\tattr18=\\\"⁰ⁱ\\\" attr180=\\\"⁰ⁱ\\\"\\n \\tattr19=\\\"ⁱ↎\\\" attr190=\\\"ⁱ↎\\\"\\n \\tattr20=\\\"↎↏Ⰰ\\\" attr200=\\\"↎↏Ⰰ\\\"\\n \\tattr21=\\\"↏ⰀⰁ\\\" attr210=\\\"↏ⰀⰁ\\\"\\n \\tattr22=\\\"ⰀⰁ⿮\\\" attr220=\\\"ⰀⰁ⿮\\\"\\n \\tattr23=\\\"Ⰱ⿮⿯\\\" attr230=\\\"Ⰱ⿮⿯\\\"\\n \\tattr24=\\\"⿮⿯、\\\" attr240=\\\"⿮⿯、\\\"\\n \\tattr25=\\\"⿯、。\\\" attr250=\\\"⿯、。\\\"\\n \\tattr26=\\\"、。퟾\\\" attr260=\\\"、。퟾\\\"\\n \\tattr27=\\\"。퟾퟿\\\" attr270=\\\"。퟾퟿\\\"\\n \\tattr28=\\\"퟾퟿豈\\\" attr280=\\\"퟾퟿豈\\\"\\n \\tattr29=\\\"퟿豈更\\\" attr290=\\\"퟿豈更\\\"\\n \\tattr30=\\\"豈퟿퟾。\\\" attr300=\\\"豈퟿퟾。\\\"\\n \\tattr31=\\\"更豈퟿퟾\\\" attr310=\\\"更豈퟿퟾\\\"\\n \\tattr32=\\\"�更豈퟿\\\" attr320=\\\"�更豈퟿\\\"\\n \\tattr33=\\\"-�更豈\\\" attr330=\\\"-�更豈\\\"\\n \\tattr34=\\\".-�更\\\" attr340=\\\".-�更\\\"\\n \\tattr35=\\\"A.-�\\\" attr350=\\\"A.-�\\\"\\n \\tattr36=\\\"zA.-\\\" attr360=\\\"zA.-\\\"\\n \\tattr37=\\\"0zA.\\\" attr370=\\\"0zA.\\\"\\n \\tattr38=\\\"·0zA\\\" attr380=\\\"·0zA\\\"\\n \\tattr39=\\\"̀·0z\\\" attr390=\\\"̀·0z\\\"\\n \\tattr40=\\\"́̀·0\\\" attr400=\\\"́̀·0\\\"\\n \\tattr41=\\\"ͮ́̀·\\\" attr410=\\\"ͮ́̀·\\\"\\n \\tattr42=\\\"ͯͮ́̀\\\" attr420=\\\"ͯͮ́̀\\\"\\n \\tattr43=\\\"‿ͯͮ́\\\" attr430=\\\"‿ͯͮ́\\\"\\n \\tattr44=\\\"⁀‿ͯͮ\\\" attr440=\\\"⁀‿ͯͮ\\\"\\n \\tattr45=\\\"null⁀‿ͯ\\\" attr450=\\\"null⁀‿ͯ\\\"\\n \\tattr46=\\\"nullnull⁀‿\\\" attr460=\\\"nullnull⁀‿\\\"\\n \\tattr47=\\\"nullnullnull⁀\\\" attr470=\\\"nullnullnull⁀\\\"\\n\"), End(\"LegalName\"), Eof]",
+    content=(
+      #|[
+      #|  DocType("LegalName"),
+      #|  Comment(" Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 "),
+      #|  Start({ name: "LegalName", attributes: [] }),
+      #|  Text("\n \tattr0=\":\" attr00=\":\"\n \tattr1=\"À\" attr10=\"À\"\n \tattr2=\"Á\" attr20=\"Á\"\n \tattr3=\"˾\" attr30=\"˾\"\n \tattr4=\"Â\" attr40=\"Â\"\n \tattr5=\"Ã\" attr50=\"Ã\"\n \tattr6=\"˽\" attr60=\"˽\"\n \tattr7=\"˿\" attr70=\"˿\"\n \tattr8=\"Ͱ\" attr80=\"Ͱ\"\n \tattr9=\"ͱ\" attr90=\"ͱ\"\n \tattr10=\"ͼͽ\" attr100=\"ͼͽ\"\n \tattr11=\"ͽͿ\" attr110=\"ͽͿ\"\n \tattr12=\"Ϳ΀\" attr120=\"Ϳ΀\"\n \tattr13=\"΀῾\" attr130=\"΀῾\"\n \tattr14=\"῾῿\" attr140=\"῾῿\"\n \tattr15=\"῿‌\" attr150=\"῿‌\"\n \tattr16=\"‌‍\" attr160=\"‌‍\"\n \tattr17=\"‍⁰\" attr170=\"‍⁰\"\n \tattr18=\"⁰ⁱ\" attr180=\"⁰ⁱ\"\n \tattr19=\"ⁱ↎\" attr190=\"ⁱ↎\"\n \tattr20=\"↎↏Ⰰ\" attr200=\"↎↏Ⰰ\"\n \tattr21=\"↏ⰀⰁ\" attr210=\"↏ⰀⰁ\"\n \tattr22=\"ⰀⰁ⿮\" attr220=\"ⰀⰁ⿮\"\n \tattr23=\"Ⰱ⿮⿯\" attr230=\"Ⰱ⿮⿯\"\n \tattr24=\"⿮⿯、\" attr240=\"⿮⿯、\"\n \tattr25=\"⿯、。\" attr250=\"⿯、。\"\n \tattr26=\"、。퟾\" attr260=\"、。퟾\"\n \tattr27=\"。퟾퟿\" attr270=\"。퟾퟿\"\n \tattr28=\"퟾퟿豈\" attr280=\"퟾퟿豈\"\n \tattr29=\"퟿豈更\" attr290=\"퟿豈更\"\n \tattr30=\"豈퟿퟾。\" attr300=\"豈퟿퟾。\"\n \tattr31=\"更豈퟿퟾\" attr310=\"更豈퟿퟾\"\n \tattr32=\"�更豈퟿\" attr320=\"�更豈퟿\"\n \tattr33=\"-�更豈\" attr330=\"-�更豈\"\n \tattr34=\".-�更\" attr340=\".-�更\"\n \tattr35=\"A.-�\" attr350=\"A.-�\"\n \tattr36=\"zA.-\" attr360=\"zA.-\"\n \tattr37=\"0zA.\" attr370=\"0zA.\"\n \tattr38=\"·0zA\" attr380=\"·0zA\"\n \tattr39=\"̀·0z\" attr390=\"̀·0z\"\n \tattr40=\"́̀·0\" attr400=\"́̀·0\"\n \tattr41=\"ͮ́̀·\" attr410=\"ͮ́̀·\"\n \tattr42=\"ͯͮ́̀\" attr420=\"ͯͮ́̀\"\n \tattr43=\"‿ͯͮ́\" attr430=\"‿ͯͮ́\"\n \tattr44=\"⁀‿ͯͮ\" attr440=\"⁀‿ͯͮ\"\n \tattr45=\"null⁀‿ͯ\" attr450=\"null⁀‿ͯ\"\n \tattr46=\"nullnull⁀‿\" attr460=\"nullnull⁀‿\"\n \tattr47=\"nullnullnull⁀\" attr470=\"nullnullnull⁀\"\n"),
+      #|  End("LegalName"),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1855,7 +2975,58 @@ test "w3c/valid/x_ibm_1_0_5_valid_P047_ibm07v01_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"NMtokenName\"), Comment(\" LegalNameChar  0x300,0x333,0x369,0x37E,0x2000,0x2001,0x2002,0x2005,0x200B,0x200E,x200F,0x2069,0x2190,0x23FF,0x280F,0x2A00,0x2EDC,0x2FED,0x2FFF,0x3000,0xD800,0xD801,0xDAFF,0xDFFF,0xEFFF,0xF1FF,0xF8FF,0xFFFFF; _, ., 0, B7, C0, 2FFF in P07 \"), Empty({name: \"NMtokenName\", attributes: [(\"thistoken0\", \":\"), (\"thistoken1\", \"À\"), (\"thistoken2\", \"Á\"), (\"thistoken3\", \"˾\"), (\"thistoken4\", \"À\"), (\"thistoken5\", \"Á\"), (\"thistoken6\", \"˾\"), (\"thistoken7\", \"˿\"), (\"thistoken8\", \"Ͱ\"), (\"thistoken9\", \"ͱ\"), (\"thistoken10\", \"ͼ\"), (\"thistoken11\", \"ͽ\"), (\"thistoken12\", \"Ϳ\"), (\"thistoken13\", \"΀\"), (\"thistoken14\", \"῾\"), (\"thistoken15\", \"῿\"), (\"thistoken16\", \"‌\"), (\"thistoken17\", \"‍\"), (\"thistoken18\", \"⁰\"), (\"thistoken19\", \"ⁱ\"), (\"thistoken20\", \"↎\"), (\"thistoken21\", \"↏\"), (\"thistoken22\", \"Ⰰ\"), (\"thistoken23\", \"Ⰱ\"), (\"thistoken24\", \"⿮\"), (\"thistoken25\", \"⿯\"), (\"thistoken26\", \"、\"), (\"thistoken27\", \"。\"), (\"thistoken28\", \"퟾\"), (\"thistoken29\", \"퟿\"), (\"thistoken30\", \"豈\"), (\"thistoken31\", \"更\"), (\"thistoken32\", \"_\"), (\"thistoken33\", \".\"), (\"thistoken34\", \"0\"), (\"thistoken35\", \"·\"), (\"thistoken36\", \"À\"), (\"thistoken37\", \"ͼ\")]}), Eof]",
+    content=(
+      #|[
+      #|  DocType("NMtokenName"),
+      #|  Comment(" LegalNameChar  0x300,0x333,0x369,0x37E,0x2000,0x2001,0x2002,0x2005,0x200B,0x200E,x200F,0x2069,0x2190,0x23FF,0x280F,0x2A00,0x2EDC,0x2FED,0x2FFF,0x3000,0xD800,0xD801,0xDAFF,0xDFFF,0xEFFF,0xF1FF,0xF8FF,0xFFFFF; _, ., 0, B7, C0, 2FFF in P07 "),
+      #|  Empty(
+      #|    {
+      #|      name: "NMtokenName",
+      #|      attributes: [
+      #|        ("thistoken0", ":"),
+      #|        ("thistoken1", "À"),
+      #|        ("thistoken2", "Á"),
+      #|        ("thistoken3", "˾"),
+      #|        ("thistoken4", "À"),
+      #|        ("thistoken5", "Á"),
+      #|        ("thistoken6", "˾"),
+      #|        ("thistoken7", "˿"),
+      #|        ("thistoken8", "Ͱ"),
+      #|        ("thistoken9", "ͱ"),
+      #|        ("thistoken10", "ͼ"),
+      #|        ("thistoken11", "ͽ"),
+      #|        ("thistoken12", "Ϳ"),
+      #|        ("thistoken13", "΀"),
+      #|        ("thistoken14", "῾"),
+      #|        ("thistoken15", "῿"),
+      #|        ("thistoken16", "‌"),
+      #|        ("thistoken17", "‍"),
+      #|        ("thistoken18", "⁰"),
+      #|        ("thistoken19", "ⁱ"),
+      #|        ("thistoken20", "↎"),
+      #|        ("thistoken21", "↏"),
+      #|        ("thistoken22", "Ⰰ"),
+      #|        ("thistoken23", "Ⰱ"),
+      #|        ("thistoken24", "⿮"),
+      #|        ("thistoken25", "⿯"),
+      #|        ("thistoken26", "、"),
+      #|        ("thistoken27", "。"),
+      #|        ("thistoken28", "퟾"),
+      #|        ("thistoken29", "퟿"),
+      #|        ("thistoken30", "豈"),
+      #|        ("thistoken31", "更"),
+      #|        ("thistoken32", "_"),
+      #|        ("thistoken33", "."),
+      #|        ("thistoken34", "0"),
+      #|        ("thistoken35", "·"),
+      #|        ("thistoken36", "À"),
+      #|        ("thistoken37", "ͼ"),
+      #|      ],
+      #|    },
+      #|  ),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1867,7 +3038,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n03_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ĳ\", data=\"an only legal per 5th edition char #x132\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ĳ",
+      #|    data="an only legal per 5th edition char #x132\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1879,7 +3060,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n04_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ĳ\", data=\"an only legal per 5th edition char #x133\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ĳ",
+      #|    data="an only legal per 5th edition char #x133\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1891,7 +3082,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n05_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ŀ\", data=\"an only legal per 5th edition char #x13f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ŀ",
+      #|    data="an only legal per 5th edition char #x13f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1903,7 +3104,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n06_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ŀ\", data=\"an only legal per 5th edition char #x140\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ŀ",
+      #|    data="an only legal per 5th edition char #x140\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1915,7 +3126,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n07_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ŉ\", data=\"an only legal per 5th edition char #x149\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ŉ",
+      #|    data="an only legal per 5th edition char #x149\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1927,7 +3148,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n08_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ſ\", data=\"an only legal per 5th edition char #x17f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ſ",
+      #|    data="an only legal per 5th edition char #x17f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1939,7 +3170,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n09_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ǆ\", data=\"an only legal per 5th edition char #x1c4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ǆ",
+      #|    data="an only legal per 5th edition char #x1c4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1951,7 +3192,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n10_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ǌ\", data=\"an only legal per 5th edition char #x1cc\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ǌ",
+      #|    data="an only legal per 5th edition char #x1cc\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1963,7 +3214,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n100_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ஶ\", data=\"an only legal per 5th edition char #x0bb6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ஶ",
+      #|    data="an only legal per 5th edition char #x0bb6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1975,7 +3236,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n101_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"஺\", data=\"an only legal per 5th edition char #x0bba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="஺",
+      #|    data="an only legal per 5th edition char #x0bba\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1987,7 +3258,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n102_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"఍\", data=\"an only legal per 5th edition char #x0c0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="఍",
+      #|    data="an only legal per 5th edition char #x0c0d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -1999,7 +3280,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n103_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"఑\", data=\"an only legal per 5th edition char #x0c11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="఑",
+      #|    data="an only legal per 5th edition char #x0c11\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2011,7 +3302,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n104_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"఩\", data=\"an only legal per 5th edition char #x0c29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="఩",
+      #|    data="an only legal per 5th edition char #x0c29\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2023,7 +3324,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n105_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ఴ\", data=\"an only legal per 5th edition char #x0c34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ఴ",
+      #|    data="an only legal per 5th edition char #x0c34\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2035,7 +3346,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n106_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"౟\", data=\"an only legal per 5th edition char #x0c5f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="౟",
+      #|    data="an only legal per 5th edition char #x0c5f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2047,7 +3368,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n107_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ౢ\", data=\"an only legal per 5th edition char #x0c62\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ౢ",
+      #|    data="an only legal per 5th edition char #x0c62\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2059,7 +3390,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n108_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"಍\", data=\"an only legal per 5th edition char #x0c8d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="಍",
+      #|    data="an only legal per 5th edition char #x0c8d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2071,7 +3412,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n109_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"಑\", data=\"an only legal per 5th edition char #x0c91\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="಑",
+      #|    data="an only legal per 5th edition char #x0c91\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2083,7 +3434,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n11_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ǳ\", data=\"an only legal per 5th edition char #x1f1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ǳ",
+      #|    data="an only legal per 5th edition char #x1f1\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2095,7 +3456,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n110_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"಩\", data=\"an only legal per 5th edition char #x0ca9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="಩",
+      #|    data="an only legal per 5th edition char #x0ca9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2107,7 +3478,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n111_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"಴\", data=\"an only legal per 5th edition char #x0cb4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="಴",
+      #|    data="an only legal per 5th edition char #x0cb4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2119,7 +3500,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n112_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"಺\", data=\"an only legal per 5th edition char #x0cba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="಺",
+      #|    data="an only legal per 5th edition char #x0cba\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2131,7 +3522,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n113_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"೟\", data=\"an only legal per 5th edition char #x0cdf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="೟",
+      #|    data="an only legal per 5th edition char #x0cdf\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2143,7 +3544,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n114_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ೢ\", data=\"an only legal per 5th edition char #x0ce2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ೢ",
+      #|    data="an only legal per 5th edition char #x0ce2\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2155,7 +3566,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n115_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"഍\", data=\"an only legal per 5th edition char #x0d0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="഍",
+      #|    data="an only legal per 5th edition char #x0d0d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2167,7 +3588,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n116_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"഑\", data=\"an only legal per 5th edition char #x0d11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="഑",
+      #|    data="an only legal per 5th edition char #x0d11\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2179,7 +3610,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n117_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ഩ\", data=\"an only legal per 5th edition char #x0d29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ഩ",
+      #|    data="an only legal per 5th edition char #x0d29\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2191,7 +3632,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n118_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ഺ\", data=\"an only legal per 5th edition char #x0d3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ഺ",
+      #|    data="an only legal per 5th edition char #x0d3a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2203,7 +3654,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n119_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ൢ\", data=\"an only legal per 5th edition char #x0d62\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ൢ",
+      #|    data="an only legal per 5th edition char #x0d62\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2215,7 +3676,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n12_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ǳ\", data=\"an only legal per 5th edition char #x1f3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ǳ",
+      #|    data="an only legal per 5th edition char #x1f3\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2227,7 +3698,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n120_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ฯ\", data=\"an only legal per 5th edition char #x0e2f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ฯ",
+      #|    data="an only legal per 5th edition char #x0e2f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2239,7 +3720,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n121_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ั\", data=\"an only legal per 5th edition char #x0e31\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ั",
+      #|    data="an only legal per 5th edition char #x0e31\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2251,7 +3742,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n122_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ิ\", data=\"an only legal per 5th edition char #x0e34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ิ",
+      #|    data="an only legal per 5th edition char #x0e34\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2263,7 +3764,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n123_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ๆ\", data=\"an only legal per 5th edition char #x0e46\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ๆ",
+      #|    data="an only legal per 5th edition char #x0e46\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2275,7 +3786,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n124_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"຃\", data=\"an only legal per 5th edition char #x0e83\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="຃",
+      #|    data="an only legal per 5th edition char #x0e83\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2287,7 +3808,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n125_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"຅\", data=\"an only legal per 5th edition char #x0e85\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="຅",
+      #|    data="an only legal per 5th edition char #x0e85\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2299,7 +3830,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n126_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ຉ\", data=\"an only legal per 5th edition char #x0e89\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ຉ",
+      #|    data="an only legal per 5th edition char #x0e89\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2311,7 +3852,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n127_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"຋\", data=\"an only legal per 5th edition char #x0e8b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="຋",
+      #|    data="an only legal per 5th edition char #x0e8b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2323,7 +3874,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n128_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ຎ\", data=\"an only legal per 5th edition char #x0e8e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ຎ",
+      #|    data="an only legal per 5th edition char #x0e8e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2335,7 +3896,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n129_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ຘ\", data=\"an only legal per 5th edition char #x0e98\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ຘ",
+      #|    data="an only legal per 5th edition char #x0e98\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2347,7 +3918,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n13_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ƕ\", data=\"an only legal per 5th edition char #x1f6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ƕ",
+      #|    data="an only legal per 5th edition char #x1f6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2359,7 +3940,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n130_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ຠ\", data=\"an only legal per 5th edition char #x0ea0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ຠ",
+      #|    data="an only legal per 5th edition char #x0ea0\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2371,7 +3962,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n131_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"຤\", data=\"an only legal per 5th edition char #x0ea4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="຤",
+      #|    data="an only legal per 5th edition char #x0ea4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2383,7 +3984,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n132_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"຦\", data=\"an only legal per 5th edition char #x0ea6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="຦",
+      #|    data="an only legal per 5th edition char #x0ea6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2395,7 +4006,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n133_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ຨ\", data=\"an only legal per 5th edition char #x0ea8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ຨ",
+      #|    data="an only legal per 5th edition char #x0ea8\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2407,7 +4028,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n134_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ຬ\", data=\"an only legal per 5th edition char #x0eac\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ຬ",
+      #|    data="an only legal per 5th edition char #x0eac\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2419,7 +4050,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n135_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ຯ\", data=\"an only legal per 5th edition char #x0eaf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ຯ",
+      #|    data="an only legal per 5th edition char #x0eaf\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2431,7 +4072,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n136_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ັ\", data=\"an only legal per 5th edition char #x0eb1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ັ",
+      #|    data="an only legal per 5th edition char #x0eb1\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2443,7 +4094,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n137_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ິ\", data=\"an only legal per 5th edition char #x0eb4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ິ",
+      #|    data="an only legal per 5th edition char #x0eb4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2455,7 +4116,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n138_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"຾\", data=\"an only legal per 5th edition char #x0ebe\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="຾",
+      #|    data="an only legal per 5th edition char #x0ebe\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2467,7 +4138,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n139_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"໅\", data=\"an only legal per 5th edition char #x0ec5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="໅",
+      #|    data="an only legal per 5th edition char #x0ec5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2479,7 +4160,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n14_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ǹ\", data=\"an only legal per 5th edition char #x1f9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ǹ",
+      #|    data="an only legal per 5th edition char #x1f9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2491,7 +4182,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n140_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"཈\", data=\"an only legal per 5th edition char #x0f48\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="཈",
+      #|    data="an only legal per 5th edition char #x0f48\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2503,7 +4204,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n141_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ཪ\", data=\"an only legal per 5th edition char #x0f6a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ཪ",
+      #|    data="an only legal per 5th edition char #x0f6a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2515,7 +4226,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n142_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"჆\", data=\"an only legal per 5th edition char #x10c6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="჆",
+      #|    data="an only legal per 5th edition char #x10c6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2527,7 +4248,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n143_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ჷ\", data=\"an only legal per 5th edition char #x10f7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ჷ",
+      #|    data="an only legal per 5th edition char #x10f7\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2539,7 +4270,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n144_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᄁ\", data=\"an only legal per 5th edition char #x1101\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᄁ",
+      #|    data="an only legal per 5th edition char #x1101\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2551,7 +4292,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n145_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᄄ\", data=\"an only legal per 5th edition char #x1104\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᄄ",
+      #|    data="an only legal per 5th edition char #x1104\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2563,7 +4314,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n146_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᄈ\", data=\"an only legal per 5th edition char #x1108\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᄈ",
+      #|    data="an only legal per 5th edition char #x1108\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2575,7 +4336,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n147_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᄊ\", data=\"an only legal per 5th edition char #x110a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᄊ",
+      #|    data="an only legal per 5th edition char #x110a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2587,7 +4358,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n148_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᄍ\", data=\"an only legal per 5th edition char #x110d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᄍ",
+      #|    data="an only legal per 5th edition char #x110d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2599,7 +4380,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n149_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᄻ\", data=\"an only legal per 5th edition char #x113b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᄻ",
+      #|    data="an only legal per 5th edition char #x113b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2611,7 +4402,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n15_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ǹ\", data=\"an only legal per 5th edition char #x1f9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ǹ",
+      #|    data="an only legal per 5th edition char #x1f9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2623,7 +4424,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n150_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᄿ\", data=\"an only legal per 5th edition char #x113f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᄿ",
+      #|    data="an only legal per 5th edition char #x113f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2635,7 +4446,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n151_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅁ\", data=\"an only legal per 5th edition char #x1141\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅁ",
+      #|    data="an only legal per 5th edition char #x1141\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2647,7 +4468,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n152_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅍ\", data=\"an only legal per 5th edition char #x114d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅍ",
+      #|    data="an only legal per 5th edition char #x114d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2659,7 +4490,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n153_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅏ\", data=\"an only legal per 5th edition char #x114f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅏ",
+      #|    data="an only legal per 5th edition char #x114f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2671,7 +4512,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n154_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅑ\", data=\"an only legal per 5th edition char #x1151\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅑ",
+      #|    data="an only legal per 5th edition char #x1151\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2683,7 +4534,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n155_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅖ\", data=\"an only legal per 5th edition char #x1156\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅖ",
+      #|    data="an only legal per 5th edition char #x1156\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2695,7 +4556,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n156_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅚ\", data=\"an only legal per 5th edition char #x115a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅚ",
+      #|    data="an only legal per 5th edition char #x115a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2707,7 +4578,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n157_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅢ\", data=\"an only legal per 5th edition char #x1162\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅢ",
+      #|    data="an only legal per 5th edition char #x1162\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2719,7 +4600,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n158_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅤ\", data=\"an only legal per 5th edition char #x1164\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅤ",
+      #|    data="an only legal per 5th edition char #x1164\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2731,7 +4622,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n159_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅦ\", data=\"an only legal per 5th edition char #x1166\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅦ",
+      #|    data="an only legal per 5th edition char #x1166\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2743,7 +4644,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n16_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ȱ\", data=\"an only legal per 5th edition char #x230\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ȱ",
+      #|    data="an only legal per 5th edition char #x230\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2755,7 +4666,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n160_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅫ\", data=\"an only legal per 5th edition char #x116b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅫ",
+      #|    data="an only legal per 5th edition char #x116b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2767,7 +4688,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n161_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅯ\", data=\"an only legal per 5th edition char #x116f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅯ",
+      #|    data="an only legal per 5th edition char #x116f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2779,7 +4710,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n162_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᅴ\", data=\"an only legal per 5th edition char #x1174\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᅴ",
+      #|    data="an only legal per 5th edition char #x1174\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2791,7 +4732,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n163_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᆟ\", data=\"an only legal per 5th edition char #x119f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᆟ",
+      #|    data="an only legal per 5th edition char #x119f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2803,7 +4754,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n164_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᆬ\", data=\"an only legal per 5th edition char #x11ac\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᆬ",
+      #|    data="an only legal per 5th edition char #x11ac\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2815,7 +4776,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n165_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᆶ\", data=\"an only legal per 5th edition char #x11b6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᆶ",
+      #|    data="an only legal per 5th edition char #x11b6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2827,7 +4798,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n166_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᆹ\", data=\"an only legal per 5th edition char #x11b9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᆹ",
+      #|    data="an only legal per 5th edition char #x11b9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2839,7 +4820,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n167_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᆻ\", data=\"an only legal per 5th edition char #x11bb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᆻ",
+      #|    data="an only legal per 5th edition char #x11bb\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2851,7 +4842,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n168_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᇃ\", data=\"an only legal per 5th edition char #x11c3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᇃ",
+      #|    data="an only legal per 5th edition char #x11c3\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2863,7 +4864,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n169_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᇱ\", data=\"an only legal per 5th edition char #x11f1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᇱ",
+      #|    data="an only legal per 5th edition char #x11f1\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2875,7 +4886,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n17_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ʯ\", data=\"an only legal per 5th edition char #x2af\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ʯ",
+      #|    data="an only legal per 5th edition char #x2af\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2887,7 +4908,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n170_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ᇺ\", data=\"an only legal per 5th edition char #x11fa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ᇺ",
+      #|    data="an only legal per 5th edition char #x11fa\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2899,7 +4930,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n171_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ẜ\", data=\"an only legal per 5th edition char #x1e9c\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ẜ",
+      #|    data="an only legal per 5th edition char #x1e9c\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2911,7 +4952,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n172_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ỻ\", data=\"an only legal per 5th edition char #x1efa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ỻ",
+      #|    data="an only legal per 5th edition char #x1efa\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2923,7 +4974,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n173_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"἖\", data=\"an only legal per 5th edition char #x1f16\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="἖",
+      #|    data="an only legal per 5th edition char #x1f16\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2935,7 +4996,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n174_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"἞\", data=\"an only legal per 5th edition char #x1f1e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="἞",
+      #|    data="an only legal per 5th edition char #x1f1e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2947,7 +5018,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n175_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"὆\", data=\"an only legal per 5th edition char #x1f46\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="὆",
+      #|    data="an only legal per 5th edition char #x1f46\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2959,7 +5040,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n176_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"὏\", data=\"an only legal per 5th edition char #x1f4f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="὏",
+      #|    data="an only legal per 5th edition char #x1f4f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2971,7 +5062,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n177_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"὘\", data=\"an only legal per 5th edition char #x1f58\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="὘",
+      #|    data="an only legal per 5th edition char #x1f58\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2983,7 +5084,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n178_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"὚\", data=\"an only legal per 5th edition char #x1f5a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="὚",
+      #|    data="an only legal per 5th edition char #x1f5a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -2995,7 +5106,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n179_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"὜\", data=\"an only legal per 5th edition char #x1f5c\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="὜",
+      #|    data="an only legal per 5th edition char #x1f5c\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3007,7 +5128,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n18_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ˏ\", data=\"an only legal per 5th edition char #x2cf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ˏ",
+      #|    data="an only legal per 5th edition char #x2cf\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3019,7 +5150,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n180_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"὞\", data=\"an only legal per 5th edition char #x1f5e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="὞",
+      #|    data="an only legal per 5th edition char #x1f5e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3031,7 +5172,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n181_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"὾\", data=\"an only legal per 5th edition char #x1f7e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="὾",
+      #|    data="an only legal per 5th edition char #x1f7e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3043,7 +5194,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n182_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"᾵\", data=\"an only legal per 5th edition char #x1fb5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="᾵",
+      #|    data="an only legal per 5th edition char #x1fb5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3055,7 +5216,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n183_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"᾽\", data=\"an only legal per 5th edition char #x1fbd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="᾽",
+      #|    data="an only legal per 5th edition char #x1fbd\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3067,7 +5238,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n184_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"᾿\", data=\"an only legal per 5th edition char #x1fbf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="᾿",
+      #|    data="an only legal per 5th edition char #x1fbf\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3079,7 +5260,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n185_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"῅\", data=\"an only legal per 5th edition char #x1fc5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="῅",
+      #|    data="an only legal per 5th edition char #x1fc5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3091,7 +5282,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n186_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"῍\", data=\"an only legal per 5th edition char #x1fcd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="῍",
+      #|    data="an only legal per 5th edition char #x1fcd\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3103,7 +5304,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n187_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"῕\", data=\"an only legal per 5th edition char #x1fd5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="῕",
+      #|    data="an only legal per 5th edition char #x1fd5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3115,7 +5326,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n188_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"῜\", data=\"an only legal per 5th edition char #x1fdc\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="῜",
+      #|    data="an only legal per 5th edition char #x1fdc\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3127,7 +5348,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n189_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"῭\", data=\"an only legal per 5th edition char #x1fed\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="῭",
+      #|    data="an only legal per 5th edition char #x1fed\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3139,7 +5370,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n19_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"·\", data=\"an only legal per 5th edition char #x387\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="·",
+      #|    data="an only legal per 5th edition char #x387\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3151,7 +5392,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n190_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"῵\", data=\"an only legal per 5th edition char #x1ff5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="῵",
+      #|    data="an only legal per 5th edition char #x1ff5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3163,7 +5414,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n191_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"´\", data=\"an only legal per 5th edition char #x1ffd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="´",
+      #|    data="an only legal per 5th edition char #x1ffd\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3175,7 +5436,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n192_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"℧\", data=\"an only legal per 5th edition char #x2127\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="℧",
+      #|    data="an only legal per 5th edition char #x2127\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3187,7 +5458,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n193_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ℯ\", data=\"an only legal per 5th edition char #x212f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ℯ",
+      #|    data="an only legal per 5th edition char #x212f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3199,7 +5480,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n194_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ↄ\", data=\"an only legal per 5th edition char #x2183\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ↄ",
+      #|    data="an only legal per 5th edition char #x2183\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3211,7 +5502,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n195_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ゕ\", data=\"an only legal per 5th edition char #x3095\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ゕ",
+      #|    data="an only legal per 5th edition char #x3095\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3223,7 +5524,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n196_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"・\", data=\"an only legal per 5th edition char #x30fb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="・",
+      #|    data="an only legal per 5th edition char #x30fb\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3235,7 +5546,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n197_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ㄭ\", data=\"an only legal per 5th edition char #x312d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ㄭ",
+      #|    data="an only legal per 5th edition char #x312d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3247,7 +5568,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n198_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"힤\", data=\"an only legal per 5th edition char #xd7a4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="힤",
+      #|    data="an only legal per 5th edition char #xd7a4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3259,7 +5590,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n20_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"΋\", data=\"an only legal per 5th edition char #x38b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="΋",
+      #|    data="an only legal per 5th edition char #x38b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3271,7 +5612,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n21_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"΢\", data=\"an only legal per 5th edition char #x3a2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="΢",
+      #|    data="an only legal per 5th edition char #x3a2\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3283,7 +5634,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n22_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ϗ\", data=\"an only legal per 5th edition char #x3cf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ϗ",
+      #|    data="an only legal per 5th edition char #x3cf\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3295,7 +5656,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n23_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ϗ\", data=\"an only legal per 5th edition char #x3d7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ϗ",
+      #|    data="an only legal per 5th edition char #x3d7\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3307,7 +5678,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n24_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ϝ\", data=\"an only legal per 5th edition char #x3dd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ϝ",
+      #|    data="an only legal per 5th edition char #x3dd\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3319,7 +5700,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n25_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ϡ\", data=\"an only legal per 5th edition char #x3e1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ϡ",
+      #|    data="an only legal per 5th edition char #x3e1\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3331,7 +5722,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n26_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ϴ\", data=\"an only legal per 5th edition char #x3f4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ϴ",
+      #|    data="an only legal per 5th edition char #x3f4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3343,7 +5744,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n27_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ѝ\", data=\"an only legal per 5th edition char #x40d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ѝ",
+      #|    data="an only legal per 5th edition char #x40d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3355,7 +5766,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n28_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ѐ\", data=\"an only legal per 5th edition char #x450\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ѐ",
+      #|    data="an only legal per 5th edition char #x450\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3367,7 +5788,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n29_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ѝ\", data=\"an only legal per 5th edition char #x45d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ѝ",
+      #|    data="an only legal per 5th edition char #x45d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3379,7 +5810,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n30_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"҂\", data=\"an only legal per 5th edition char #x482\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="҂",
+      #|    data="an only legal per 5th edition char #x482\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3391,7 +5832,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n31_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ӆ\", data=\"an only legal per 5th edition char #x4c5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ӆ",
+      #|    data="an only legal per 5th edition char #x4c5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3403,7 +5854,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n32_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ӆ\", data=\"an only legal per 5th edition char #x4c6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ӆ",
+      #|    data="an only legal per 5th edition char #x4c6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3415,7 +5876,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n33_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ӊ\", data=\"an only legal per 5th edition char #x4c9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ӊ",
+      #|    data="an only legal per 5th edition char #x4c9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3427,7 +5898,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n34_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ӭ\", data=\"an only legal per 5th edition char #x4ec\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ӭ",
+      #|    data="an only legal per 5th edition char #x4ec\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3439,7 +5920,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n35_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ӭ\", data=\"an only legal per 5th edition char #x4ed\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ӭ",
+      #|    data="an only legal per 5th edition char #x4ed\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3451,7 +5942,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n36_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ӷ\", data=\"an only legal per 5th edition char #x4f6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ӷ",
+      #|    data="an only legal per 5th edition char #x4f6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3463,7 +5964,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n37_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"Ӻ\", data=\"an only legal per 5th edition char #x4fa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="Ӻ",
+      #|    data="an only legal per 5th edition char #x4fa\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3475,7 +5986,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n38_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"՗\", data=\"an only legal per 5th edition char #x557\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="՗",
+      #|    data="an only legal per 5th edition char #x557\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3487,7 +6008,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n39_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"՘\", data=\"an only legal per 5th edition char #x558\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="՘",
+      #|    data="an only legal per 5th edition char #x558\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3499,7 +6030,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n40_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"և\", data=\"an only legal per 5th edition char #x587\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="և",
+      #|    data="an only legal per 5th edition char #x587\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3511,7 +6052,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n41_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"׫\", data=\"an only legal per 5th edition char #x5eb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="׫",
+      #|    data="an only legal per 5th edition char #x5eb\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3523,7 +6074,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n42_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"׳\", data=\"an only legal per 5th edition char #x5f3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="׳",
+      #|    data="an only legal per 5th edition char #x5f3\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3535,7 +6096,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n43_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ؠ\", data=\"an only legal per 5th edition char #x620\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ؠ",
+      #|    data="an only legal per 5th edition char #x620\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3547,7 +6118,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n44_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ػ\", data=\"an only legal per 5th edition char #x63b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ػ",
+      #|    data="an only legal per 5th edition char #x63b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3559,7 +6140,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n45_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ً\", data=\"an only legal per 5th edition char #x64b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ً",
+      #|    data="an only legal per 5th edition char #x64b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3571,7 +6162,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n46_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ڸ\", data=\"an only legal per 5th edition char #x6b8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ڸ",
+      #|    data="an only legal per 5th edition char #x6b8\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3583,7 +6184,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n47_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ڿ\", data=\"an only legal per 5th edition char #x6bf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ڿ",
+      #|    data="an only legal per 5th edition char #x6bf\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3595,7 +6206,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n48_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ۏ\", data=\"an only legal per 5th edition char #x6cf\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ۏ",
+      #|    data="an only legal per 5th edition char #x6cf\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3607,7 +6228,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n49_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"۔\", data=\"an only legal per 5th edition char #x6d4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="۔",
+      #|    data="an only legal per 5th edition char #x6d4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3619,7 +6250,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n50_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ۖ\", data=\"an only legal per 5th edition char #x6d6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ۖ",
+      #|    data="an only legal per 5th edition char #x6d6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3631,7 +6272,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n51_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ۧ\", data=\"an only legal per 5th edition char #x6e7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ۧ",
+      #|    data="an only legal per 5th edition char #x6e7\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3643,7 +6294,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n52_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ऺ\", data=\"an only legal per 5th edition char #x093a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ऺ",
+      #|    data="an only legal per 5th edition char #x093a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3655,7 +6316,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n53_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ा\", data=\"an only legal per 5th edition char #x093e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ा",
+      #|    data="an only legal per 5th edition char #x093e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3667,7 +6338,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n54_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ॢ\", data=\"an only legal per 5th edition char #x0962\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ॢ",
+      #|    data="an only legal per 5th edition char #x0962\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3679,7 +6360,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n55_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"঍\", data=\"an only legal per 5th edition char #x098d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="঍",
+      #|    data="an only legal per 5th edition char #x098d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3691,7 +6382,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n56_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"঑\", data=\"an only legal per 5th edition char #x0991\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="঑",
+      #|    data="an only legal per 5th edition char #x0991\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3703,7 +6404,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n57_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"঒\", data=\"an only legal per 5th edition char #x0992\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="঒",
+      #|    data="an only legal per 5th edition char #x0992\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3715,7 +6426,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n58_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"঩\", data=\"an only legal per 5th edition char #x09a9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="঩",
+      #|    data="an only legal per 5th edition char #x09a9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3727,7 +6448,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n59_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"঱\", data=\"an only legal per 5th edition char #x09b1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="঱",
+      #|    data="an only legal per 5th edition char #x09b1\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3739,7 +6470,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n60_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"঵\", data=\"an only legal per 5th edition char #x09b5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="঵",
+      #|    data="an only legal per 5th edition char #x09b5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3751,7 +6492,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n61_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"঺\", data=\"an only legal per 5th edition char #x09ba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="঺",
+      #|    data="an only legal per 5th edition char #x09ba\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3763,7 +6514,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n62_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"৞\", data=\"an only legal per 5th edition char #x09de\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="৞",
+      #|    data="an only legal per 5th edition char #x09de\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3775,7 +6536,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n63_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ৢ\", data=\"an only legal per 5th edition char #x09e2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ৢ",
+      #|    data="an only legal per 5th edition char #x09e2\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3787,7 +6558,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n64_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"৲\", data=\"an only legal per 5th edition char #x09f2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="৲",
+      #|    data="an only legal per 5th edition char #x09f2\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3799,7 +6580,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n65_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"਋\", data=\"an only legal per 5th edition char #x0a0b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="਋",
+      #|    data="an only legal per 5th edition char #x0a0b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3811,7 +6602,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n66_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"਑\", data=\"an only legal per 5th edition char #x0a11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="਑",
+      #|    data="an only legal per 5th edition char #x0a11\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3823,7 +6624,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n67_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"਩\", data=\"an only legal per 5th edition char #x0a29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="਩",
+      #|    data="an only legal per 5th edition char #x0a29\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3835,7 +6646,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n68_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"਱\", data=\"an only legal per 5th edition char #x0a31\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="਱",
+      #|    data="an only legal per 5th edition char #x0a31\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3847,7 +6668,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n69_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"਴\", data=\"an only legal per 5th edition char #x0a34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="਴",
+      #|    data="an only legal per 5th edition char #x0a34\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3859,7 +6690,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n70_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"਷\", data=\"an only legal per 5th edition char #x0a37\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="਷",
+      #|    data="an only legal per 5th edition char #x0a37\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3871,7 +6712,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n71_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"਺\", data=\"an only legal per 5th edition char #x0a3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="਺",
+      #|    data="an only legal per 5th edition char #x0a3a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3883,7 +6734,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n72_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"੝\", data=\"an only legal per 5th edition char #x0a5d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="੝",
+      #|    data="an only legal per 5th edition char #x0a5d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3895,7 +6756,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n73_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ੰ\", data=\"an only legal per 5th edition char #x0a70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ੰ",
+      #|    data="an only legal per 5th edition char #x0a70\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3907,7 +6778,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n74_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ੵ\", data=\"an only legal per 5th edition char #x0a75\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ੵ",
+      #|    data="an only legal per 5th edition char #x0a75\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3919,7 +6800,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n75_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"઄\", data=\"an only legal per 5th edition char #x0a84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="઄",
+      #|    data="an only legal per 5th edition char #x0a84\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3931,7 +6822,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n76_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"઼\", data=\"an only legal per 5th edition char #x0abc\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="઼",
+      #|    data="an only legal per 5th edition char #x0abc\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3943,7 +6844,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n77_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"઒\", data=\"an only legal per 5th edition char #x0a92\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="઒",
+      #|    data="an only legal per 5th edition char #x0a92\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3955,7 +6866,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n78_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"઩\", data=\"an only legal per 5th edition char #x0aa9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="઩",
+      #|    data="an only legal per 5th edition char #x0aa9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3967,7 +6888,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n79_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"઱\", data=\"an only legal per 5th edition char #x0ab1\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="઱",
+      #|    data="an only legal per 5th edition char #x0ab1\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3979,7 +6910,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n80_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"઴\", data=\"an only legal per 5th edition char #x0ab4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="઴",
+      #|    data="an only legal per 5th edition char #x0ab4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -3991,7 +6932,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n81_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"઺\", data=\"an only legal per 5th edition char #x0aba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="઺",
+      #|    data="an only legal per 5th edition char #x0aba\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4003,7 +6954,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n82_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"଄\", data=\"an only legal per 5th edition char #x0b04\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="଄",
+      #|    data="an only legal per 5th edition char #x0b04\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4015,7 +6976,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n83_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"଍\", data=\"an only legal per 5th edition char #x0b0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="଍",
+      #|    data="an only legal per 5th edition char #x0b0d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4027,7 +6998,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n84_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"଑\", data=\"an only legal per 5th edition char #x0b11\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="଑",
+      #|    data="an only legal per 5th edition char #x0b11\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4039,7 +7020,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n85_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"଩\", data=\"an only legal per 5th edition char #x0b29\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="଩",
+      #|    data="an only legal per 5th edition char #x0b29\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4051,7 +7042,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n86_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"଱\", data=\"an only legal per 5th edition char #x0b31\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="଱",
+      #|    data="an only legal per 5th edition char #x0b31\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4063,7 +7064,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n87_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"଴\", data=\"an only legal per 5th edition char #x0b34\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="଴",
+      #|    data="an only legal per 5th edition char #x0b34\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4075,7 +7086,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n88_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"଺\", data=\"an only legal per 5th edition char #x0b3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="଺",
+      #|    data="an only legal per 5th edition char #x0b3a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4087,7 +7108,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n89_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ା\", data=\"an only legal per 5th edition char #x0b3e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ା",
+      #|    data="an only legal per 5th edition char #x0b3e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4099,7 +7130,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n90_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"୞\", data=\"an only legal per 5th edition char #x0b5e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="୞",
+      #|    data="an only legal per 5th edition char #x0b5e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4111,7 +7152,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n91_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"ୢ\", data=\"an only legal per 5th edition char #x0b62\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="ୢ",
+      #|    data="an only legal per 5th edition char #x0b62\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4123,7 +7174,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n92_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"஋\", data=\"an only legal per 5th edition char #x0b8b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="஋",
+      #|    data="an only legal per 5th edition char #x0b8b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4135,7 +7196,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n93_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"஑\", data=\"an only legal per 5th edition char #x0b91\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="஑",
+      #|    data="an only legal per 5th edition char #x0b91\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4147,7 +7218,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n94_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"஘\", data=\"an only legal per 5th edition char #x0b98\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="஘",
+      #|    data="an only legal per 5th edition char #x0b98\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4159,7 +7240,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n95_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"஛\", data=\"an only legal per 5th edition char #x0b9b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="஛",
+      #|    data="an only legal per 5th edition char #x0b9b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4171,7 +7262,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n96_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"஝\", data=\"an only legal per 5th edition char #x0b9d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="஝",
+      #|    data="an only legal per 5th edition char #x0b9d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4183,7 +7284,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n97_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"஠\", data=\"an only legal per 5th edition char #x0ba0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="஠",
+      #|    data="an only legal per 5th edition char #x0ba0\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4195,7 +7306,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n98_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"஧\", data=\"an only legal per 5th edition char #x0ba7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="஧",
+      #|    data="an only legal per 5th edition char #x0ba7\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4207,7 +7328,17 @@ test "w3c/valid/ibm_valid_P85_ibm85n99_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"஫\", data=\"an only legal per 5th edition char #x0bab\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="஫",
+      #|    data="an only legal per 5th edition char #x0bab\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4219,7 +7350,17 @@ test "w3c/valid/ibm_valid_P86_ibm86n01_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"䳿\", data=\"an only legal per 5th edition char #x4cff\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="䳿",
+      #|    data="an only legal per 5th edition char #x4cff\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4231,7 +7372,17 @@ test "w3c/valid/ibm_valid_P86_ibm86n02_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"龦\", data=\"an only legal per 5th edition char #x9fa6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="龦",
+      #|    data="an only legal per 5th edition char #x9fa6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4243,7 +7394,17 @@ test "w3c/valid/ibm_valid_P86_ibm86n03_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"〈\", data=\"an only legal per 5th edition char #x3008\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="〈",
+      #|    data="an only legal per 5th edition char #x3008\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4255,7 +7416,17 @@ test "w3c/valid/ibm_valid_P86_ibm86n04_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"〪\", data=\"an only legal per 5th edition char #x302a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="〪",
+      #|    data="an only legal per 5th edition char #x302a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4267,7 +7438,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n01_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_˿\", data=\"an only legal per 5th edition char #x2ff\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_˿",
+      #|    data="an only legal per 5th edition char #x2ff\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4279,7 +7460,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n02_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_͆\", data=\"an only legal per 5th edition char #x346\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_͆",
+      #|    data="an only legal per 5th edition char #x346\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4291,7 +7482,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n03_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_͢\", data=\"an only legal per 5th edition char #x362\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_͢",
+      #|    data="an only legal per 5th edition char #x362\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4303,7 +7504,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n04_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_҇\", data=\"an only legal per 5th edition char #x487\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_҇",
+      #|    data="an only legal per 5th edition char #x487\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4315,7 +7526,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n05_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_֢\", data=\"an only legal per 5th edition char #x5a2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_֢",
+      #|    data="an only legal per 5th edition char #x5a2\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4327,7 +7548,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n06_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ֺ\", data=\"an only legal per 5th edition char #x5ba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ֺ",
+      #|    data="an only legal per 5th edition char #x5ba\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4339,7 +7570,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n07_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_־\", data=\"an only legal per 5th edition char #x5be\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_־",
+      #|    data="an only legal per 5th edition char #x5be\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4351,7 +7592,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n08_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_׀\", data=\"an only legal per 5th edition char #x5c0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_׀",
+      #|    data="an only legal per 5th edition char #x5c0\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4363,7 +7614,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n09_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_׃\", data=\"an only legal per 5th edition char #x5c3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_׃",
+      #|    data="an only legal per 5th edition char #x5c3\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4375,7 +7636,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n10_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ٓ\", data=\"an only legal per 5th edition char #x653\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ٓ",
+      #|    data="an only legal per 5th edition char #x653\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4387,7 +7658,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n11_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ڸ\", data=\"an only legal per 5th edition char #x6b8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ڸ",
+      #|    data="an only legal per 5th edition char #x6b8\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4399,7 +7680,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n12_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ڹ\", data=\"an only legal per 5th edition char #x6b9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ڹ",
+      #|    data="an only legal per 5th edition char #x6b9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4411,7 +7702,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n13_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_۩\", data=\"an only legal per 5th edition char #x6e9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_۩",
+      #|    data="an only legal per 5th edition char #x6e9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4423,7 +7724,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n14_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ۮ\", data=\"an only legal per 5th edition char #x6ee\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ۮ",
+      #|    data="an only legal per 5th edition char #x6ee\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4435,7 +7746,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n15_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ऄ\", data=\"an only legal per 5th edition char #x0904\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ऄ",
+      #|    data="an only legal per 5th edition char #x0904\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4447,7 +7768,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n16_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ऻ\", data=\"an only legal per 5th edition char #x093b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ऻ",
+      #|    data="an only legal per 5th edition char #x093b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4459,7 +7790,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n17_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ॎ\", data=\"an only legal per 5th edition char #x094e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ॎ",
+      #|    data="an only legal per 5th edition char #x094e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4471,7 +7812,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n18_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ॕ\", data=\"an only legal per 5th edition char #x0955\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ॕ",
+      #|    data="an only legal per 5th edition char #x0955\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4483,7 +7834,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n19_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_।\", data=\"an only legal per 5th edition char #x0964\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_।",
+      #|    data="an only legal per 5th edition char #x0964\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4495,7 +7856,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n20_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_঄\", data=\"an only legal per 5th edition char #x0984\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_঄",
+      #|    data="an only legal per 5th edition char #x0984\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4507,7 +7878,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n21_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_৅\", data=\"an only legal per 5th edition char #x09c5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_৅",
+      #|    data="an only legal per 5th edition char #x09c5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4519,7 +7900,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n22_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_৉\", data=\"an only legal per 5th edition char #x09c9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_৉",
+      #|    data="an only legal per 5th edition char #x09c9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4531,7 +7922,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n23_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ৎ\", data=\"an only legal per 5th edition char #x09ce\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ৎ",
+      #|    data="an only legal per 5th edition char #x09ce\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4543,7 +7944,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n24_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_৘\", data=\"an only legal per 5th edition char #x09d8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_৘",
+      #|    data="an only legal per 5th edition char #x09d8\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4555,7 +7966,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n25_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_৤\", data=\"an only legal per 5th edition char #x09e4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_৤",
+      #|    data="an only legal per 5th edition char #x09e4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4567,7 +7988,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n26_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ਃ\", data=\"an only legal per 5th edition char #x0a03\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ਃ",
+      #|    data="an only legal per 5th edition char #x0a03\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4579,7 +8010,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n27_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_਽\", data=\"an only legal per 5th edition char #x0a3d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_਽",
+      #|    data="an only legal per 5th edition char #x0a3d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4591,7 +8032,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n28_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_੆\", data=\"an only legal per 5th edition char #x0a46\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_੆",
+      #|    data="an only legal per 5th edition char #x0a46\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4603,7 +8054,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n29_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_੉\", data=\"an only legal per 5th edition char #x0a49\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_੉",
+      #|    data="an only legal per 5th edition char #x0a49\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4615,7 +8076,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n30_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_੎\", data=\"an only legal per 5th edition char #x0a4e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_੎",
+      #|    data="an only legal per 5th edition char #x0a4e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4627,7 +8098,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n31_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_઀\", data=\"an only legal per 5th edition char #x0a80\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_઀",
+      #|    data="an only legal per 5th edition char #x0a80\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4639,7 +8120,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n32_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_઄\", data=\"an only legal per 5th edition char #x0a84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_઄",
+      #|    data="an only legal per 5th edition char #x0a84\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4651,7 +8142,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n33_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_઻\", data=\"an only legal per 5th edition char #x0abb\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_઻",
+      #|    data="an only legal per 5th edition char #x0abb\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4663,7 +8164,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n34_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_૆\", data=\"an only legal per 5th edition char #x0ac6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_૆",
+      #|    data="an only legal per 5th edition char #x0ac6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4675,7 +8186,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n35_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_૊\", data=\"an only legal per 5th edition char #x0aca\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_૊",
+      #|    data="an only legal per 5th edition char #x0aca\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4687,7 +8208,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n36_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_૎\", data=\"an only legal per 5th edition char #x0ace\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_૎",
+      #|    data="an only legal per 5th edition char #x0ace\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4699,7 +8230,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n37_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_଄\", data=\"an only legal per 5th edition char #x0b04\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_଄",
+      #|    data="an only legal per 5th edition char #x0b04\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4711,7 +8252,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n38_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_଻\", data=\"an only legal per 5th edition char #x0b3b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_଻",
+      #|    data="an only legal per 5th edition char #x0b3b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4723,7 +8274,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n39_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ୄ\", data=\"an only legal per 5th edition char #x0b44\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ୄ",
+      #|    data="an only legal per 5th edition char #x0b44\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4735,7 +8296,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n40_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_୊\", data=\"an only legal per 5th edition char #x0b4a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_୊",
+      #|    data="an only legal per 5th edition char #x0b4a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4747,7 +8318,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n41_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_୎\", data=\"an only legal per 5th edition char #x0b4e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_୎",
+      #|    data="an only legal per 5th edition char #x0b4e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4759,7 +8340,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n42_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_୘\", data=\"an only legal per 5th edition char #x0b58\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_୘",
+      #|    data="an only legal per 5th edition char #x0b58\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4771,7 +8362,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n43_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_஄\", data=\"an only legal per 5th edition char #x0b84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_஄",
+      #|    data="an only legal per 5th edition char #x0b84\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4783,7 +8384,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n44_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_௃\", data=\"an only legal per 5th edition char #x0bc3\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_௃",
+      #|    data="an only legal per 5th edition char #x0bc3\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4795,7 +8406,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n45_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_௉\", data=\"an only legal per 5th edition char #x0bc9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_௉",
+      #|    data="an only legal per 5th edition char #x0bc9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4807,7 +8428,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n46_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_௖\", data=\"an only legal per 5th edition char #x0bd6\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_௖",
+      #|    data="an only legal per 5th edition char #x0bd6\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4819,7 +8450,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n47_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_఍\", data=\"an only legal per 5th edition char #x0c0d\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_఍",
+      #|    data="an only legal per 5th edition char #x0c0d\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4831,7 +8472,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n48_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_౅\", data=\"an only legal per 5th edition char #x0c45\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_౅",
+      #|    data="an only legal per 5th edition char #x0c45\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4843,7 +8494,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n49_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_౉\", data=\"an only legal per 5th edition char #x0c49\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_౉",
+      #|    data="an only legal per 5th edition char #x0c49\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4855,7 +8516,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n50_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_౔\", data=\"an only legal per 5th edition char #x0c54\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_౔",
+      #|    data="an only legal per 5th edition char #x0c54\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4867,7 +8538,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n51_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ಁ\", data=\"an only legal per 5th edition char #x0c81\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ಁ",
+      #|    data="an only legal per 5th edition char #x0c81\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4879,7 +8560,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n52_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_಄\", data=\"an only legal per 5th edition char #x0c84\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_಄",
+      #|    data="an only legal per 5th edition char #x0c84\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4891,7 +8582,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n53_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_೅\", data=\"an only legal per 5th edition char #x0cc5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_೅",
+      #|    data="an only legal per 5th edition char #x0cc5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4903,7 +8604,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n54_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_೉\", data=\"an only legal per 5th edition char #x0cc9\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_೉",
+      #|    data="an only legal per 5th edition char #x0cc9\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4915,7 +8626,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n55_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_೔\", data=\"an only legal per 5th edition char #x0cd4\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_೔",
+      #|    data="an only legal per 5th edition char #x0cd4\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4927,7 +8648,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n56_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_೗\", data=\"an only legal per 5th edition char #x0cd7\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_೗",
+      #|    data="an only legal per 5th edition char #x0cd7\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4939,7 +8670,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n57_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ഄ\", data=\"an only legal per 5th edition char #x0d04\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ഄ",
+      #|    data="an only legal per 5th edition char #x0d04\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4951,7 +8692,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n58_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_൅\", data=\"an only legal per 5th edition char #x0d45\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_൅",
+      #|    data="an only legal per 5th edition char #x0d45\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4963,7 +8714,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n59_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_൉\", data=\"an only legal per 5th edition char #x0d49\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_൉",
+      #|    data="an only legal per 5th edition char #x0d49\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4975,7 +8736,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n60_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ൎ\", data=\"an only legal per 5th edition char #x0d4e\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ൎ",
+      #|    data="an only legal per 5th edition char #x0d4e\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4987,7 +8758,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n61_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_൘\", data=\"an only legal per 5th edition char #x0d58\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_൘",
+      #|    data="an only legal per 5th edition char #x0d58\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -4999,7 +8780,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n62_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_฿\", data=\"an only legal per 5th edition char #x0e3f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_฿",
+      #|    data="an only legal per 5th edition char #x0e3f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5011,7 +8802,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n63_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_฻\", data=\"an only legal per 5th edition char #x0e3b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_฻",
+      #|    data="an only legal per 5th edition char #x0e3b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5023,7 +8824,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n64_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_๏\", data=\"an only legal per 5th edition char #x0e4f\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_๏",
+      #|    data="an only legal per 5th edition char #x0e4f\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5035,7 +8846,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n66_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_຺\", data=\"an only legal per 5th edition char #x0eba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_຺",
+      #|    data="an only legal per 5th edition char #x0eba\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5047,7 +8868,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n67_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_຾\", data=\"an only legal per 5th edition char #x0ebe\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_຾",
+      #|    data="an only legal per 5th edition char #x0ebe\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5059,7 +8890,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n68_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_໎\", data=\"an only legal per 5th edition char #x0ece\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_໎",
+      #|    data="an only legal per 5th edition char #x0ece\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5071,7 +8912,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n69_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_༚\", data=\"an only legal per 5th edition char #x0f1a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_༚",
+      #|    data="an only legal per 5th edition char #x0f1a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5083,7 +8934,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n70_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_༶\", data=\"an only legal per 5th edition char #x0f36\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_༶",
+      #|    data="an only legal per 5th edition char #x0f36\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5095,7 +8956,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n71_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_༸\", data=\"an only legal per 5th edition char #x0f38\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_༸",
+      #|    data="an only legal per 5th edition char #x0f38\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5107,7 +8978,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n72_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_༻\", data=\"an only legal per 5th edition char #x0f3b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_༻",
+      #|    data="an only legal per 5th edition char #x0f3b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5119,7 +9000,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n73_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_༺\", data=\"an only legal per 5th edition char #x0f3a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_༺",
+      #|    data="an only legal per 5th edition char #x0f3a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5131,7 +9022,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n74_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_཰\", data=\"an only legal per 5th edition char #x0f70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_཰",
+      #|    data="an only legal per 5th edition char #x0f70\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5143,7 +9044,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n75_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_྅\", data=\"an only legal per 5th edition char #x0f85\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_྅",
+      #|    data="an only legal per 5th edition char #x0f85\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5155,7 +9066,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n76_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ྌ\", data=\"an only legal per 5th edition char #x0f8c\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ྌ",
+      #|    data="an only legal per 5th edition char #x0f8c\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5167,7 +9088,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n77_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ྖ\", data=\"an only legal per 5th edition char #x0f96\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ྖ",
+      #|    data="an only legal per 5th edition char #x0f96\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5179,7 +9110,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n78_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_྘\", data=\"an only legal per 5th edition char #x0f98\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_྘",
+      #|    data="an only legal per 5th edition char #x0f98\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5191,7 +9132,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n79_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ྰ\", data=\"an only legal per 5th edition char #x0fb0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ྰ",
+      #|    data="an only legal per 5th edition char #x0fb0\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5203,7 +9154,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n80_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ྸ\", data=\"an only legal per 5th edition char #x0fb8\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ྸ",
+      #|    data="an only legal per 5th edition char #x0fb8\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5215,7 +9176,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n81_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ྺ\", data=\"an only legal per 5th edition char #x0fba\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ྺ",
+      #|    data="an only legal per 5th edition char #x0fba\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5227,7 +9198,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n82_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_⃝\", data=\"an only legal per 5th edition char #x20dd\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_⃝",
+      #|    data="an only legal per 5th edition char #x20dd\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5239,7 +9220,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n83_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_⃢\", data=\"an only legal per 5th edition char #x20e2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_⃢",
+      #|    data="an only legal per 5th edition char #x20e2\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5251,7 +9242,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n84_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_〰\", data=\"an only legal per 5th edition char #x3030\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_〰",
+      #|    data="an only legal per 5th edition char #x3030\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5263,7 +9264,17 @@ test "w3c/valid/ibm_valid_P87_ibm87n85_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_゛\", data=\"an only legal per 5th edition char #x309b\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_゛",
+      #|    data="an only legal per 5th edition char #x309b\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5275,7 +9286,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n03_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_٪\", data=\"an only legal per 5th edition char #x66a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_٪",
+      #|    data="an only legal per 5th edition char #x66a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5287,7 +9308,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n04_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ۺ\", data=\"an only legal per 5th edition char #x6fa\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ۺ",
+      #|    data="an only legal per 5th edition char #x6fa\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5299,7 +9330,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n05_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_॰\", data=\"an only legal per 5th edition char #x0970\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_॰",
+      #|    data="an only legal per 5th edition char #x0970\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5311,7 +9352,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n06_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_৲\", data=\"an only legal per 5th edition char #x09f2\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_৲",
+      #|    data="an only legal per 5th edition char #x09f2\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5323,7 +9374,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n08_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_૰\", data=\"an only legal per 5th edition char #x0af0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_૰",
+      #|    data="an only legal per 5th edition char #x0af0\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5335,7 +9396,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n09_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_୰\", data=\"an only legal per 5th edition char #x0b70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_୰",
+      #|    data="an only legal per 5th edition char #x0b70\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5347,7 +9418,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n10_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_౥\", data=\"an only legal per 5th edition char #x0c65\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_౥",
+      #|    data="an only legal per 5th edition char #x0c65\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5359,7 +9440,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n11_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_೥\", data=\"an only legal per 5th edition char #x0ce5\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_೥",
+      #|    data="an only legal per 5th edition char #x0ce5\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5371,7 +9462,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n12_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_೰\", data=\"an only legal per 5th edition char #x0cf0\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_೰",
+      #|    data="an only legal per 5th edition char #x0cf0\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5383,7 +9484,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n13_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_൰\", data=\"an only legal per 5th edition char #x0d70\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_൰",
+      #|    data="an only legal per 5th edition char #x0d70\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5395,7 +9506,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n14_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_๚\", data=\"an only legal per 5th edition char #x0e5a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_๚",
+      #|    data="an only legal per 5th edition char #x0e5a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5407,7 +9528,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n15_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_໚\", data=\"an only legal per 5th edition char #x0eda\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_໚",
+      #|    data="an only legal per 5th edition char #x0eda\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5419,7 +9550,17 @@ test "w3c/valid/ibm_valid_P88_ibm88n16_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_༪\", data=\"an only legal per 5th edition char #x0f2a\\n in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_༪",
+      #|    data="an only legal per 5th edition char #x0f2a\n in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5431,7 +9572,17 @@ test "w3c/valid/ibm_valid_P89_ibm89n03_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_˒\", data=\"an only legal per 5th edition extender #x2d2 in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_˒",
+      #|    data="an only legal per 5th edition extender #x2d2 in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5443,7 +9594,17 @@ test "w3c/valid/ibm_valid_P89_ibm89n04_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_Ͼ\", data=\"an only legal per 5th edition extender #x3fe in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_Ͼ",
+      #|    data="an only legal per 5th edition extender #x3fe in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 
@@ -5455,7 +9616,17 @@ test "w3c/valid/ibm_valid_P89_ibm89n05_xml" {
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     to_libxml_format(events),
-    content="[DocType(\"animal\"), PI(target=\"_ٟ\", data=\"an only legal per 5th edition extender #x65f in PITarget \"), Empty({name: \"animal\", attributes: []}), Eof]",
+    content=(
+      #|[
+      #|  DocType("animal"),
+      #|  PI(
+      #|    target="_ٟ",
+      #|    data="an only legal per 5th edition extender #x65f in PITarget ",
+      #|  ),
+      #|  Empty({ name: "animal", attributes: [] }),
+      #|  Eof,
+      #|]
+    ),
   )
 }
 

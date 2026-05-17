@@ -20,14 +20,18 @@ test "write simple element" {
   let w = Writer::new()
   w.start_element("root", [])
   w.end_element("root")
-  @debug.debug_inspect(w.to_string(), content="<root></root>")
+  @debug.debug_inspect(w.to_string(), content=(
+    #|"<root></root>"
+  ))
 }
 
 ///|
 test "write self-closing element" {
   let w = Writer::new()
   w.empty_element("br", [])
-  @debug.debug_inspect(w.to_string(), content="<br/>")
+  @debug.debug_inspect(w.to_string(), content=(
+    #|"<br/>"
+  ))
 }
 
 ///|
@@ -36,7 +40,9 @@ test "write element with text" {
   w.start_element("p", [])
   w.text("Hello World")
   w.end_element("p")
-  @debug.debug_inspect(w.to_string(), content="<p>Hello World</p>")
+  @debug.debug_inspect(w.to_string(), content=(
+    #|"<p>Hello World</p>"
+  ))
 }
 
 ///|
@@ -46,7 +52,9 @@ test "write element with attributes" {
   w.end_element("div")
   @debug.debug_inspect(
     w.to_string(),
-    content="<div id=\"main\" class=\"container\"></div>",
+    content=(
+      #|"<div id=\"main\" class=\"container\"></div>"
+    ),
   )
 }
 
@@ -63,7 +71,9 @@ test "write nested elements" {
   w.end_element("ul")
   @debug.debug_inspect(
     w.to_string(),
-    content="<ul><li>Item 1</li><li>Item 2</li></ul>",
+    content=(
+      #|"<ul><li>Item 1</li><li>Item 2</li></ul>"
+    ),
   )
 }
 
@@ -75,7 +85,9 @@ test "write CDATA" {
   w.end_element("script")
   @debug.debug_inspect(
     w.to_string(),
-    content="<script><![CDATA[var x = 1 < 2;]]></script>",
+    content=(
+      #|"<script><![CDATA[var x = 1 < 2;]]></script>"
+    ),
   )
 }
 
@@ -83,7 +95,9 @@ test "write CDATA" {
 test "write comment" {
   let w = Writer::new()
   w.comment(" This is a comment ")
-  @debug.debug_inspect(w.to_string(), content="<!-- This is a comment -->")
+  @debug.debug_inspect(w.to_string(), content=(
+    #|"<!-- This is a comment -->"
+  ))
 }
 
 ///|
@@ -94,7 +108,9 @@ test "write text with escaping" {
   w.end_element("p")
   @debug.debug_inspect(
     w.to_string(),
-    content="<p>&lt;script&gt;alert(&apos;xss&apos;)&lt;/script&gt;</p>",
+    content=(
+      #|"<p>&lt;script&gt;alert(&apos;xss&apos;)&lt;/script&gt;</p>"
+    ),
   )
 }
 
@@ -104,5 +120,7 @@ test "write using events" {
   w.write_event(Start(XmlElement::with_attrs("div", [("id", "main")])))
   w.write_event(Text("content"))
   w.write_event(End("div"))
-  @debug.debug_inspect(w.to_string(), content="<div id=\"main\">content</div>")
+  @debug.debug_inspect(w.to_string(), content=(
+    #|"<div id=\"main\">content</div>"
+  ))
 }
