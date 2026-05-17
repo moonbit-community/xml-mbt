@@ -27,7 +27,8 @@ test "parse simple element" {
   @debug.debug_inspect(
     event1,
     content=(
-      #|Start({name: "root", attributes: []})
+      #|Start({ name: "root", attributes: [] })
+
     ),
   )
   let event2 = reader.read_event()
@@ -43,7 +44,8 @@ test "parse self-closing element" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Empty({name: "br", attributes: []})
+      #|Empty({ name: "br", attributes: [] })
+
     ),
   )
 }
@@ -55,7 +57,8 @@ test "parse element with text" {
   @debug.debug_inspect(
     event1,
     content=(
-      #|Start({name: "p", attributes: []})
+      #|Start({ name: "p", attributes: [] })
+
     ),
   )
   let event2 = reader.read_event()
@@ -71,14 +74,16 @@ test "parse nested elements" {
   @debug.debug_inspect(
     event1,
     content=(
-      #|Start({name: "div", attributes: []})
+      #|Start({ name: "div", attributes: [] })
+
     ),
   )
   let event2 = reader.read_event()
   @debug.debug_inspect(
     event2,
     content=(
-      #|Start({name: "span", attributes: []})
+      #|Start({ name: "span", attributes: [] })
+
     ),
   )
   let event3 = reader.read_event()
@@ -100,7 +105,8 @@ test "parse element with single attribute" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Start({name: "div", attributes: [("id", "main")]})
+      #|Start({ name: "div", attributes: [("id", "main")] })
+
     ),
   )
 }
@@ -114,7 +120,13 @@ test "parse element with multiple attributes" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Empty({name: "input", attributes: [("type", "text"), ("name", "field"), ("value", "hello")]})
+      #|Empty(
+      #|  {
+      #|    name: "input",
+      #|    attributes: [("type", "text"), ("name", "field"), ("value", "hello")],
+      #|  },
+      #|)
+
     ),
   )
 }
@@ -126,7 +138,8 @@ test "parse attribute with single quotes" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Start({name: "div", attributes: [("class", "container")]})
+      #|Start({ name: "div", attributes: [("class", "container")] })
+
     ),
   )
 }
@@ -160,7 +173,12 @@ test "parse processing instruction" {
   let event = reader.read_event()
   @debug.debug_inspect(
     event,
-    content="PI(target=\"xml-stylesheet\", data=\"type=\\\"text/xsl\\\" href=\\\"style.xsl\\\"\")",
+    content=(
+      #|PI(
+      #|  target="xml-stylesheet",
+      #|  data="type=\"text/xsl\" href=\"style.xsl\"",
+      #|)
+    ),
   )
 }
 
@@ -203,7 +221,19 @@ test "parse text with entities" {
   }
   @debug.debug_inspect(
     events,
-    content="[Text(\"<\"), Text(\"hello\"), Text(\">\"), Text(\" \"), Text(\"&\"), Text(\" \"), Text(\"\\\"\"), Text(\"world\"), Text(\"\\\"\")]",
+    content=(
+      #|[
+      #|  Text("<"),
+      #|  Text("hello"),
+      #|  Text(">"),
+      #|  Text(" "),
+      #|  Text("&"),
+      #|  Text(" "),
+      #|  Text("\""),
+      #|  Text("world"),
+      #|  Text("\""),
+      #|]
+    ),
   )
 }
 
@@ -245,7 +275,8 @@ test "parse with leading whitespace" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Empty({name: "root", attributes: []})
+      #|Empty({ name: "root", attributes: [] })
+
     ),
   )
 }

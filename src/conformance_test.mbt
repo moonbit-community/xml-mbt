@@ -44,7 +44,9 @@ test "valid/sa/001 - empty element with DTD" {
   let filtered = to_libxml_format(events)
   @debug.debug_inspect(
     filtered,
-    content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
+    content=(
+      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+    ),
   )
 }
 
@@ -62,7 +64,8 @@ test "valid/sa/003 - whitespace in start tag" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Start({name: "doc", attributes: []})
+      #|Start({ name: "doc", attributes: [] })
+
     ),
   )
 }
@@ -82,7 +85,8 @@ test "valid/sa/004 - attribute with value" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Start({name: "doc", attributes: [("a1", "v1")]})
+      #|Start({ name: "doc", attributes: [("a1", "v1")] })
+
     ),
   )
 }
@@ -102,7 +106,8 @@ test "valid/sa/005 - multiple attributes" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Start({name: "doc", attributes: [("a1", "v1"), ("a2", "v2")]})
+      #|Start({ name: "doc", attributes: [("a1", "v1"), ("a2", "v2")] })
+
     ),
   )
 }
@@ -262,7 +267,8 @@ test "not-wf/sa/006 - comments may not contain --" {
   @debug.debug_inspect(
     event1,
     content=(
-      #|Start({name: "doc", attributes: []})
+      #|Start({ name: "doc", attributes: [] })
+
     ),
   )
 }
@@ -425,21 +431,24 @@ test "valid - sibling elements" {
   @debug.debug_inspect(
     e1,
     content=(
-      #|Empty({name: "a", attributes: []})
+      #|Empty({ name: "a", attributes: [] })
+
     ),
   )
   let e2 = reader.read_event()
   @debug.debug_inspect(
     e2,
     content=(
-      #|Empty({name: "b", attributes: []})
+      #|Empty({ name: "b", attributes: [] })
+
     ),
   )
   let e3 = reader.read_event()
   @debug.debug_inspect(
     e3,
     content=(
-      #|Empty({name: "c", attributes: []})
+      #|Empty({ name: "c", attributes: [] })
+
     ),
   )
 }
@@ -456,7 +465,8 @@ test "valid - single quoted attribute" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Empty({name: "doc", attributes: [("attr", "value")]})
+      #|Empty({ name: "doc", attributes: [("attr", "value")] })
+
     ),
   )
 }
@@ -470,7 +480,8 @@ test "valid - attribute with entity" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Empty({name: "doc", attributes: [("attr", "<value>")]})
+      #|Empty({ name: "doc", attributes: [("attr", "<value>")] })
+
     ),
   )
 }
@@ -483,7 +494,8 @@ test "valid - empty attribute value" {
   @debug.debug_inspect(
     event,
     content=(
-      #|Empty({name: "doc", attributes: [("attr", "")]})
+      #|Empty({ name: "doc", attributes: [("attr", "")] })
+
     ),
   )
 }
