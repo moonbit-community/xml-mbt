@@ -35,7 +35,7 @@ fn transform_attrs_for_libxml(
     }
     // Strip namespace prefix (a:attr -> attr, xml:lang -> lang)
     let final_name = match name.find(":") {
-      Some(idx) => name[idx + 1:].to_string()
+      Some(idx) => name[idx + 1:].to_owned()
       None => name
     }
     // Attribute value is already normalized by the parser
@@ -48,7 +48,7 @@ fn transform_attrs_for_libxml(
 /// Strip namespace prefix from element name (a:foo -> foo)
 fn strip_ns_prefix(name : String) -> String {
   match name.find(":") {
-    Some(idx) => name[idx + 1:].to_string()
+    Some(idx) => name[idx + 1:].to_owned()
     None => name
   }
 }
@@ -117,7 +117,7 @@ pub impl Show for XmlElement with output(self, logger) {
   logger.write_string("{name: ")
   logger.write_object(self.name)
   logger.write_string(", attributes: ")
-  logger.write_object(self.attributes)
+  logger.write_object(to_repr(self.attributes))
   logger.write_string("}")
 }
 
@@ -165,9 +165,9 @@ pub impl Show for Event with output(self, logger) {
       logger.write_string("Decl(version=")
       logger.write_object(version)
       logger.write_string(", encoding=")
-      logger.write_object(encoding)
+      logger.write_object(to_repr(encoding))
       logger.write_string(", standalone=")
-      logger.write_object(standalone)
+      logger.write_object(to_repr(standalone))
       logger.write_string(")")
     }
     DocType(name) => {
@@ -276,7 +276,7 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
       Text(_) => () // Skip prolog whitespace
       PI(target~, data~) =>
         // lxml trims leading whitespace from PI data
-        prolog_others.push(PI(target~, data=data.trim_start().to_string()))
+        prolog_others.push(PI(target~, data=data.trim_start().to_owned()))
       other => prolog_others.push(other)
     }
   }
@@ -337,7 +337,7 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
         push_coalesced(result, DocType(strip_ns_prefix(name)))
       PI(target~, data~) =>
         // lxml trims leading whitespace from PI data
-        push_coalesced(result, PI(target~, data=data.trim_start().to_string()))
+        push_coalesced(result, PI(target~, data=data.trim_start().to_owned()))
       _ => push_coalesced(result, event)
     }
     i += 1
