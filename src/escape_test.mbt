@@ -17,16 +17,16 @@
 
 ///|
 test "escape special characters" {
-  inspect(escape("<"), content="&lt;")
-  inspect(escape(">"), content="&gt;")
-  inspect(escape("&"), content="&amp;")
-  inspect(escape("\""), content="&quot;")
-  inspect(escape("'"), content="&apos;")
+  @debug.debug_inspect(escape("<"), content="&lt;")
+  @debug.debug_inspect(escape(">"), content="&gt;")
+  @debug.debug_inspect(escape("&"), content="&amp;")
+  @debug.debug_inspect(escape("\""), content="&quot;")
+  @debug.debug_inspect(escape("'"), content="&apos;")
 }
 
 ///|
 test "escape mixed content" {
-  inspect(
+  @debug.debug_inspect(
     escape("<div class=\"test\">"),
     content="&lt;div class=&quot;test&quot;&gt;",
   )
@@ -34,28 +34,28 @@ test "escape mixed content" {
 
 ///|
 test "escape no special characters" {
-  inspect(escape("hello world"), content="hello world")
+  @debug.debug_inspect(escape("hello world"), content="hello world")
 }
 
 ///|
 test "unescape entities" {
-  inspect(unescape("&lt;"), content="<")
-  inspect(unescape("&gt;"), content=">")
-  inspect(unescape("&amp;"), content="&")
-  inspect(unescape("&quot;"), content="\"")
-  inspect(unescape("&apos;"), content="'")
+  @debug.debug_inspect(unescape("&lt;"), content="<")
+  @debug.debug_inspect(unescape("&gt;"), content=">")
+  @debug.debug_inspect(unescape("&amp;"), content="&")
+  @debug.debug_inspect(unescape("&quot;"), content="\"")
+  @debug.debug_inspect(unescape("&apos;"), content="'")
 }
 
 ///|
 test "unescape numeric entities" {
-  inspect(unescape("&#65;"), content="A")
-  inspect(unescape("&#x41;"), content="A")
-  inspect(unescape("&#x4F;"), content="O")
+  @debug.debug_inspect(unescape("&#65;"), content="A")
+  @debug.debug_inspect(unescape("&#x41;"), content="A")
+  @debug.debug_inspect(unescape("&#x4F;"), content="O")
 }
 
 ///|
 test "unescape mixed content" {
-  inspect(
+  @debug.debug_inspect(
     unescape("&lt;div&gt; &amp; &quot;hello&quot;"),
     content="<div> & \"hello\"",
   )
@@ -63,12 +63,12 @@ test "unescape mixed content" {
 
 ///|
 test "unescape no entities" {
-  inspect(unescape("hello world"), content="hello world")
+  @debug.debug_inspect(unescape("hello world"), content="hello world")
 }
 
 ///|
 test "unescape unknown entity error" {
   // Unknown entities raise InvalidEntity error
   let result = try? unescape("&invalid;")
-  inspect(result, content="Err(InvalidEntity(\"&invalid;\"))")
+  @debug.debug_inspect(result, content="Err(InvalidEntity(\"&invalid;\"))")
 }

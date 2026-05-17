@@ -42,7 +42,7 @@ test "valid/sa/001 - empty element with DTD" {
   }
   // Use to_libxml_format to skip prolog whitespace
   let filtered = to_libxml_format(events)
-  inspect(
+  @debug.debug_inspect(
     filtered,
     content="[DocType(\"doc\"), Empty({name: \"doc\", attributes: []}), Eof]",
   )
@@ -59,7 +59,7 @@ test "valid/sa/003 - whitespace in start tag" {
   let _ = reader.read_event() // DOCTYPE
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Start({name: "doc", attributes: []})
@@ -79,7 +79,7 @@ test "valid/sa/004 - attribute with value" {
   let _ = reader.read_event() // DOCTYPE
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Start({name: "doc", attributes: [("a1", "v1")]})
@@ -99,7 +99,7 @@ test "valid/sa/005 - multiple attributes" {
   let _ = reader.read_event() // DOCTYPE
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Start({name: "doc", attributes: [("a1", "v1"), ("a2", "v2")]})
@@ -119,7 +119,7 @@ test "valid/sa/006 - numeric character reference" {
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Text(" ")
@@ -139,7 +139,7 @@ test "valid/sa/007 - hex character reference" {
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Text(" ")
@@ -159,7 +159,7 @@ test "valid/sa/008 - built-in entity lt" {
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Text("<")
@@ -179,7 +179,7 @@ test "valid/sa/009 - built-in entity gt" {
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Text(">")
@@ -199,7 +199,7 @@ test "valid/sa/010 - built-in entity amp" {
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Text("&")
@@ -219,7 +219,7 @@ test "valid/sa/011 - built-in entity apos" {
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Text("'")
@@ -239,7 +239,7 @@ test "valid/sa/012 - built-in entity quot" {
   let _ = reader.read_event() // Whitespace after DOCTYPE
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Text("\"")
@@ -259,7 +259,7 @@ test "not-wf/sa/006 - comments may not contain --" {
   let reader = Reader::from_string(xml)
   let event1 = reader.read_event()
   // Note: A conforming parser should reject this
-  inspect(
+  @debug.debug_inspect(
     event1,
     content=(
       #|Start({name: "doc", attributes: []})
@@ -273,7 +273,7 @@ test "not-wf/sa/017 - CDATA needs terminating ]]>" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   let result = try? reader.read_event()
-  inspect(result, content="Err(UnexpectedEof)")
+  @debug.debug_inspect(result, content="Err(UnexpectedEof)")
 }
 
 ///|
@@ -283,7 +283,7 @@ test "not-wf/sa/027 - comments must end with -->" {
   let _ = reader.read_event() // Start
   let result = try? reader.read_event()
   // Comment has -- not followed by >, which is invalid
-  inspect(
+  @debug.debug_inspect(
     result,
     content="Err(InvalidSyntax(\"'--' is not allowed in comments\"))",
   )
@@ -294,7 +294,7 @@ test "not-wf/sa/028 - PI must end with ?>" {
   let xml = "<?xml-test test?"
   let reader = Reader::from_string(xml)
   let result = try? reader.read_event()
-  inspect(result, content="Err(UnexpectedEof)")
+  @debug.debug_inspect(result, content="Err(UnexpectedEof)")
 }
 
 // ============================================================================
@@ -307,7 +307,7 @@ test "valid - CDATA section" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(event, content="Text(\"<greeting>Hello</greeting>\")")
+  @debug.debug_inspect(event, content="Text(\"<greeting>Hello</greeting>\")")
 }
 
 ///|
@@ -316,7 +316,7 @@ test "valid - CDATA with special chars" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(event, content="Text(\"a]b]]c]\")")
+  @debug.debug_inspect(event, content="Text(\"a]b]]c]\")")
 }
 
 // ============================================================================
@@ -328,7 +328,7 @@ test "valid - simple comment" {
   let xml = "<!-- comment --><doc/>"
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
-  inspect(event, content="Comment(\" comment \")")
+  @debug.debug_inspect(event, content="Comment(\" comment \")")
 }
 
 ///|
@@ -337,7 +337,7 @@ test "valid - comment between elements" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  inspect(event, content="Comment(\" middle \")")
+  @debug.debug_inspect(event, content="Comment(\" middle \")")
 }
 
 // ============================================================================
@@ -349,7 +349,7 @@ test "valid - PI with data" {
   let xml = "<?target data?><doc/>"
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
-  inspect(event, content="PI(target=\"target\", data=\"data\")")
+  @debug.debug_inspect(event, content="PI(target=\"target\", data=\"data\")")
 }
 
 ///|
@@ -357,7 +357,7 @@ test "valid - PI without data" {
   let xml = "<?target?><doc/>"
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
-  inspect(event, content="PI(target=\"target\", data=\"\")")
+  @debug.debug_inspect(event, content="PI(target=\"target\", data=\"\")")
 }
 
 // ============================================================================
@@ -369,7 +369,7 @@ test "valid - XML declaration" {
   let xml = "<?xml version=\"1.0\"?><doc/>"
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content="Decl(version=\"1.0\", encoding=None, standalone=None)",
   )
@@ -380,7 +380,7 @@ test "valid - XML declaration with encoding" {
   let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><doc/>"
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content="Decl(version=\"1.0\", encoding=Some(\"UTF-8\"), standalone=None)",
   )
@@ -391,7 +391,7 @@ test "valid - XML declaration with standalone" {
   let xml = "<?xml version=\"1.0\" standalone=\"yes\"?><doc/>"
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content="Decl(version=\"1.0\", encoding=None, standalone=Some(\"yes\"))",
   )
@@ -413,7 +413,7 @@ test "valid - deeply nested elements" {
       break
     }
   }
-  inspect(events.length(), content="10")
+  @debug.debug_inspect(events.length(), content="10")
 }
 
 ///|
@@ -422,21 +422,21 @@ test "valid - sibling elements" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // root Start
   let e1 = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     e1,
     content=(
       #|Empty({name: "a", attributes: []})
     ),
   )
   let e2 = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     e2,
     content=(
       #|Empty({name: "b", attributes: []})
     ),
   )
   let e3 = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     e3,
     content=(
       #|Empty({name: "c", attributes: []})
@@ -453,7 +453,7 @@ test "valid - single quoted attribute" {
   let xml = "<doc attr='value'/>"
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Empty({name: "doc", attributes: [("attr", "value")]})
@@ -467,7 +467,7 @@ test "valid - attribute with entity" {
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
   // Note: attribute values are not unescaped by our parser currently
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Empty({name: "doc", attributes: [("attr", "<value>")]})
@@ -480,7 +480,7 @@ test "valid - empty attribute value" {
   let xml = "<doc attr=\"\"/>"
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
-  inspect(
+  @debug.debug_inspect(
     event,
     content=(
       #|Empty({name: "doc", attributes: [("attr", "")]})
