@@ -28,7 +28,6 @@ test "parse simple element" {
     event1,
     content=(
       #|Start({ name: "root", attributes: [] })
-
     ),
   )
   let event2 = reader.read_event()
@@ -45,7 +44,6 @@ test "parse self-closing element" {
     event,
     content=(
       #|Empty({ name: "br", attributes: [] })
-
     ),
   )
 }
@@ -58,7 +56,6 @@ test "parse element with text" {
     event1,
     content=(
       #|Start({ name: "p", attributes: [] })
-
     ),
   )
   let event2 = reader.read_event()
@@ -75,7 +72,6 @@ test "parse nested elements" {
     event1,
     content=(
       #|Start({ name: "div", attributes: [] })
-
     ),
   )
   let event2 = reader.read_event()
@@ -83,7 +79,6 @@ test "parse nested elements" {
     event2,
     content=(
       #|Start({ name: "span", attributes: [] })
-
     ),
   )
   let event3 = reader.read_event()
@@ -106,7 +101,6 @@ test "parse element with single attribute" {
     event,
     content=(
       #|Start({ name: "div", attributes: [("id", "main")] })
-
     ),
   )
 }
@@ -126,7 +120,6 @@ test "parse element with multiple attributes" {
       #|    attributes: [("type", "text"), ("name", "field"), ("value", "hello")],
       #|  },
       #|)
-
     ),
   )
 }
@@ -139,7 +132,6 @@ test "parse attribute with single quotes" {
     event,
     content=(
       #|Start({ name: "div", attributes: [("class", "container")] })
-
     ),
   )
 }
@@ -276,7 +268,6 @@ test "parse with leading whitespace" {
     event,
     content=(
       #|Empty({ name: "root", attributes: [] })
-
     ),
   )
 }

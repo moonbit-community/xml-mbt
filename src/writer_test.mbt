@@ -20,18 +20,24 @@ test "write simple element" {
   let w = Writer::new()
   w.start_element("root", [])
   w.end_element("root")
-  @debug.debug_inspect(w.to_string(), content=(
-    #|"<root></root>"
-  ))
+  @debug.debug_inspect(
+    w.to_string(),
+    content=(
+      #|"<root></root>"
+    ),
+  )
 }
 
 ///|
 test "write self-closing element" {
   let w = Writer::new()
   w.empty_element("br", [])
-  @debug.debug_inspect(w.to_string(), content=(
-    #|"<br/>"
-  ))
+  @debug.debug_inspect(
+    w.to_string(),
+    content=(
+      #|"<br/>"
+    ),
+  )
 }
 
 ///|
@@ -40,9 +46,12 @@ test "write element with text" {
   w.start_element("p", [])
   w.text("Hello World")
   w.end_element("p")
-  @debug.debug_inspect(w.to_string(), content=(
-    #|"<p>Hello World</p>"
-  ))
+  @debug.debug_inspect(
+    w.to_string(),
+    content=(
+      #|"<p>Hello World</p>"
+    ),
+  )
 }
 
 ///|
@@ -95,9 +104,12 @@ test "write CDATA" {
 test "write comment" {
   let w = Writer::new()
   w.comment(" This is a comment ")
-  @debug.debug_inspect(w.to_string(), content=(
-    #|"<!-- This is a comment -->"
-  ))
+  @debug.debug_inspect(
+    w.to_string(),
+    content=(
+      #|"<!-- This is a comment -->"
+    ),
+  )
 }
 
 ///|
@@ -120,7 +132,10 @@ test "write using events" {
   w.write_event(Start(XmlElement::with_attrs("div", [("id", "main")])))
   w.write_event(Text("content"))
   w.write_event(End("div"))
-  @debug.debug_inspect(w.to_string(), content=(
-    #|"<div id=\"main\">content</div>"
-  ))
+  @debug.debug_inspect(
+    w.to_string(),
+    content=(
+      #|"<div id=\"main\">content</div>"
+    ),
+  )
 }

@@ -65,7 +65,6 @@ test "valid/sa/003 - whitespace in start tag" {
     event,
     content=(
       #|Start({ name: "doc", attributes: [] })
-
     ),
   )
 }
@@ -86,7 +85,6 @@ test "valid/sa/004 - attribute with value" {
     event,
     content=(
       #|Start({ name: "doc", attributes: [("a1", "v1")] })
-
     ),
   )
 }
@@ -107,7 +105,6 @@ test "valid/sa/005 - multiple attributes" {
     event,
     content=(
       #|Start({ name: "doc", attributes: [("a1", "v1"), ("a2", "v2")] })
-
     ),
   )
 }
@@ -268,7 +265,6 @@ test "not-wf/sa/006 - comments may not contain --" {
     event1,
     content=(
       #|Start({ name: "doc", attributes: [] })
-
     ),
   )
 }
@@ -432,7 +428,6 @@ test "valid - sibling elements" {
     e1,
     content=(
       #|Empty({ name: "a", attributes: [] })
-
     ),
   )
   let e2 = reader.read_event()
@@ -440,7 +435,6 @@ test "valid - sibling elements" {
     e2,
     content=(
       #|Empty({ name: "b", attributes: [] })
-
     ),
   )
   let e3 = reader.read_event()
@@ -448,7 +442,6 @@ test "valid - sibling elements" {
     e3,
     content=(
       #|Empty({ name: "c", attributes: [] })
-
     ),
   )
 }
@@ -466,7 +459,6 @@ test "valid - single quoted attribute" {
     event,
     content=(
       #|Empty({ name: "doc", attributes: [("attr", "value")] })
-
     ),
   )
 }
@@ -481,7 +473,6 @@ test "valid - attribute with entity" {
     event,
     content=(
       #|Empty({ name: "doc", attributes: [("attr", "<value>")] })
-
     ),
   )
 }
@@ -495,7 +486,6 @@ test "valid - empty attribute value" {
     event,
     content=(
       #|Empty({ name: "doc", attributes: [("attr", "")] })
-
     ),
   )
 }

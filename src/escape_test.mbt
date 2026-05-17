@@ -17,21 +17,36 @@
 
 ///|
 test "escape special characters" {
-  @debug.debug_inspect(escape("<"), content=(
-    #|"&lt;"
-  ))
-  @debug.debug_inspect(escape(">"), content=(
-    #|"&gt;"
-  ))
-  @debug.debug_inspect(escape("&"), content=(
-    #|"&amp;"
-  ))
-  @debug.debug_inspect(escape("\""), content=(
-    #|"&quot;"
-  ))
-  @debug.debug_inspect(escape("'"), content=(
-    #|"&apos;"
-  ))
+  @debug.debug_inspect(
+    escape("<"),
+    content=(
+      #|"&lt;"
+    ),
+  )
+  @debug.debug_inspect(
+    escape(">"),
+    content=(
+      #|"&gt;"
+    ),
+  )
+  @debug.debug_inspect(
+    escape("&"),
+    content=(
+      #|"&amp;"
+    ),
+  )
+  @debug.debug_inspect(
+    escape("\""),
+    content=(
+      #|"&quot;"
+    ),
+  )
+  @debug.debug_inspect(
+    escape("'"),
+    content=(
+      #|"&apos;"
+    ),
+  )
 }
 
 ///|
@@ -46,41 +61,68 @@ test "escape mixed content" {
 
 ///|
 test "escape no special characters" {
-  @debug.debug_inspect(escape("hello world"), content=(
-    #|"hello world"
-  ))
+  @debug.debug_inspect(
+    escape("hello world"),
+    content=(
+      #|"hello world"
+    ),
+  )
 }
 
 ///|
 test "unescape entities" {
-  @debug.debug_inspect(unescape("&lt;"), content=(
-    #|"<"
-  ))
-  @debug.debug_inspect(unescape("&gt;"), content=(
-    #|">"
-  ))
-  @debug.debug_inspect(unescape("&amp;"), content=(
-    #|"&"
-  ))
-  @debug.debug_inspect(unescape("&quot;"), content=(
-    #|"\""
-  ))
-  @debug.debug_inspect(unescape("&apos;"), content=(
-    #|"'"
-  ))
+  @debug.debug_inspect(
+    unescape("&lt;"),
+    content=(
+      #|"<"
+    ),
+  )
+  @debug.debug_inspect(
+    unescape("&gt;"),
+    content=(
+      #|">"
+    ),
+  )
+  @debug.debug_inspect(
+    unescape("&amp;"),
+    content=(
+      #|"&"
+    ),
+  )
+  @debug.debug_inspect(
+    unescape("&quot;"),
+    content=(
+      #|"\""
+    ),
+  )
+  @debug.debug_inspect(
+    unescape("&apos;"),
+    content=(
+      #|"'"
+    ),
+  )
 }
 
 ///|
 test "unescape numeric entities" {
-  @debug.debug_inspect(unescape("&#65;"), content=(
-    #|"A"
-  ))
-  @debug.debug_inspect(unescape("&#x41;"), content=(
-    #|"A"
-  ))
-  @debug.debug_inspect(unescape("&#x4F;"), content=(
-    #|"O"
-  ))
+  @debug.debug_inspect(
+    unescape("&#65;"),
+    content=(
+      #|"A"
+    ),
+  )
+  @debug.debug_inspect(
+    unescape("&#x41;"),
+    content=(
+      #|"A"
+    ),
+  )
+  @debug.debug_inspect(
+    unescape("&#x4F;"),
+    content=(
+      #|"O"
+    ),
+  )
 }
 
 ///|
@@ -95,9 +137,12 @@ test "unescape mixed content" {
 
 ///|
 test "unescape no entities" {
-  @debug.debug_inspect(unescape("hello world"), content=(
-    #|"hello world"
-  ))
+  @debug.debug_inspect(
+    unescape("hello world"),
+    content=(
+      #|"hello world"
+    ),
+  )
 }
 
 ///|
