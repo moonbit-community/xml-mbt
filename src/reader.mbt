@@ -262,6 +262,44 @@ fn Reader::check_string(self : Reader, s : String) -> Bool {
 }
 
 ///|
+/// Reject non-markup content after the root element with a span covering the
+/// complete offending token. Whitespace in the epilog is legal and is not
+/// included in the error span.
+fn Reader::reject_trailing_content(self : Reader) -> Unit raise XmlError {
+  self.skip_whitespace()
+  let start = self.source_position()
+  match self.peek() {
+    Some('&') => {
+      let _ = self.advance()
+      while self.peek() is Some(c) &&
+            c != ';' &&
+            c != '<' &&
+            c != '&' &&
+            !is_whitespace(c) {
+        let _ = self.advance()
+      }
+      if self.peek() is Some(';') {
+        let _ = self.advance()
+      }
+      raise At(
+        error=InvalidSyntax("character reference after root element"),
+        span=source_span(start, self.source_position()),
+      )
+    }
+    Some(c) if c != '<' => {
+      while self.peek() is Some(c) && c != '<' && c != '&' {
+        let _ = self.advance()
+      }
+      raise At(
+        error=InvalidSyntax("content after root element"),
+        span=source_span(start, self.source_position()),
+      )
+    }
+    _ => ()
+  }
+}
+
+///|
 /// Read the next XML event
 pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
   if self.is_eof() &&
@@ -272,6 +310,9 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
       error=InvalidSyntax("unclosed element: <" + unclosed.0 + ">"),
       span=unclosed.1,
     )
+  }
+  if self.root_closed && self.pending_events.length() == 0 {
+    self.reject_trailing_content()
   }
   let start = self.source_position()
   self.read_event_internal() catch {
@@ -375,25 +416,8 @@ fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
       { kind: parsed, span: source_span(event_start, self.source_position()) }
     }
     Some(_) =>
-      // Check for non-whitespace content in prolog or after root
-      if self.root_closed {
-        // After root closes: skip whitespace (lxml doesn't emit trailing whitespace)
-        // and return Eof, or error on non-whitespace
-        while self.peek() is Some(c) {
-          if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
-            let _ = self.advance()
-          } else if c == '<' {
-            // There's more content - could be comment or PI
-            break
-          } else if c == '&' {
-            raise InvalidSyntax("character reference after root element")
-          } else {
-            raise InvalidSyntax("content after root element")
-          }
-        }
-        // After skipping whitespace, try to read the next event
-        return self.read_event_internal()
-      } else if !self.seen_root {
+      // Check for non-whitespace content in prolog
+      if !self.seen_root {
         // Before root element: only literal whitespace is allowed
         if self.just_saw_decl {
           // Skip whitespace after XML declaration (lxml behavior)

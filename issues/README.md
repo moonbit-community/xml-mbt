@@ -23,6 +23,7 @@ graph TD
   ISS_007["ISS-007: Correct the streaming-parser documentation"]
   ISS_008["ISS-008: Hide the conformance adapter from the public API"]
   ISS_009["ISS-009: Publish version 0.4.0"]
+  ISS_010["ISS-010: Report precise trailing-content spans"]
   ISS_002 --> ISS_001
   ISS_003 --> ISS_001
   ISS_004 --> ISS_001

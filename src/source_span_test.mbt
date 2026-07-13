@@ -186,3 +186,70 @@ test "markup expanded from an entity maps back to the entity reference" {
   assert_eq(element.attributes.length(), 1)
   assert_eq(element.attributes[0].span, child.span)
 }
+
+///|
+test "trailing text errors cover content and exclude leading whitespace" {
+  let reader = Reader::from_string("<root/>  trailing")
+  let _ = reader.read_event()
+  try reader.read_event() catch {
+    At(error~, span~) => {
+      assert_eq(error, InvalidSyntax("content after root element"))
+      assert_eq((span.start.offset, span.end.offset), (9, 17))
+      assert_eq((span.start.line, span.start.column), (1, 10))
+      assert_eq((span.end.line, span.end.column), (1, 18))
+    }
+  } noraise {
+    _ => fail("expected trailing text to raise")
+  }
+}
+
+///|
+test "trailing entity-reference errors cover the complete reference" {
+  let reader = Reader::from_string("<root/>&foo;")
+  let _ = reader.read_event()
+  try reader.read_event() catch {
+    At(error~, span~) => {
+      assert_eq(error, InvalidSyntax("character reference after root element"))
+      assert_eq((span.start.offset, span.end.offset), (7, 12))
+    }
+  } noraise {
+    _ => fail("expected trailing entity reference to raise")
+  }
+}
+
+///|
+test "trailing extra-element errors cover the complete markup" {
+  let reader = Reader::from_string("<root/>  <extra/>")
+  let _ = reader.read_event()
+  try reader.read_event() catch {
+    At(error~, span~) => {
+      assert_eq(error, InvalidSyntax("content after root element"))
+      assert_eq((span.start.offset, span.end.offset), (9, 17))
+    }
+  } noraise {
+    _ => fail("expected trailing extra element to raise")
+  }
+}
+
+///|
+test "trailing text errors retain UTF-16 offsets" {
+  let reader = Reader::from_string("<root/>😀")
+  let _ = reader.read_event()
+  try reader.read_event() catch {
+    At(error~, span~) => {
+      assert_eq(error, InvalidSyntax("content after root element"))
+      assert_eq((span.start.offset, span.end.offset), (7, 9))
+    }
+  } noraise {
+    _ => fail("expected trailing text to raise")
+  }
+}
+
+///|
+test "whitespace-only epilogs still reach EOF" {
+  let reader = Reader::from_string("<root/> \r\n\t")
+  let _ = reader.read_event()
+  let eof = reader.read_event()
+  assert_eq(eof.kind, Eof)
+  assert_eq((eof.span.start.offset, eof.span.end.offset), (11, 11))
+}
