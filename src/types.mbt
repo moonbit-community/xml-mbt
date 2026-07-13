@@ -113,7 +113,7 @@ pub(all) suberror XmlError {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for XmlElement with output(self, logger) {
+pub impl Show for XmlElement with fn output(self, logger) {
   logger.write_string("{name: ")
   logger.write_object(self.name)
   logger.write_string(", attributes: ")
@@ -122,7 +122,7 @@ pub impl Show for XmlElement with output(self, logger) {
 }
 
 ///|
-pub impl Show for Event with output(self, logger) {
+pub impl Show for Event with fn output(self, logger) {
   match self {
     Start(elem) => {
       logger.write_string("Start(")
@@ -180,7 +180,7 @@ pub impl Show for Event with output(self, logger) {
 }
 
 ///|
-pub impl Show for XmlError with output(self, logger) {
+pub impl Show for XmlError with fn output(self, logger) {
   match self {
     UnexpectedEof => logger.write_string("UnexpectedEof")
     InvalidSyntax(message) => {

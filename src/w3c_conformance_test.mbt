@@ -24,6 +24,15 @@
 /// Source: https://www.w3.org/XML/Test/
 
 ///|
+fn assert_malformed(reader : Reader) -> Unit raise {
+  try reader.read_events_until_eof() catch {
+    _ => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
 test "w3c/valid/valid_sa_001" {
   // Test demonstrates an Element Type Declaration with Mixed ...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc></doc>\n"
@@ -9635,8 +9644,7 @@ test "w3c/not-wf/not_wf_sa_001" {
   // Attribute values must start with attribute names, not "?".
   let xml = "<doc>\n<doc\n?\n<a</a>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9644,8 +9652,7 @@ test "w3c/not-wf/not_wf_sa_002" {
   // Names may not start with "."; it's not a Letter.
   let xml = "<doc>\n<.doc></.doc>\n</doc>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9653,8 +9660,7 @@ test "w3c/not-wf/not_wf_sa_003" {
   // Processing Instruction target name is required.
   let xml = "<doc><? ?></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9662,8 +9668,7 @@ test "w3c/not-wf/not_wf_sa_004" {
   // SGML-ism: processing instructions end in '?&gt;' not '&gt;'.
   let xml = "<doc><?target some data></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9671,8 +9676,7 @@ test "w3c/not-wf/not_wf_sa_005" {
   // Processing instructions end in '?&gt;' not '?'.
   let xml = "<doc><?target some data?</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9680,8 +9684,7 @@ test "w3c/not-wf/not_wf_sa_006" {
   // XML comments may not contain "-"
   let xml = "<doc><!-- a comment -- another --></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9689,8 +9692,7 @@ test "w3c/not-wf/not_wf_sa_007" {
   // General entity references have no whitespace after the en...
   let xml = "<doc>&amp no refc</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9698,8 +9700,7 @@ test "w3c/not-wf/not_wf_sa_008" {
   // Entity references must include names, which don't begin w...
   let xml = "<doc>&.entity;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9707,8 +9708,7 @@ test "w3c/not-wf/not_wf_sa_009" {
   // Character references may have only decimal or numeric str...
   let xml = "<doc>&#RE;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9716,8 +9716,7 @@ test "w3c/not-wf/not_wf_sa_010" {
   // Ampersand may only appear as part of a general entity ref...
   let xml = "<doc>A & B</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9725,8 +9724,7 @@ test "w3c/not-wf/not_wf_sa_011" {
   // SGML-ism: attribute values must be explicitly assigned a ...
   let xml = "<doc a1></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9734,8 +9732,7 @@ test "w3c/not-wf/not_wf_sa_012" {
   // SGML-ism: attribute values must be quoted in all cases.
   let xml = "<doc a1=v1></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9743,8 +9740,7 @@ test "w3c/not-wf/not_wf_sa_013" {
   // The quotes on both ends of an attribute value must match.
   let xml = "<doc a1=\"v1'></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9752,8 +9748,7 @@ test "w3c/not-wf/not_wf_sa_014" {
   // Attribute values may not contain literal '&lt;' characters.
   let xml = "<doc a1=\"<foo>\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9761,8 +9756,7 @@ test "w3c/not-wf/not_wf_sa_015" {
   // Attribute values need a value, not just an equals sign.
   let xml = "<doc a1=></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9770,8 +9764,7 @@ test "w3c/not-wf/not_wf_sa_016" {
   // Attribute values need an associated name.
   let xml = "<doc a1=\"v1\" \"v2\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9779,8 +9772,7 @@ test "w3c/not-wf/not_wf_sa_017" {
   // CDATA sections need a terminating ']]&gt;'.
   let xml = "<doc><![CDATA[</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9788,8 +9780,7 @@ test "w3c/not-wf/not_wf_sa_018" {
   // CDATA sections begin with a literal '&lt;![CDATA[', no sp...
   let xml = "<doc><![CDATA [ stuff]]></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9797,8 +9788,7 @@ test "w3c/not-wf/not_wf_sa_019" {
   // End tags may not be abbreviated as '&lt;/&gt;'.
   let xml = "<doc></>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9806,8 +9796,7 @@ test "w3c/not-wf/not_wf_sa_020" {
   // Attribute values may not contain literal '&amp;' characte...
   let xml = "<doc a1=\"A & B\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9815,8 +9804,7 @@ test "w3c/not-wf/not_wf_sa_021" {
   // Attribute values may not contain literal '&amp;' characte...
   let xml = "<doc a1=\"a&b\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9824,8 +9812,7 @@ test "w3c/not-wf/not_wf_sa_022" {
   // Character references end with semicolons, always!
   let xml = "<doc a1=\"&#123:\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9833,8 +9820,7 @@ test "w3c/not-wf/not_wf_sa_023" {
   // Digits are not valid name start characters.
   let xml = "<doc 12=\"34\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9842,8 +9828,7 @@ test "w3c/not-wf/not_wf_sa_024" {
   // Digits are not valid name start characters.
   let xml = "<doc>\n<123></123>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9851,8 +9836,7 @@ test "w3c/not-wf/not_wf_sa_025" {
   // Text may not contain a literal ']]&gt;' sequence.
   let xml = "<doc>]]></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9860,8 +9844,7 @@ test "w3c/not-wf/not_wf_sa_026" {
   // Text may not contain a literal ']]&gt;' sequence.
   let xml = "<doc>]]]></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9869,8 +9852,7 @@ test "w3c/not-wf/not_wf_sa_027" {
   // Comments must be terminated with "-&gt;".
   let xml = "<doc>\n<!-- abc\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9878,8 +9860,7 @@ test "w3c/not-wf/not_wf_sa_028" {
   // Processing instructions must end with '?&gt;'.
   let xml = "<doc>\n<?a pi that is not closed\n</doc>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9887,8 +9868,7 @@ test "w3c/not-wf/not_wf_sa_029" {
   // Text may not contain a literal ']]&gt;' sequence.
   let xml = "<doc>abc]]]>def</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9896,8 +9876,7 @@ test "w3c/not-wf/not_wf_sa_030" {
   // A form feed is not a legal XML character.
   let xml = "<doc>A form feed () is not legal in data</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9905,8 +9884,7 @@ test "w3c/not-wf/not_wf_sa_031" {
   // A form feed is not a legal XML character.
   let xml = "<doc><?pi a form feed () is not allowed in a pi?></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9914,8 +9892,7 @@ test "w3c/not-wf/not_wf_sa_032" {
   // A form feed is not a legal XML character.
   let xml = "<doc><!-- a form feed () is not allowed in a comment --></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9923,8 +9900,7 @@ test "w3c/not-wf/not_wf_sa_033" {
   // An ESC (octal 033) is not a legal XML character.
   let xml = "<doc>abcdef</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9932,8 +9908,7 @@ test "w3c/not-wf/not_wf_sa_034" {
   // A form feed is not a legal XML character.
   let xml = "<doc>A form-feed is not white space or a name character</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9941,8 +9916,7 @@ test "w3c/not-wf/not_wf_sa_035" {
   // The '&lt;' character is a markup delimiter and must start...
   let xml = "<doc>1 < 2 but not in XML</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9950,8 +9924,7 @@ test "w3c/not-wf/not_wf_sa_036" {
   // Text may not appear after the root element.
   let xml = "<doc></doc>\nIllegal data\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9959,8 +9932,7 @@ test "w3c/not-wf/not_wf_sa_037" {
   // Character references may not appear after the root element.
   let xml = "<doc></doc>\n&#32;\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9968,8 +9940,7 @@ test "w3c/not-wf/not_wf_sa_038" {
   // Tests the "Unique Att Spec" WF constraint by providing mu...
   let xml = "<doc x=\"foo\" y=\"bar\" x=\"baz\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9977,8 +9948,7 @@ test "w3c/not-wf/not_wf_sa_039" {
   // Tests the Element Type Match WFC - end tag name must matc...
   let xml = "<doc><a></aa></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9986,8 +9956,7 @@ test "w3c/not-wf/not_wf_sa_040" {
   // Provides two document elements.
   let xml = "<doc></doc>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -9995,8 +9964,7 @@ test "w3c/not-wf/not_wf_sa_041" {
   // Provides two document elements.
   let xml = "<doc/>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10004,8 +9972,7 @@ test "w3c/not-wf/not_wf_sa_042" {
   // Invalid End Tag
   let xml = "<doc/></doc/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10013,8 +9980,7 @@ test "w3c/not-wf/not_wf_sa_043" {
   // Provides #PCDATA text after the document element.
   let xml = "<doc/>\nIllegal data\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10022,8 +9988,7 @@ test "w3c/not-wf/not_wf_sa_044" {
   // Provides two document elements.
   let xml = "<doc/><doc/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10031,8 +9996,7 @@ test "w3c/not-wf/not_wf_sa_045" {
   // Invalid Empty Element Tag
   let xml = "<doc>\n<a/\n</doc>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10040,8 +10004,7 @@ test "w3c/not-wf/not_wf_sa_046" {
   // This start (or empty element) tag was not terminated corr...
   let xml = "<doc>\n<a/</a>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10049,8 +10012,7 @@ test "w3c/not-wf/not_wf_sa_047" {
   // Invalid empty element tag invalid whitespace
   let xml = "<doc>\n<a / >\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10058,8 +10020,7 @@ test "w3c/not-wf/not_wf_sa_048" {
   // Provides a CDATA section after the root element.
   let xml = "<doc>\n</doc>\n<![CDATA[]]>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10067,8 +10028,7 @@ test "w3c/not-wf/not_wf_sa_049" {
   // Missing start tag
   let xml = "<doc>\n<a><![CDATA[xyz]]]></a>\n<![CDATA[]]></a>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10076,8 +10036,7 @@ test "w3c/not-wf/not_wf_sa_050" {
   // Empty document, with no root element.
   let xml = ""
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10085,8 +10044,7 @@ test "w3c/not-wf/not_wf_sa_051" {
   // CDATA is invalid at top level of document.
   let xml = "<!-- a comment -->\n<![CDATA[]]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10094,8 +10052,7 @@ test "w3c/not-wf/not_wf_sa_052" {
   // Invalid character reference.
   let xml = "<!-- a comment -->\n&#32;\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10103,8 +10060,7 @@ test "w3c/not-wf/not_wf_sa_053" {
   // End tag does not match start tag.
   let xml = "<doc></DOC>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10112,8 +10068,7 @@ test "w3c/not-wf/not_wf_sa_055" {
   // Invalid Document Type Definition format.
   let xml = "<!DOCTYPE doc [\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10121,8 +10076,7 @@ test "w3c/not-wf/not_wf_sa_056" {
   // Invalid Document Type Definition format - misplaced comment.
   let xml = "<!DOCTYPE doc -- a comment -- []>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10130,8 +10084,7 @@ test "w3c/not-wf/not_wf_sa_057" {
   // This isn't SGML; comments can't exist in declarations.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"whatever\" -- a comment -->\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10139,8 +10092,7 @@ test "w3c/not-wf/not_wf_sa_058" {
   // Invalid character , in ATTLIST enumeration
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 (foo,bar) #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10148,8 +10100,7 @@ test "w3c/not-wf/not_wf_sa_059" {
   // String literal must be in quotes.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 NMTOKEN v1>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10157,8 +10108,7 @@ test "w3c/not-wf/not_wf_sa_060" {
   // Invalid type NAME defined in ATTLIST.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 NAME #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10166,8 +10116,7 @@ test "w3c/not-wf/not_wf_sa_062" {
   // Entity declarations need space after the entity name.
   let xml = "<!DOCTYPE doc [\n<!ENTITY foo\"some text\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10175,8 +10124,7 @@ test "w3c/not-wf/not_wf_sa_063" {
   // Conditional sections may only appear in the external DTD ...
   let xml = "<!DOCTYPE doc [\n<![INCLUDE[ ]]>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10184,8 +10132,7 @@ test "w3c/not-wf/not_wf_sa_064" {
   // Space is required between attribute type and default valu...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST e a1 CDATA\"foo\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10193,8 +10140,7 @@ test "w3c/not-wf/not_wf_sa_065" {
   // Space is required between attribute name and type in &lt;...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1(foo|bar) #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10202,8 +10148,7 @@ test "w3c/not-wf/not_wf_sa_066" {
   // Required whitespace is missing.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 (foo|bar)#IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10211,8 +10156,7 @@ test "w3c/not-wf/not_wf_sa_067" {
   // Space is required between attribute type and default valu...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 (foo)\"foo\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10220,8 +10164,7 @@ test "w3c/not-wf/not_wf_sa_068" {
   // Space is required between NOTATION keyword and list of en...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a1 NOTATION(foo) #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10229,8 +10172,7 @@ test "w3c/not-wf/not_wf_sa_070" {
   // XML comments may not contain "-"
   let xml = "<!-- a comment ending with three dashes --->\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10238,8 +10180,7 @@ test "w3c/not-wf/not_wf_sa_071" {
   // ENTITY can't reference itself directly or indirectly.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e1 \"&e2;\">\n<!ENTITY e2 \"&e3;\">\n<!ENTITY e3 \"&e1;\">\n]>\n<doc>&e1;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10247,8 +10188,7 @@ test "w3c/not-wf/not_wf_sa_072" {
   // Undefined ENTITY foo.
   let xml = "<doc>&foo;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10256,8 +10196,7 @@ test "w3c/not-wf/not_wf_sa_073" {
   // Undefined ENTITY f.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"whatever\">\n]>\n<doc>&f;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10265,8 +10204,7 @@ test "w3c/not-wf/not_wf_sa_074" {
   // Internal general parsed entities are only well formed if ...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"</foo><foo>\">\n]>\n<doc>\n<foo>&e;</foo>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10274,8 +10212,7 @@ test "w3c/not-wf/not_wf_sa_075" {
   // ENTITY can't reference itself directly or indirectly.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e1 \"&e2;\">\n<!ENTITY e2 \"&e3;\">\n<!ENTITY e3 \"&e1;\">\n]>\n<doc a=\"&e1;\"></doc>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10283,8 +10220,7 @@ test "w3c/not-wf/not_wf_sa_076" {
   // Undefined ENTITY foo.
   let xml = "<doc a=\"&foo;\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10292,8 +10228,7 @@ test "w3c/not-wf/not_wf_sa_077" {
   // Undefined ENTITY bar.
   let xml = "<!DOCTYPE doc [\n<!ENTITY foo \"&bar;\">\n]>\n<doc a=\"&foo;\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10301,8 +10236,7 @@ test "w3c/not-wf/not_wf_sa_078" {
   // Undefined ENTITY foo.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA \"&foo;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10310,8 +10244,7 @@ test "w3c/not-wf/not_wf_sa_079" {
   // ENTITY can't reference itself directly or indirectly.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e1 \"&e2;\">\n<!ENTITY e2 \"&e3;\">\n<!ENTITY e3 \"&e1;\">\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA \"&e1;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10319,8 +10252,7 @@ test "w3c/not-wf/not_wf_sa_080" {
   // ENTITY can't reference itself directly or indirectly.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e1 \"&e2;\">\n<!ENTITY e2 \"&e3;\">\n<!ENTITY e3 \"&e1;\">\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA #FIXED \"&e1;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10328,8 +10260,7 @@ test "w3c/not-wf/not_wf_sa_085" {
   // Public IDs may not contain "[".
   let xml = "<!DOCTYPE doc PUBLIC \"[\" \"null.ent\">\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10337,8 +10268,7 @@ test "w3c/not-wf/not_wf_sa_087" {
   // Public IDs may not contain "[".
   let xml = "<!DOCTYPE doc [\n<!NOTATION foo PUBLIC \"[\" \"null.ent\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10346,8 +10276,7 @@ test "w3c/not-wf/not_wf_sa_088" {
   // Attribute values are terminated by literal quote characte...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA #IMPLIED>\n<!ENTITY e '\"'>\n]>\n<doc a=\"&e;></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10355,8 +10284,7 @@ test "w3c/not-wf/not_wf_sa_090" {
   // Attributes may not contain a literal "&lt;" character; th...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"<foo a='&#60;'></foo>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10364,8 +10292,7 @@ test "w3c/not-wf/not_wf_sa_092" {
   // The replacement text of this entity has an illegal refere...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"<foo a='&#38;'></foo>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10373,8 +10300,7 @@ test "w3c/not-wf/not_wf_sa_093" {
   // Hexadecimal character references may not use the uppercas...
   let xml = "<doc>&#X58;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10382,8 +10308,7 @@ test "w3c/not-wf/not_wf_sa_094" {
   // Prolog VERSION must be lowercase.
   let xml = "<?xml VERSION=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10391,8 +10316,7 @@ test "w3c/not-wf/not_wf_sa_095" {
   // VersionInfo must come before EncodingDecl.
   let xml = "<?xml encoding=\"UTF-8\" version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10400,8 +10324,7 @@ test "w3c/not-wf/not_wf_sa_096" {
   // Space is required before the standalone declaration.
   let xml = "<?xml version=\"1.0\"encoding=\"UTF-8\" ?>\n<doc></doc>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10409,8 +10332,7 @@ test "w3c/not-wf/not_wf_sa_097" {
   // Both quotes surrounding VersionNum must be the same.
   let xml = "<?xml version=\"1.0' encoding=\"UTF-8\" ?>\n<doc></doc>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10418,8 +10340,7 @@ test "w3c/not-wf/not_wf_sa_098" {
   // Only one "version=..." string may appear in an XML declar...
   let xml = "<?xml version=\"1.0\" version=\"1.0\"?>\n<doc></doc>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10427,8 +10348,7 @@ test "w3c/not-wf/not_wf_sa_099" {
   // Only three pseudo-attributes are in the XML declaration, ...
   let xml = "<?xml version=\"1.0\" valid=\"no\" ?>\n<doc></doc>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10436,8 +10356,7 @@ test "w3c/not-wf/not_wf_sa_100" {
   // Only "yes" and "no" are permitted as values of "standalone".
   let xml = "<?xml version=\"1.0\" standalone=\"YES\" ?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10445,8 +10364,7 @@ test "w3c/not-wf/not_wf_sa_101" {
   // Space is not permitted in an encoding name.
   let xml = "<?xml version=\"1.0\" encoding=\" UTF-8\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10454,8 +10372,7 @@ test "w3c/not-wf/not_wf_sa_102" {
   // Provides an illegal XML version number; spaces are illegal.
   let xml = "<?xml version=\"1.0 \" ?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10463,8 +10380,7 @@ test "w3c/not-wf/not_wf_sa_103" {
   // End-tag required for element foo.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#60;foo>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10472,8 +10388,7 @@ test "w3c/not-wf/not_wf_sa_104" {
   // Internal general parsed entities are only well formed if ...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"<foo>\">\n]>\n<doc>&e;</foo></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10481,8 +10396,7 @@ test "w3c/not-wf/not_wf_sa_105" {
   // Invalid placement of CDATA section.
   let xml = "<?pi stuff?>\n<![CDATA[]]>\n<doc>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10490,8 +10404,7 @@ test "w3c/not-wf/not_wf_sa_106" {
   // Invalid placement of entity declaration.
   let xml = "<?pi data?>\n&#32;<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10499,8 +10412,7 @@ test "w3c/not-wf/not_wf_sa_107" {
   // Invalid document type declaration. CDATA alone is invalid.
   let xml = "<!DOCTYPE doc [\n<![CDATA[]]>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10508,8 +10420,7 @@ test "w3c/not-wf/not_wf_sa_108" {
   // No space in '&lt;![CDATA['.
   let xml = "<doc>\n<![CDATA [  ]]>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10517,8 +10428,7 @@ test "w3c/not-wf/not_wf_sa_109" {
   // Tags invalid within EntityDecl.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"<doc></doc>\">\n]>\n&e;\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10526,8 +10436,7 @@ test "w3c/not-wf/not_wf_sa_110" {
   // Entity reference must be in content of element.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"\">\n]>\n<doc></doc>\n&e;\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10535,8 +10444,7 @@ test "w3c/not-wf/not_wf_sa_111" {
   // Entiry reference must be in content of element not Start-...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"foo='bar'\">\n]>\n<doc &e;></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10544,8 +10452,7 @@ test "w3c/not-wf/not_wf_sa_112" {
   // CDATA sections start '&lt;![CDATA[', not '&lt;!cdata['.
   let xml = "<doc>\n<![cdata[data]]>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10553,8 +10460,7 @@ test "w3c/not-wf/not_wf_sa_113" {
   // Parameter entity values must use valid reference syntax; ...
   let xml = "<!DOCTYPE doc [\n<!ENTITY % foo \"&\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10562,8 +10468,7 @@ test "w3c/not-wf/not_wf_sa_114" {
   // General entity values must use valid reference syntax; th...
   let xml = "<!DOCTYPE doc [\n<!ENTITY foo \"&\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10571,8 +10476,7 @@ test "w3c/not-wf/not_wf_sa_115" {
   // The replacement text of this entity is an illegal charact...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;\">\n]>\n<doc a=\"&e;\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10580,8 +10484,7 @@ test "w3c/not-wf/not_wf_sa_116" {
   // Internal general parsed entities are only well formed if ...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;#9\">\n]>\n<doc>&e;7;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10589,8 +10492,7 @@ test "w3c/not-wf/not_wf_sa_117" {
   // Internal general parsed entities are only well formed if ...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;\">\n]>\n<doc>&e;#97;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10598,8 +10500,7 @@ test "w3c/not-wf/not_wf_sa_118" {
   // Entity reference expansion is not recursive.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"#\">\n]>\n<doc>&&e;97;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10607,8 +10508,7 @@ test "w3c/not-wf/not_wf_sa_119" {
   // Internal general parsed entities are only well formed if ...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;\">\n]>\n<doc>\n&e;#38;\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10616,8 +10516,7 @@ test "w3c/not-wf/not_wf_sa_120" {
   // Character references are expanded in the replacement text...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#38;\">\n]>\n<doc>\n&e;\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10625,8 +10524,7 @@ test "w3c/not-wf/not_wf_sa_121" {
   // A name of an ENTITY was started with an invalid character.
   let xml = "<!DOCTYPE doc [\n<!ENTITY #DEFAULT \"default\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10634,8 +10532,7 @@ test "w3c/not-wf/not_wf_sa_122" {
   // Invalid syntax mixed connectors are used.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a, (b) | c)?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10643,8 +10540,7 @@ test "w3c/not-wf/not_wf_sa_123" {
   // Invalid syntax mismatched parenthesis.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc ((doc?)))>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10652,8 +10548,7 @@ test "w3c/not-wf/not_wf_sa_124" {
   // Invalid format of Mixed-content declaration.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (doc|#PCDATA)*>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10661,8 +10556,7 @@ test "w3c/not-wf/not_wf_sa_125" {
   // Invalid syntax extra set of parenthesis not necessary.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc ((#PCDATA))>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10670,8 +10564,7 @@ test "w3c/not-wf/not_wf_sa_126" {
   // Invalid syntax Mixed-content must be defined as zero or m...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)+>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10679,8 +10572,7 @@ test "w3c/not-wf/not_wf_sa_127" {
   // Invalid syntax Mixed-content must be defined as zero or m...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10688,8 +10580,7 @@ test "w3c/not-wf/not_wf_sa_128" {
   // Invalid CDATA syntax.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc CDATA>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10697,8 +10588,7 @@ test "w3c/not-wf/not_wf_sa_129" {
   // Invalid syntax for Element Type Declaration.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc - - (#PCDATA)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10706,8 +10596,7 @@ test "w3c/not-wf/not_wf_sa_130" {
   // Invalid syntax for Element Type Declaration.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (doc?) +(foo)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10715,8 +10604,7 @@ test "w3c/not-wf/not_wf_sa_131" {
   // Invalid syntax for Element Type Declaration.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (doc?) -(foo)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10724,8 +10612,7 @@ test "w3c/not-wf/not_wf_sa_132" {
   // Invalid syntax mixed connectors used.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a, (b, c), (d, (e, f) | g))?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10733,8 +10620,7 @@ test "w3c/not-wf/not_wf_sa_133" {
   // Illegal whitespace before optional character causes synta...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a *)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10742,8 +10628,7 @@ test "w3c/not-wf/not_wf_sa_134" {
   // Illegal whitespace before optional character causes synta...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a) *>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10751,8 +10636,7 @@ test "w3c/not-wf/not_wf_sa_135" {
   // Invalid character used as connector.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (a & b)?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10760,8 +10644,7 @@ test "w3c/not-wf/not_wf_sa_136" {
   // Tag omission is invalid in XML.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc O O (#PCDATA)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10769,8 +10652,7 @@ test "w3c/not-wf/not_wf_sa_137" {
   // Space is required before a content model.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc(#PCDATA)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10778,8 +10660,7 @@ test "w3c/not-wf/not_wf_sa_138" {
   // Invalid syntax for content particle.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (doc*?)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10787,8 +10668,7 @@ test "w3c/not-wf/not_wf_sa_139" {
   // The element-content model should not be empty.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc ()>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10796,8 +10676,7 @@ test "w3c/not-wf/not_wf_sa_142" {
   // Character #x0000 is not legal anywhere in an XML document.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#0;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10805,8 +10684,7 @@ test "w3c/not-wf/not_wf_sa_143" {
   // Character #x001F is not legal anywhere in an XML document.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#31;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10814,8 +10692,7 @@ test "w3c/not-wf/not_wf_sa_144" {
   // Character #xFFFF is not legal anywhere in an XML document.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#xFFFF;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10823,8 +10700,7 @@ test "w3c/not-wf/not_wf_sa_145" {
   // Character #xD800 is not legal anywhere in an XML document...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#xD800;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10832,8 +10708,7 @@ test "w3c/not-wf/not_wf_sa_146" {
   // Character references must also refer to legal XML charact...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&#x110000;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10841,8 +10716,7 @@ test "w3c/not-wf/not_wf_sa_147" {
   // XML Declaration may not be preceded by whitespace.
   let xml = "\n<?xml version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10850,8 +10724,7 @@ test "w3c/not-wf/not_wf_sa_148" {
   // XML Declaration may not be preceded by comments or whites...
   let xml = "<!-- -->\n<?xml version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10859,8 +10732,7 @@ test "w3c/not-wf/not_wf_sa_149" {
   // XML Declaration may not be within a DTD.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<?xml version=\"1.0\"?>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10868,8 +10740,7 @@ test "w3c/not-wf/not_wf_sa_150" {
   // XML declarations may not be within element content.
   let xml = "<doc>\n<?xml version=\"1.0\"?>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10877,8 +10748,7 @@ test "w3c/not-wf/not_wf_sa_151" {
   // XML declarations may not follow document content.
   let xml = "<doc>\n</doc>\n<?xml version=\"1.0\"?>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10886,8 +10756,7 @@ test "w3c/not-wf/not_wf_sa_152" {
   // XML declarations must include the "version=..." string.
   let xml = "<?xml encoding=\"UTF-8\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10895,8 +10764,7 @@ test "w3c/not-wf/not_wf_sa_153" {
   // Text declarations may not begin internal parsed entities;...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY e \"<?xml encoding='UTF-8'?>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10904,8 +10772,7 @@ test "w3c/not-wf/not_wf_sa_154" {
   // '&lt;?XML ...?&gt;' is neither an XML declaration nor a l...
   let xml = "<?XML version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10913,8 +10780,7 @@ test "w3c/not-wf/not_wf_sa_155" {
   // '&lt;?xmL ...?&gt;' is neither an XML declaration nor a l...
   let xml = "<?xmL version=\"1.0\"?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10922,8 +10788,7 @@ test "w3c/not-wf/not_wf_sa_156" {
   // '&lt;?xMl ...?&gt;' is neither an XML declaration nor a l...
   let xml = "<doc>\n<?xMl version=\"1.0\"?>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10931,8 +10796,7 @@ test "w3c/not-wf/not_wf_sa_157" {
   // '&lt;?xmL ...?&gt;' is not a legal processing instruction...
   let xml = "<doc>\n<?xmL?>\n</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10940,8 +10804,7 @@ test "w3c/not-wf/not_wf_sa_158" {
   // SGML-ism: "#NOTATION gif" can't have attributes.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!NOTATION gif PUBLIC \"image/gif\" \"\">\n<!ATTLIST #NOTATION gif a1 CDATA #IMPLIED>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10949,8 +10812,7 @@ test "w3c/not-wf/not_wf_sa_159" {
   // Uses '&amp;' unquoted in an entity declaration, which is ...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY e \"<![CDATA[Tim & Michael]]>\">\n]>\n<doc>&e;</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10958,8 +10820,7 @@ test "w3c/not-wf/not_wf_sa_160" {
   // Violates the <EM>PEs in Internal Subset</EM> WFC by using...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e \"\">\n<!ENTITY foo \"%e;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10967,8 +10828,7 @@ test "w3c/not-wf/not_wf_sa_161" {
   // Violates the <EM>PEs in Internal Subset</EM> WFC by using...
   let xml = "<!DOCTYPE doc [\n<!ENTITY % e \"#PCDATA\">\n<!ELEMENT doc (%e;)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10976,8 +10836,7 @@ test "w3c/not-wf/not_wf_sa_162" {
   // Violates the <EM>PEs in Internal Subset</EM> WFC by using...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e1 \"\">\n<!ENTITY % e2 \"%e1;\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10985,8 +10844,7 @@ test "w3c/not-wf/not_wf_sa_163" {
   // Invalid placement of Parameter entity reference.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e \"\">\n]>\n%e;\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -10994,8 +10852,7 @@ test "w3c/not-wf/not_wf_sa_164" {
   // Invalid placement of Parameter entity reference.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e \"\">\n] %e; >\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11003,8 +10860,7 @@ test "w3c/not-wf/not_wf_sa_165" {
   // Parameter entity declarations must have a space before th...
   let xml = "<!DOCTYPE doc [\n<!ENTITY% e \"\">\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11012,8 +10868,7 @@ test "w3c/not-wf/not_wf_sa_166" {
   // Character FFFF is not legal anywhere in an XML document.
   let xml = "<doc>￿</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11021,8 +10876,7 @@ test "w3c/not-wf/not_wf_sa_167" {
   // Character FFFE is not legal anywhere in an XML document.
   let xml = "<doc>￾</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11030,8 +10884,7 @@ test "w3c/not-wf/not_wf_sa_171" {
   // Character FFFF is not legal anywhere in an XML document.
   let xml = "<!-- ￿ -->\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11039,8 +10892,7 @@ test "w3c/not-wf/not_wf_sa_172" {
   // Character FFFF is not legal anywhere in an XML document.
   let xml = "<?pi ￿?>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11048,8 +10900,7 @@ test "w3c/not-wf/not_wf_sa_173" {
   // Character FFFF is not legal anywhere in an XML document.
   let xml = "<doc a=\"￿\"></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11057,8 +10908,7 @@ test "w3c/not-wf/not_wf_sa_174" {
   // Character FFFF is not legal anywhere in an XML document.
   let xml = "<doc><![CDATA[￿]]></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11066,8 +10916,7 @@ test "w3c/not-wf/not_wf_sa_175" {
   // Character FFFF is not legal anywhere in an XML document.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ENTITY % e \"￿\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11075,8 +10924,7 @@ test "w3c/not-wf/not_wf_sa_176" {
   // Start tags must have matching end tags.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11084,8 +10932,7 @@ test "w3c/not-wf/not_wf_sa_177" {
   // Character FFFF is not legal anywhere in an XML document.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>A￿</doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11093,8 +10940,7 @@ test "w3c/not-wf/not_wf_sa_178" {
   // Invalid syntax matching double quote is missing.
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA #IMPLIED>\n]>\n<doc a=\"&#34;></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11102,8 +10948,7 @@ test "w3c/not-wf/not_wf_sa_179" {
   // Invalid syntax matching double quote is missing.
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#34;>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11111,8 +10956,7 @@ test "w3c/not-wf/not_wf_sa_180" {
   // The <EM>Entity Declared</EM> WFC requires entities to be ...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc a CDATA \"&e;\">\n<!ENTITY e \"v\">\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11120,8 +10964,7 @@ test "w3c/not-wf/not_wf_sa_181" {
   // Internal parsed entities must match the <EM>content</EM> ...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#60;![CDATA[\">\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&e;]]></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11129,8 +10972,7 @@ test "w3c/not-wf/not_wf_sa_182" {
   // Internal parsed entities must match the <EM>content</EM> ...
   let xml = "<!DOCTYPE doc [\n<!ENTITY e \"&#60;!--\">\n<!ELEMENT doc (#PCDATA)>\n]>\n<doc>&e;--></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11138,8 +10980,7 @@ test "w3c/not-wf/not_wf_sa_183" {
   // Mixed content declarations may not include content partic...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA | foo*)* >\n<!ELEMENT foo EMPTY>\n]>\n<doc></doc>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11147,8 +10988,7 @@ test "w3c/not-wf/not_wf_sa_184" {
   // In mixed content models, element names must not be parent...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA | (foo))* >\n<!ELEMENT foo EMPTY>\n]>\n<doc></doc>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11156,8 +10996,7 @@ test "w3c/not-wf/not_wf_sa_186" {
   // Whitespace is required between attribute/value pairs.
   let xml = "<!DOCTYPE a [\n<!ELEMENT a EMPTY>\n<!ATTLIST a b CDATA #IMPLIED d CDATA #IMPLIED>\n]>\n<a b=\"c\"d=\"e\"/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11165,8 +11004,7 @@ test "w3c/not-wf/rmt_ns10_035" {
   // Attribute uniqueness: repeated identical attribute
   let xml = "<?xml version=\"1.0\"?>\n<!-- Attribute uniqueness: repeated identical attribute -->\n<foo xmlns:a=\"http://example.org/~wilbur\"\n     xmlns:b=\"http://example.org/~wilbur\">\n\n<bar a:attr=\"1\" a:attr=\"2\"/>\n\n</foo>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11174,8 +11012,7 @@ test "w3c/not-wf/attlist01" {
   // SGML's NUTOKEN is not allowed.
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNUTOKEN\t\"1\"\n\t>\n\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11183,8 +11020,7 @@ test "w3c/not-wf/attlist02" {
   // SGML's NUTOKENS attribute type is not allowed.
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNUTOKENS\t\"1 2 3\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11192,8 +11028,7 @@ test "w3c/not-wf/attlist03" {
   // Comma doesn't separate enumerations, unlike in SGML.
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tchoice\t(a,b,c)\t\"a\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11201,8 +11036,7 @@ test "w3c/not-wf/attlist04" {
   // SGML's NUMBER attribute type is not allowed.
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNUMBER\t\"1\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11210,8 +11044,7 @@ test "w3c/not-wf/attlist05" {
   // SGML's NUMBERS attribute type is not allowed.
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumbers\tNUMBERS\t\"1 2 3 4\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11219,8 +11052,7 @@ test "w3c/not-wf/attlist06" {
   // SGML's NAME attribute type is not allowed.
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNAME\t\"Elvis\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11228,8 +11060,7 @@ test "w3c/not-wf/attlist07" {
   // SGML's NAMES attribute type is not allowed.
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute types -->\n\n    <!ATTLIST root\n\tnumber\tNAMES\t\"The King\"\n\t>\n\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11237,8 +11068,7 @@ test "w3c/not-wf/attlist08" {
   // SGML's #CURRENT is not allowed.
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  illegal attribute default -->\n\n    <!ATTLIST root\n\tlanguage\tCDATA\t#CURRENT\n\t>\n\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11246,8 +11076,7 @@ test "w3c/not-wf/attlist09" {
   // SGML's #CONREF is not allowed.
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  illegal attribute default -->\n\n    <!ATTLIST root\n\tlanguage\tCDATA\t#CONREF\n\t>\n\n]>\n\n<root language=\"Dutch\"/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11255,8 +11084,7 @@ test "w3c/not-wf/attlist10" {
   // Whitespace required between attributes
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ATTLIST root att1 CDATA #IMPLIED>\n<!ATTLIST root att2 CDATA #IMPLIED>\n]>\n<root att1=\"value1\"att2=\"value2\">\n    <!-- whitespace required between attributes -->\n</root>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11264,8 +11092,7 @@ test "w3c/not-wf/attlist11" {
   // Whitespace required between attributes
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ATTLIST root att1 CDATA #IMPLIED>\n<!ATTLIST root att2 CDATA #IMPLIED>\n]>\n<root att1=\"value1\"att2=\"value2\"/>\n    <!-- whitespace required between attributes -->\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11273,8 +11100,7 @@ test "w3c/not-wf/content01" {
   // No whitespace before "?" in content model
   let xml = "<!DOCTYPE root [\n    <!-- no whitespace before '?', '*', '+' -->\n    <!ELEMENT root ((root) ?)>\n]>\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11282,8 +11108,7 @@ test "w3c/not-wf/content02" {
   // No whitespace before "*" in content model
   let xml = "<!DOCTYPE root [\n    <!-- no whitespace before '?', '*', '+' -->\n    <!ELEMENT root ((root) *)>\n]>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11291,8 +11116,7 @@ test "w3c/not-wf/content03" {
   // No whitespace before "+" in content model
   let xml = "<!DOCTYPE root [\n    <!-- no whitespace before '?', '*', '+' -->\n    <!ELEMENT root (root +)>\n]>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11300,8 +11124,7 @@ test "w3c/not-wf/nwf_dtd00" {
   // Comma mandatory in content model
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root (foo, bar? foo)>\n\t<!-- comma omitted -->\n    <!ELEMENT foo EMPTY>\n    <!ELEMENT bar EMPTY>\n]>\n\n<root> <foo/> <foo/> </root>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11309,8 +11132,7 @@ test "w3c/not-wf/nwf_dtd01" {
   // Can't mix comma and vertical bar in content models
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root (foo, bar? | foo)>\n\t<!-- comma swapped for vertical bar -->\n    <!ELEMENT foo EMPTY>\n    <!ELEMENT bar EMPTY>\n]>\n\n<root> <foo/> <foo/> </root>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11318,8 +11140,7 @@ test "w3c/not-wf/dtd02" {
   // PE name immediately after "%"
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n    <!-- correct PE ref syntax -->\n    <!ENTITY % foo \"<!ATTLIST root>\">\n    % foo;\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11327,8 +11148,7 @@ test "w3c/not-wf/dtd03" {
   // PE name immediately followed by ";"
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n    <!-- correct PE ref syntax -->\n    <!ENTITY % foo \"<!ATTLIST root>\">\n    %foo\n    ;\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11336,8 +11156,7 @@ test "w3c/not-wf/element00" {
   // EOF in middle of incomplete ETAG
   let xml = "<root>\n    Incomplete end tag.\n</ro"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11345,8 +11164,7 @@ test "w3c/not-wf/element01" {
   // EOF in middle of incomplete ETAG
   let xml = "<root>\n    Incomplete end tag.\n</root"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11354,8 +11172,7 @@ test "w3c/not-wf/element02" {
   // Illegal markup (&lt;%@ ... %&gt;)
   let xml = "<!DOCTYPE html [ <!ELEMENT html ANY> ]>\n<html>\n    <% @ LANGUAGE=\"VBSCRIPT\" %>\n</html>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11363,8 +11180,7 @@ test "w3c/not-wf/element03" {
   // Illegal markup (&lt;% ... %&gt;)
   let xml = "<!DOCTYPE html [ <!ELEMENT html ANY> ]>\n<html>\n    <% document.println (\"hello, world\"); %>\n</html>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11372,8 +11188,7 @@ test "w3c/not-wf/element04" {
   // Illegal markup (&lt;!ELEMENT ... &gt;)
   let xml = "<!DOCTYPE root [ <!ELEMENT root ANY> ]>\n<root>\n    <!ELEMENT foo EMPTY>\n</root>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11381,8 +11196,7 @@ test "w3c/not-wf/encoding01" {
   // Illegal character " " in encoding name
   let xml = "<?xml version=\"1.0\" encoding=\" utf-8\"?>\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11390,8 +11204,7 @@ test "w3c/not-wf/encoding02" {
   // Illegal character "/" in encoding name
   let xml = "<?xml version=\"1.0\" encoding=\"a/b\"?>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11399,8 +11212,7 @@ test "w3c/not-wf/encoding03" {
   // Illegal character reference in encoding name
   let xml = "<?xml version=\"1.0\" encoding=\"just&#41;word\"?>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11408,8 +11220,7 @@ test "w3c/not-wf/encoding04" {
   // Illegal character ":" in encoding name
   let xml = "<?xml version=\"1.0\" encoding=\"utf:8\"?>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11417,8 +11228,7 @@ test "w3c/not-wf/encoding05" {
   // Illegal character "@" in encoding name
   let xml = "<?xml version=\"1.0\" encoding=\"@import(sys-encoding)\"?>\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11426,8 +11236,7 @@ test "w3c/not-wf/encoding06" {
   // Illegal character "+" in encoding name
   let xml = "<?xml version=\"1.0\" encoding=\"XYZ+999\"?>\n\n<!-- WF ... but illegal encoding name, also a fatal error --> \n\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11435,8 +11244,7 @@ test "w3c/not-wf/pi" {
   // No space between PI target name and data
   let xml = "<!DOCTYPE root [\n<!ELEMENT root EMPTY>\n<!-- space before PI data and ?> -->\n<?bad-pi+?>\n]>\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11444,8 +11252,7 @@ test "w3c/not-wf/sgml01" {
   // SGML-ism: omitted end tag for EMPTY content
   let xml = "<!DOCTYPE root [\n    <!ELEMENT root EMPTY>\n\n    <!-- SGML-ism:  omitted end tag -->\n]>\n\n<root>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11453,8 +11260,7 @@ test "w3c/not-wf/sgml02" {
   // XML declaration must be at the very beginning of a docume...
   let xml = " <?xml version=\"1.0\"?>\n    <!-- SGML-ism:  XML PI not at beginning -->\n<!DOCTYPE root [ <!ELEMENT root EMPTY> ]>\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11462,8 +11268,7 @@ test "w3c/not-wf/sgml03" {
   // Comments may not contain "-"
   let xml = "<!DOCTYPE root [ <!ELEMENT root EMPTY> ]>\n\n    <!-- SGML-ism:  -- inside comment -->\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11471,8 +11276,7 @@ test "w3c/not-wf/sgml04" {
   // ATTLIST declarations apply to only one element, unlike SGML
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  multiple attlist types -->\n\n    <!ELEMENT root EMPTY>\n    <!ELEMENT branch EMPTY>\n\n    <!ATTLIST (root|branch)\n\tTreeType CDATA #REQUIRED\n\t>\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11480,8 +11284,7 @@ test "w3c/not-wf/sgml05" {
   // ELEMENT declarations apply to only one element, unlike SGML
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  multiple element types -->\n\n    <!ELEMENT root EMPTY>\n    <!ELEMENT leaves EMPTY>\n    <!ELEMENT branch EMPTY>\n\n    <!ELEMENT (bush|tree) (root,leaves,branch)>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11489,8 +11292,7 @@ test "w3c/not-wf/sgml06" {
   // ATTLIST declarations are never global, unlike in SGML
   let xml = "<!DOCTYPE root [\n    <!-- Web-SGML-ism:  global attlist types -->\n\n    <!ELEMENT root EMPTY>\n\n    <!ATTLIST #ALL\n\tTreeType CDATA #REQUIRED\n\t>\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11498,8 +11300,7 @@ test "w3c/not-wf/sgml07" {
   // SGML Tag minimization specifications are not allowed
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  omitted tag minimzation spec -->\n    <!ELEMENT root - o EMPTY>\n]>\n\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11507,8 +11308,7 @@ test "w3c/not-wf/sgml08" {
   // SGML Tag minimization specifications are not allowed
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  omitted tag minimzation spec -->\n    <!ELEMENT root - - EMPTY>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11516,8 +11316,7 @@ test "w3c/not-wf/sgml09" {
   // SGML Content model exception specifications are not allowed
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  exception spec -->\n\n    <!ELEMENT footnote (para*) -footnote>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11525,8 +11324,7 @@ test "w3c/not-wf/sgml10" {
   // SGML Content model exception specifications are not allowed
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  exception spec -->\n    <!ELEMENT section (header,(para|section))* +(annotation|todo)>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11534,8 +11332,7 @@ test "w3c/not-wf/sgml11" {
   // CDATA is not a valid content model spec
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  CDATA content type -->\n    <!ELEMENT ROOT CDATA>\n]>\n\n<root/>\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11543,8 +11340,7 @@ test "w3c/not-wf/sgml12" {
   // RCDATA is not a valid content model spec
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  RCDATA content type -->\n    <!ELEMENT ROOT RCDATA>\n]>\n\n<root/>\n\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11552,8 +11348,7 @@ test "w3c/not-wf/sgml13" {
   // SGML Unordered content models not allowed
   let xml = "<!DOCTYPE root [\n    <!-- SGML-ism:  unordered content type -->\n    <!ELEMENT ROOT (a & b & c)>\n    <!ELEMENT a EMPTY>\n    <!ELEMENT b EMPTY>\n    <!ELEMENT c EMPTY>\n]>\n\n<root><b/><c/><a/></root>\n\n\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11561,8 +11356,7 @@ test "w3c/not-wf/rmt_e2e_61" {
   // (From John Cowan) An encoding declaration in ASCII specif...
   let xml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11570,8 +11364,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n02_xml" {
   // Tests an element with an illegal NameStartChar: #0x333
   let xml = "<!DOCTYPE ̳IllegalNameStartChar [\n<!ELEMENT ̳IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar P4: #0x333 -->\n<̳IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11579,8 +11372,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n03_xml" {
   // Tests an element with an illegal NameStartChar: #0x369
   let xml = "<!DOCTYPE ͩIllegalNameStartChar [\n<!ELEMENT ͩIllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x369  -->\n<ͩIllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11588,8 +11380,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n04_xml" {
   // Tests an element with an illegal NameStartChar: #0x37E
   let xml = "<!DOCTYPE ;IllegalNameStartChar [\n<!ELEMENT ;IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar  #0x37E  -->\n<;IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11597,8 +11388,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n05_xml" {
   // Tests an element with an illegal NameStartChar: #0x2000
   let xml = "<!DOCTYPE  IllegalNameStartChar [\n<!ELEMENT  IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x2000  -->\n< IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11606,8 +11396,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n06_xml" {
   // Tests an element with an illegal NameStartChar: #0x2001
   let xml = "<!DOCTYPE  IllegalNameStartChar [\n<!ELEMENT  IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x2001 -->\n< IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11615,8 +11404,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n07_xml" {
   // Tests an element with an illegal NameStartChar: #0x2002
   let xml = "<!DOCTYPE  IllegalNameStartChar [\n<!ELEMENT  IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x2002 -->\n< IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11624,8 +11412,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n08_xml" {
   // Tests an element with an illegal NameStartChar: #0x2005
   let xml = "<!DOCTYPE  IllegalNameStartChar [\n<!ELEMENT  IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x2005 -->\n< IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11633,8 +11420,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n09_xml" {
   // Tests an element with an illegal NameStartChar: #0x200B
   let xml = "<!DOCTYPE ​IllegalNameStartChar [\n<!ELEMENT ​IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x200B -->\n<​IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11642,8 +11428,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n10_xml" {
   // Tests an element with an illegal NameStartChar: #0x200E
   let xml = "<!DOCTYPE ‎IllegalNameStartChar [\n<!ELEMENT ‎IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x200E -->\n<‎IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11651,8 +11436,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n11_xml" {
   // Tests an element with an illegal NameStartChar: #0x200F
   let xml = "<!DOCTYPE ‏IllegalNameStartChar [\n<!ELEMENT ‏IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x200F  -->\n<‏IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11660,8 +11444,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n12_xml" {
   // Tests an element with an illegal NameStartChar: #0x2069
   let xml = "<!DOCTYPE ⁩IllegalNameStartChar [\n<!ELEMENT ⁩IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2069 -->\n<⁩IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11669,8 +11452,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n13_xml" {
   // Tests an element with an illegal NameStartChar: #0x2190
   let xml = "<!DOCTYPE ←IllegalNameStartChar [\n<!ELEMENT ←IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2190 -->\n<←IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11678,8 +11460,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n14_xml" {
   // Tests an element with an illegal NameStartChar: #0x23FF
   let xml = "<!DOCTYPE ⏿IllegalNameStartChar [\n<!ELEMENT ⏿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #x23FF -->\n<⏿IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11687,8 +11468,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n15_xml" {
   // Tests an element with an illegal NameStartChar: #0x280F
   let xml = "<!DOCTYPE ⠏IllegalNameStartChar [\n<!ELEMENT ⠏IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x280F  -->\n<⠏IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11696,8 +11476,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n16_xml" {
   // Tests an element with an illegal NameStartChar: #0x2A00
   let xml = "<!DOCTYPE ⨀IllegalNameStartChar [\n<!ELEMENT ⨀IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2A00 -->\n<⨀IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11705,8 +11484,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n17_xml" {
   // Tests an element with an illegal NameStartChar: #0x2EDC
   let xml = "<!DOCTYPE ⬀IllegalNameStartChar [\n<!ELEMENT ⬀IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2B00  -->\n<⬀IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11714,8 +11492,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n18_xml" {
   // Tests an element with an illegal NameStartChar: #0x2B00
   let xml = "<!DOCTYPE ⯿IllegalNameStartChar [\n<!ELEMENT ⯿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar x2BFF \nin p02:   -->\n<⯿IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11723,8 +11500,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n19_xml" {
   // Tests an element with an illegal NameStartChar: #0x2BFF
   let xml = "<!DOCTYPE ⿿IllegalNameStartChar [\n<!ELEMENT ⿿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x2FFF -->\n<⿿IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11732,8 +11508,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n20_xml" {
   // Tests an element with an illegal NameStartChar: #0x3000
   let xml = "<!DOCTYPE 　IllegalNameStartChar [\n<!ELEMENT 　IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x3000 -->\n<　IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11741,8 +11516,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n21_xml" {
   // Tests an element with an illegal NameStartChar: #0xD800
   let xml = "<!DOCTYPE í IllegalNameStartChar [\n<!ELEMENT í IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xD800 -->\n<í IllegalNameStartChar/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11750,8 +11524,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n22_xml" {
   // Tests an element with an illegal NameStartChar: #0xD801
   let xml = "<!DOCTYPE í IllegalNameStartChar [\n<!ELEMENT í IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xD801 -->\n<í IllegalNameStartChar/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11759,8 +11532,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n23_xml" {
   // Tests an element with an illegal NameStartChar: #0xDAFF
   let xml = "<!DOCTYPE í«¿IllegalNameStartChar [\n<!ELEMENT í«¿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xDAFF -->\n<í«¿IllegalNameStartChar/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11768,8 +11540,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n24_xml" {
   // Tests an element with an illegal NameStartChar: #0xDFFF
   let xml = "<!DOCTYPE í¿¿IllegalNameStartChar [\n<!ELEMENT í¿¿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xDFFF -->\n<í¿¿IllegalNameStartChar/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11777,8 +11548,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n25_xml" {
   // Tests an element with an illegal NameStartChar: #0xEFFF
   let xml = "<!DOCTYPE IllegalNameStartChar [\n<!ELEMENT IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xEFFF -->\n<IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11786,8 +11556,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n26_xml" {
   // Tests an element with an illegal NameStartChar: #0xF1FF
   let xml = "<!DOCTYPE IllegalNameStartChar [\n<!ELEMENT IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xF1FF -->\n<IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11795,8 +11564,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n27_xml" {
   // Tests an element with an illegal NameStartChar: #0xF8FF
   let xml = "<!DOCTYPE IllegalNameStartChar [\n<!ELEMENT IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xF8FF -->\n<IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11804,8 +11572,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n28_xml" {
   // Tests an element with an illegal NameStartChar: #0xFFFFF
   let xml = "<!DOCTYPE ￿IllegalNameStartChar [\n<!ELEMENT ￿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xFFFFF -->\n<￿IllegalNameStartChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11813,8 +11580,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an01_xml" {
   // Tests an element with an illegal NameChar: #xB8
   let xml = "<!DOCTYPE IllegalNameChar¸ [\n<!ELEMENT IllegalNameChar¸ ANY>\n]>\n<!-- IllegalNameChar #xB8 -->\n<IllegalNameChar¸/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11822,8 +11588,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an02_xml" {
   // Tests an element with an illegal NameChar: #0xA1
   let xml = "<!DOCTYPE IllegalNameChar¡ [\n<!ELEMENT IllegalNameChar¡ ANY>\n]>\n<!-- IllegalNameChar #0xA1 -->\n<IllegalNameChar¡/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11831,8 +11596,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an03_xml" {
   // Tests an element with an illegal NameChar: #0xAF
   let xml = "<!DOCTYPE IllegalNameChar¯ [\n<!ELEMENT IllegalNameChar¯ ANY>\n]>\n<!-- IllegalNameChar #0xAF   -->\n<IllegalNameChar¯/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11840,8 +11604,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an04_xml" {
   // Tests an element with an illegal NameChar: #0x37E
   let xml = "<!DOCTYPE IllegalNameChar; [\n<!ELEMENT IllegalNameChar; ANY>\n]>\n<!-- IllegalNameChar #0x37E -->\n<IllegalNameChar;/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11849,8 +11612,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an05_xml" {
   // Tests an element with an illegal NameChar: #0x2000
   let xml = "<!DOCTYPE IllegalNameChar  [\n<!ELEMENT IllegalNameChar  ANY>\n]>\n<!-- IllegalNameChar #0x2000 -->\n<IllegalNameChar />"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11858,8 +11620,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an06_xml" {
   // Tests an element with an illegal NameChar: #0x2001
   let xml = "<!DOCTYPE IllegalNameChar  [\n<!ELEMENT IllegalNameChar  ANY>\n]>\n<!-- IllegalNameChar #0x2001 -->\n<IllegalNameChar />"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11867,8 +11628,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an07_xml" {
   // Tests an element with an illegal NameChar: #0x2002
   let xml = "<!DOCTYPE IllegalNameChar  [\n<!ELEMENT IllegalNameChar  ANY>\n]>\n<!-- IllegalNameChar #0x2002 -->\n<IllegalNameChar />"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11876,8 +11636,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an08_xml" {
   // Tests an element with an illegal NameChar: #0x2005
   let xml = "<!DOCTYPE IllegalNameChar  [\n<!ELEMENT IllegalNameChar  ANY>\n]>\n<!-- IllegalNameChar #0x2005 -->\n<IllegalNameChar />"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11885,8 +11644,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an09_xml" {
   // Tests an element with an illegal NameChar: #0x200B
   let xml = "<!DOCTYPE IllegalNameChar​ [\n<!ELEMENT IllegalNameChar​ ANY>\n]>\n<!-- IllegalNameChar #0x200B -->\n<IllegalNameChar​/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11894,8 +11652,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an10_xml" {
   // Tests an element with an illegal NameChar: #0x200E
   let xml = "<!DOCTYPE IllegalNameChar‎ [\n<!ELEMENT IllegalNameChar‎ ANY>\n]>\n<!-- IllegalNameChar #0x200E -->\n<IllegalNameChar‎/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11903,8 +11660,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an11_xml" {
   // Tests an element with an illegal NameChar: #0x2038
   let xml = "<!DOCTYPE IllegalNameChar‽ [\n<!ELEMENT IllegalNameChar‽ ANY>\n]>\n<!-- IllegalNameChar #0x2038 -->\n<IllegalNameChar‽/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11912,8 +11668,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an12_xml" {
   // Tests an element with an illegal NameChar: #0x2041
   let xml = "<!DOCTYPE IllegalNameChar⁁ [\n<!ELEMENT IllegalNameChar⁁ ANY>\n]>\n<!-- IllegalNameChar #0x2041 -->\n<IllegalNameChar⁁/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11921,8 +11676,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an13_xml" {
   // Tests an element with an illegal NameChar: #0x2190
   let xml = "<!DOCTYPE IllegalNameChar← [\n<!ELEMENT IllegalNameChar← ANY>\n]>\n<!-- IllegalNameChar #0x2190 -->\n<IllegalNameChar←/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11930,8 +11684,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an14_xml" {
   // Tests an element with an illegal NameChar: #0x23FF
   let xml = "<!DOCTYPE IllegalNameChar⏿ [\n<!ELEMENT IllegalNameChar⏿ ANY>\n]>\n<!-- IllegalNameChar #0x23FF -->\n<IllegalNameChar⏿/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11939,8 +11692,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an15_xml" {
   // Tests an element with an illegal NameChar: #0x280F
   let xml = "<!DOCTYPE IllegalNameChar⠏ [\n<!ELEMENT IllegalNameChar⠏ ANY>\n]>\n<!-- IllegalNameChar #0x280F -->\n<IllegalNameChar⠏/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11948,8 +11700,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an16_xml" {
   // Tests an element with an illegal NameChar: #0x2A00
   let xml = "<!DOCTYPE IllegalNameChar⨀ [\n<!ELEMENT IllegalNameChar⨀ ANY>\n]>\n<!-- IllegalNameChar #0x2A00 -->\n<IllegalNameChar⨀/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11957,8 +11708,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an17_xml" {
   // Tests an element with an illegal NameChar: #0xFDD0
   let xml = "<!DOCTYPE IllegalNameChar﷐ [\n<!ELEMENT IllegalNameChar﷐ ANY>\n]>\n<!-- IllegalNameChar #0xFDD0 -->\n<IllegalNameChar﷐/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11966,8 +11716,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an18_xml" {
   // Tests an element with an illegal NameChar: #0xFDEF
   let xml = "<!DOCTYPE IllegalNameChar﷯ [\n<!ELEMENT IllegalNameChar﷯ ANY>\n]>\n<!-- IllegalNameChar #0xFDEF -->\n<IllegalNameChar﷯/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11975,8 +11724,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an19_xml" {
   // Tests an element with an illegal NameChar: #0x2FFF
   let xml = "<!DOCTYPE IllegalNameChar⿿ [\n<!ELEMENT IllegalNameChar⿿ ANY>\n]>\n<!-- IllegalNameChar #0x2FFF -->\n<IllegalNameChar⿿/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11984,8 +11732,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an20_xml" {
   // Tests an element with an illegal NameChar: #0x3000
   let xml = "<!DOCTYPE IllegalNameChar　 [\n<!ELEMENT IllegalNameChar　 ANY>\n]>\n<!-- IllegalNameChar  #0x3000 -->\n<IllegalNameChar　/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -11993,8 +11740,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an21_xml" {
   // Tests an element with an illegal NameChar: #0xD800
   let xml = "<!DOCTYPE IllegalNameCharí  [\n<!ELEMENT IllegalNameCharí  ANY>\n]>\n<!-- IllegalNameChar #0xD800 -->\n<IllegalNameCharí />\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12002,8 +11748,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an22_xml" {
   // Tests an element with an illegal NameChar: #0xD801
   let xml = "<!DOCTYPE IllegalNameCharí  [\n<!ELEMENT IllegalNameCharí  ANY>\n]>\n<!-- IllegalNameChar #0xD801 -->\n<IllegalNameCharí />\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12011,8 +11756,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an23_xml" {
   // Tests an element with an illegal NameChar: #0xDAFF
   let xml = "<!DOCTYPE IllegalNameCharí«¿ [\n<!ELEMENT IllegalNameCharí«¿ ANY>\n]>\n<!-- IllegalNameChar #0xDAFF -->\n<IllegalNameCharí«¿/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12020,8 +11764,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an24_xml" {
   // Tests an element with an illegal NameChar: #0xDFFF
   let xml = "<!DOCTYPE IllegalNameCharí¿¿ [\n<!ELEMENT IllegalNameCharí¿¿ ANY>\n]>\n<!-- IllegalNameChar #0xDFFF -->\n<IllegalNameCharí¿¿/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12029,8 +11772,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an25_xml" {
   // Tests an element with an illegal NameChar: #0xEFFF
   let xml = "<!DOCTYPE IllegalNameChar [\n<!ELEMENT IllegalNameChar ANY>\n]>\n<!-- IllegalNameChar #0xEFFF -->\n<IllegalNameChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12038,8 +11780,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an26_xml" {
   // Tests an element with an illegal NameChar: #0xF1FF
   let xml = "<!DOCTYPE IllegalNameChar [\n<!ELEMENT IllegalNameChar ANY>\n]>\n<!-- IllegalNameChar #0xF1FF -->\n<IllegalNameChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12047,8 +11788,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an27_xml" {
   // Tests an element with an illegal NameChar: #0xF8FF
   let xml = "<!DOCTYPE IllegalNameChar [\n<!ELEMENT IllegalNameChar ANY>\n]>\n<!-- IllegalNameChar #0xF8FF -->\n<IllegalNameChar/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12056,8 +11796,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an28_xml" {
   // Tests an element with an illegal NameChar: #0xFFFFF
   let xml = "<!DOCTYPE IllegalNameChar￿ [\n<!ELEMENT IllegalNameChar￿ ANY>\n]>\n<!-- IllegalNameChar #0xFFFFF -->\n<IllegalNameChar￿/>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12065,8 +11804,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n01_xml" {
   // Tests an element with an illegal Name containing #0x0B
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT BadName EMPTY>\n]>\n<!-- BadName containing char 0x0B; -->\n<root>\n\t<BadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12074,8 +11812,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n02_xml" {
   // Tests an element with an illegal Name containing #0x300
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ̀BadName EMPTY>\n]>\n<!-- BadName containing char 0x300; -->\n<root>\n\t<̀BadName/>\t\n</root>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12083,8 +11820,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n03_xml" {
   // Tests an element with an illegal Name containing #0x36F
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ͯBadName EMPTY>\n]>\n<!-- BadName containing char 0x36F; -->\n<root>\n\t<ͯBadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12092,8 +11828,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n04_xml" {
   // Tests an element with an illegal Name containing #0x203F
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ‿BadName EMPTY>\n]>\n<!-- BadName containing char 0x203F; -->\n<root>\n\t<‿BadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12101,8 +11836,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n05_xml" {
   // Tests an element with an illegal Name containing #x2040
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ⁀BadName EMPTY>\n]>\n<!-- BadName containing char #x2040; -->\n<root>\n\t<⁀BadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12110,8 +11844,7 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P05_ibm05n06_xml" {
   // Tests an element with an illegal Name containing #0xB7
   let xml = "<!DOCTYPE root [\n<!ELEMENT root ANY>\n<!ELEMENT ·BadName EMPTY>\n]>\n<!-- BadName containing char 0xB7; -->\n<root>\n\t<·BadName/>\t\n</root>"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12119,8 +11852,7 @@ test "w3c/not-wf/hst_bh_001" {
   // decimal charref > 10FFFF, indeed > max 32 bit integer, ch...
   let xml = "<!DOCTYPE p [\n<!ELEMENT p (#PCDATA)>\n]>\n<p>Fa&#xFF000000F6;il</p>          <!-- 32 bit integer overflow -->\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12128,8 +11860,7 @@ test "w3c/not-wf/hst_bh_002" {
   // hex charref > 10FFFF, indeed > max 32 bit integer, checki...
   let xml = "<!DOCTYPE p [\n<!ELEMENT p (#PCDATA)>\n]>\n<p>Fa&#4294967542;il</p>           <!-- 32 bit integer overflow -->\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12137,8 +11868,7 @@ test "w3c/not-wf/hst_bh_003" {
   // decimal charref > 10FFFF, indeed > max 64 bit integer, ch...
   let xml = "<!DOCTYPE p [\n<!ELEMENT p (#PCDATA)>\n]>\n<p>Fa&#xFFFFFFFF000000F6;il</p>    <!-- 64 bit integer overflow -->\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12146,8 +11876,7 @@ test "w3c/not-wf/hst_bh_004" {
   // hex charref > 10FFFF, indeed > max 64 bit integer, checki...
   let xml = "<!DOCTYPE p [\n<!ELEMENT p (#PCDATA)>\n]>\n<p>Fa&#18446744073709551862;il</p> <!-- 64 bit integer overflow -->\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }
 
 ///|
@@ -12155,6 +11884,5 @@ test "w3c/not-wf/hst_lhs_009" {
   // UTF-16 BOM plus xml decl of utf-8 (using UTF-8 coding) in...
   let xml = "þÿ<?xml encoding='utf-8'?><x/>\n"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }

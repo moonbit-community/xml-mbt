@@ -280,34 +280,46 @@ test "parse with leading whitespace" {
 test "error on unclosed tag" {
   let reader = Reader::from_string("<root>")
   let _ = reader.read_event() // Start
-  let result = try? reader.read_event()
-  @debug.debug_inspect(
-    result,
-    content="Err(InvalidSyntax(\"unclosed element: <root>\"))",
-  )
+  try reader.read_event() catch {
+    err =>
+      @debug.debug_inspect(
+        err,
+        content="InvalidSyntax(\"unclosed element: <root>\")",
+      )
+  } noraise {
+    _ => fail("expected reader.read_event to raise")
+  }
 }
 
 ///|
 test "error on mismatched tags" {
   let reader = Reader::from_string("<root></other>")
   let _ = reader.read_event() // Start
-  let result = try? reader.read_event()
-  @debug.debug_inspect(
-    result,
-    content=(
-      #|Err(InvalidSyntax("end tag mismatch: expected </root>, found </other>"))
-    ),
-  )
+  try reader.read_event() catch {
+    err =>
+      @debug.debug_inspect(
+        err,
+        content=(
+          #|InvalidSyntax("end tag mismatch: expected </root>, found </other>")
+        ),
+      )
+  } noraise {
+    _ => fail("expected reader.read_event to raise")
+  }
 }
 
 ///|
 test "error on invalid syntax" {
   let reader = Reader::from_string("<root<>")
-  let result = try? reader.read_event()
-  @debug.debug_inspect(
-    result,
-    content=(
-      #|Err(InvalidSyntax("unexpected character in tag: '<'"))
-    ),
-  )
+  try reader.read_event() catch {
+    err =>
+      @debug.debug_inspect(
+        err,
+        content=(
+          #|InvalidSyntax("unexpected character in tag: '<'")
+        ),
+      )
+  } noraise {
+    _ => fail("expected reader.read_event to raise")
+  }
 }

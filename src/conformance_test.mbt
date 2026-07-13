@@ -274,8 +274,11 @@ test "not-wf/sa/017 - CDATA needs terminating ]]>" {
   let xml = "<doc><![CDATA[</doc>"
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
-  let result = try? reader.read_event()
-  @debug.debug_inspect(result, content="Err(UnexpectedEof)")
+  try reader.read_event() catch {
+    err => @debug.debug_inspect(err, content="UnexpectedEof")
+  } noraise {
+    _ => fail("expected reader.read_event to raise")
+  }
 }
 
 ///|
@@ -283,20 +286,27 @@ test "not-wf/sa/027 - comments must end with -->" {
   let xml = "<doc><!-- comment --"
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
-  let result = try? reader.read_event()
   // Comment has -- not followed by >, which is invalid
-  @debug.debug_inspect(
-    result,
-    content="Err(InvalidSyntax(\"'--' is not allowed in comments\"))",
-  )
+  try reader.read_event() catch {
+    err =>
+      @debug.debug_inspect(
+        err,
+        content="InvalidSyntax(\"'--' is not allowed in comments\")",
+      )
+  } noraise {
+    _ => fail("expected reader.read_event to raise")
+  }
 }
 
 ///|
 test "not-wf/sa/028 - PI must end with ?>" {
   let xml = "<?xml-test test?"
   let reader = Reader::from_string(xml)
-  let result = try? reader.read_event()
-  @debug.debug_inspect(result, content="Err(UnexpectedEof)")
+  try reader.read_event() catch {
+    err => @debug.debug_inspect(err, content="UnexpectedEof")
+  } noraise {
+    _ => fail("expected reader.read_event to raise")
+  }
 }
 
 // ============================================================================

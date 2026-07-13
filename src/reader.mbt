@@ -27,8 +27,8 @@ pub fn Reader::from_string(input : String) -> Reader {
     pos: start_pos,
     line: 1,
     column: 1,
-    entities: {},
-    attr_types: {},
+    entities: Map([]),
+    attr_types: Map([]),
     base_path: "",
     tag_stack: [],
     seen_root: false,
@@ -59,8 +59,8 @@ pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
     pos: start_pos,
     line: 1,
     column: 1,
-    entities: {},
-    attr_types: {},
+    entities: Map([]),
+    attr_types: Map([]),
     base_path,
     tag_stack: [],
     seen_root: false,
@@ -1047,7 +1047,7 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
             } else {
               // Entity reference - expand with validation
               let entity_ref = "&" + entity_name + ";"
-              let seen : Map[String, Bool] = {}
+              let seen : Map[String, Bool] = Map([])
               let expanded = expand_entity_value(
                 entity_ref,
                 self.entities,
@@ -1167,11 +1167,10 @@ fn Reader::parse_entity_content(self : Reader, content : String) -> Unit {
   sub_reader.tag_stack.push("_entity_content_")
   // Parse all events from entity content
   while true {
-    let event = try? sub_reader.read_event()
+    let event = sub_reader.read_event() catch { _ => break }
     match event {
-      Ok(Eof) => break
-      Ok(e) => self.pending_events.push(e)
-      Err(_) => break // Stop on error in entity content
+      Eof => break
+      e => self.pending_events.push(e)
     }
   }
 }
@@ -1226,7 +1225,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                     } else {
                       // Expand fully and return as text
                       let entity_ref = "&" + entity_name + ";"
-                      let seen : Map[String, Bool] = {}
+                      let seen : Map[String, Bool] = Map([])
                       let expanded = expand_entity_value(
                         entity_ref,
                         self.entities,
@@ -1238,7 +1237,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                   None => {
                     // Built-in entity (like &amp;) - expand and push as text
                     let entity_ref = "&" + entity_name + ";"
-                    let seen : Map[String, Bool] = {}
+                    let seen : Map[String, Bool] = Map([])
                     let expanded = expand_entity_value(
                       entity_ref,
                       self.entities,

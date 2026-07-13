@@ -148,6 +148,9 @@ test "unescape no entities" {
 ///|
 test "unescape unknown entity error" {
   // Unknown entities raise InvalidEntity error
-  let result = try? unescape("&invalid;")
-  @debug.debug_inspect(result, content="Err(InvalidEntity(\"&invalid;\"))")
+  try unescape("&invalid;") catch {
+    err => @debug.debug_inspect(err, content="InvalidEntity(\"&invalid;\")")
+  } noraise {
+    _ => fail("expected unescape to raise")
+  }
 }

@@ -47,6 +47,17 @@ LICENSE_HEADER = """// =========================================================
 
 """
 
+NOT_WF_HELPER = """///|
+fn assert_malformed(reader : Reader) -> Unit raise {
+  try reader.read_events_until_eof() catch {
+    _ => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+"""
+
 def escape_moonbit_string(s: str) -> str:
     """Escape a string for MoonBit string literal."""
     s = s.replace('\\', '\\\\')
@@ -187,7 +198,6 @@ def generate_not_wf_test(test_id: str, content: str, description: str, expects_e
     safe_name = sanitize_test_name(test_id)
     escaped = escape_moonbit_string(content)
     desc = clean_description(description)
-    expected = "true" if expects_error else "false"
     suffix = "" if expects_error else " (parser is lenient)"
 
     return f'''///|
@@ -195,8 +205,7 @@ test "w3c/not-wf/{safe_name}" {{
   // {desc}{suffix}
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
-  let has_error = (try? reader.read_events_until_eof()) is Err(_)
-  assert_true(has_error)
+  assert_malformed(reader)
 }}
 
 '''
@@ -295,7 +304,7 @@ def main():
     print(f"\nPhase 3: Generating test file...")
 
     # Generate output
-    output_lines = [LICENSE_HEADER]
+    output_lines = [LICENSE_HEADER, NOT_WF_HELPER]
 
     valid_with_events = 0
     valid_error_only = 0

@@ -828,7 +828,7 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
           skip_ws(reader)
           let value = read_quoted_value(reader)
           // Expand entity references to validate them (detects undefined and recursive refs)
-          let seen : Map[String, Bool] = {}
+          let seen : Map[String, Bool] = Map([])
           let _ = expand_entity_value(value, reader.entities, seen)
         }
         _ =>
@@ -838,7 +838,7 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
     Some('"') | Some('\'') => {
       let value = read_quoted_value(reader)
       // Expand entity references to validate them (detects undefined and recursive refs)
-      let seen : Map[String, Bool] = {}
+      let seen : Map[String, Bool] = Map([])
       let _ = expand_entity_value(value, reader.entities, seen)
     }
     _ => raise InvalidSyntax("expected attribute default value or keyword")
