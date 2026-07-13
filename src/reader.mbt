@@ -30,7 +30,6 @@ pub fn Reader::from_string(input : String) -> Reader {
     column: 1,
     entities: Map([]),
     attr_types: Map([]),
-    base_path: "",
     tag_stack: [],
     seen_root: false,
     root_closed: false,
@@ -46,55 +45,7 @@ pub fn Reader::from_string(input : String) -> Reader {
 ///|
 /// Create a new reader from a file path
 pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
-  let content = @fs.read_file_to_string(path)
-  let base_path = get_directory(path)
-  let chars = content.to_array()
-  // Skip BOM if present at start
-  let start_pos = if chars.length() > 0 && chars[0] == '\u{FEFF}' {
-    1
-  } else {
-    0
-  }
-  {
-    input: chars,
-    pos: start_pos,
-    offset: start_pos,
-    line: 1,
-    column: 1,
-    entities: Map([]),
-    attr_types: Map([]),
-    base_path,
-    tag_stack: [],
-    seen_root: false,
-    root_closed: false,
-    seen_content: false,
-    just_saw_decl: false,
-    pending_events: [],
-    internal_subset_events: [],
-    just_saw_doctype: false,
-    had_bom: start_pos > 0,
-  }
-}
-
-///|
-/// Get the directory part of a path
-fn get_directory(path : String) -> String {
-  let chars = path.to_array()
-  let mut last_sep = -1
-  for i = 0; i < chars.length(); i = i + 1 {
-    if chars[i] == '/' || chars[i] == '\\' {
-      last_sep = i
-    }
-  }
-  if last_sep >= 0 {
-    let buf = StringBuilder::new()
-    for i = 0; i <= last_sep; i = i + 1 {
-      buf.write_char(chars[i])
-    }
-    buf.to_string()
-  } else {
-    ""
-  }
+  Reader::from_string(@fs.read_file_to_string(path))
 }
 
 ///|
@@ -1698,35 +1649,18 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlErrorKind {
                   let keyword = self.read_name_lenient()
                   self.skip_whitespace()
                   if keyword == "SYSTEM" {
-                    // SYSTEM "path"
+                    // Parse the system literal without resolving it. External
+                    // entity access requires an explicit resolver API.
                     match self.peek() {
                       Some('"') => {
                         let _ = self.advance()
-                        let path = self.read_entity_value('"')
+                        let _ = self.read_entity_value('"')
                         let _ = self.advance()
-                        if self.base_path.length() > 0 {
-                          let full_path = self.base_path + path
-                          let content = @fs.read_file_to_string(full_path) catch {
-                            _ => ""
-                          }
-                          if content.length() > 0 {
-                            self.entities.set(name, content)
-                          }
-                        }
                       }
                       Some('\'') => {
                         let _ = self.advance()
-                        let path = self.read_entity_value('\'')
+                        let _ = self.read_entity_value('\'')
                         let _ = self.advance()
-                        if self.base_path.length() > 0 {
-                          let full_path = self.base_path + path
-                          let content = @fs.read_file_to_string(full_path) catch {
-                            _ => ""
-                          }
-                          if content.length() > 0 {
-                            self.entities.set(name, content)
-                          }
-                        }
                       }
                       _ => ()
                     }

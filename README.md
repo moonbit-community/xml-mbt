@@ -17,7 +17,7 @@ A streaming XML parser for MoonBit, inspired by [quick-xml](https://github.com/t
 let xml = "<root><item id=\"1\">Hello</item></root>"
 let reader = @xml.Reader::from_string(xml)
 
-// From file (resolves external entities)
+// From file
 let reader = @xml.Reader::from_file("document.xml")
 
 while true {
@@ -136,7 +136,7 @@ The following test categories are skipped:
 - **UTF-8 only** - Other encodings not supported
 - **XML 1.0 only** - XML 1.1 not supported
 
-Note: External entities (`SYSTEM`) are resolved when using `Reader::from_file()`.
+External entity declarations are parsed, but their contents are not resolved. Referencing an external entity raises an error.
 
 ## License
 

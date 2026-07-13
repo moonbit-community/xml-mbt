@@ -360,3 +360,19 @@ test "error on invalid syntax" {
     _ => fail("expected reader.read_event to raise")
   }
 }
+
+///|
+test "from_file does not resolve external entities implicitly" {
+  let reader = Reader::from_file("src/testdata/external-entity.xml")
+  try reader.read_events_until_eof() catch {
+    At(error~, span=_) =>
+      @debug.debug_inspect(
+        error,
+        content=(
+          #|InvalidEntity("undefined entity reference: &leak;")
+        ),
+      )
+  } noraise {
+    _ => fail("expected external entity reference to remain unresolved")
+  }
+}
