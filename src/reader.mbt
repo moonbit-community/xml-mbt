@@ -168,26 +168,6 @@ fn Reader::skip_whitespace_count(self : Reader) -> Int {
 }
 
 ///|
-/// Skip whitespace and control characters (for lenient tag parsing)
-fn Reader::skip_ws_and_control(self : Reader) -> Unit {
-  while true {
-    match self.peek() {
-      Some(c) => {
-        let code = c.to_int()
-        // Skip whitespace or control characters (< 0x20, except we keep meaningful ones)
-        if is_whitespace(c) ||
-          (code < 0x20 && c != '\t' && c != '\n' && c != '\r') {
-          let _ = self.advance()
-        } else {
-          break
-        }
-      }
-      None => break
-    }
-  }
-}
-
-///|
 /// Read characters while predicate is true
 fn Reader::read_while(self : Reader, pred : (Char) -> Bool) -> String {
   let buf = StringBuilder::new()
@@ -480,8 +460,7 @@ fn Reader::read_end_tag(self : Reader) -> EventKind raise XmlErrorKind {
       "end tag mismatch: expected </" + expected + ">, found </" + name + ">",
     )
   }
-  // Skip whitespace and control characters
-  self.skip_ws_and_control()
+  self.skip_whitespace()
   match self.peek() {
     Some('>') => {
       let _ = self.advance()
@@ -496,8 +475,7 @@ fn Reader::read_end_tag(self : Reader) -> EventKind raise XmlErrorKind {
 fn Reader::read_start_tag(self : Reader) -> EventKind raise XmlErrorKind {
   let name = self.read_name()
   let attributes = self.read_attributes(name)
-  // Skip whitespace and control characters before tag end
-  self.skip_ws_and_control()
+  self.skip_whitespace()
   match self.peek() {
     Some('/') => {
       let _ = self.advance() // consume '/'
@@ -1907,21 +1885,7 @@ fn Reader::read_entity_value(
 
 ///|
 fn is_whitespace(c : Char) -> Bool {
-  if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
-    return true
-  }
-  let code = c.to_int()
-  // U+FEFF (BOM - byte order mark, treated as whitespace/ignored)
-  if code == 0xFEFF {
-    return true
-  }
-  // U+00A0 (NBSP - non-breaking space)
-  if code == 0xA0 {
-    return true
-  }
-  // Unicode whitespace: U+2000-U+200A (various spaces), U+3000 (ideographic space)
-  // Note: U+200B (ZWSP) is kept in names per quick-xml behavior
-  (code >= 0x2000 && code <= 0x200A) || code == 0x3000
+  c == ' ' || c == '\t' || c == '\n' || c == '\r'
 }
 
 ///|

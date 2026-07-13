@@ -447,3 +447,44 @@ test "reject entity expansion over the nesting-depth budget" {
     _ => fail("expected deeply nested entity expansion to raise")
   }
 }
+
+///|
+test "reject non-XML whitespace in tag grammar" {
+  let reader = Reader::from_string("<root\u{00A0}id=\"1\"/>")
+  try reader.read_event() catch {
+    At(error=InvalidSyntax(_), span=_) => ()
+    _ => fail("expected an invalid-syntax error")
+  } noraise {
+    _ => fail("expected non-breaking space in tag grammar to raise")
+  }
+}
+
+///|
+test "reject control characters before end-tag close" {
+  let reader = Reader::from_string("<root></root\u{0001}>")
+  let _ = reader.read_event()
+  try reader.read_event() catch {
+    At(error~, span=_) =>
+      @debug.debug_inspect(
+        error,
+        content=(
+          #|InvalidSyntax("expected '>' after end tag name")
+        ),
+      )
+  } noraise {
+    _ => fail("expected control character in end tag to raise")
+  }
+}
+
+///|
+test "accept the four XML grammar whitespace characters" {
+  for whitespace in [" ", "\t", "\n", "\r"] {
+    let reader = Reader::from_string("<root" + whitespace + "id=\"1\"/>")
+    @debug.debug_inspect(
+      reader.read_event(),
+      content=(
+        #|Empty({ name: "root", attributes: [("id", "1")] })
+      ),
+    )
+  }
+}
