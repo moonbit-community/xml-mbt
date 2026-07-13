@@ -50,14 +50,14 @@ while true {
 
 This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using libxml2 (lxml) as the reference parser.
 
-**Current status: 800/800 tests passing**
+**Current status: 802/802 tests passing**
 
 | Category | Tests | Description |
 |----------|-------|-------------|
 | Valid (with events) | 448 | Parser produces correct event sequence |
 | Valid (error-only) | 6 | Parser does not error on valid XML |
 | Not-well-formed | 281 | Parser correctly rejects malformed XML |
-| Unit tests | 65 | Reader, writer, escape, conformance tests |
+| Unit tests | 67 | Reader, writer, escape, conformance tests |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)

@@ -239,6 +239,7 @@ fn push_coalesced(result : Array[Event], event : Event) -> Unit {
 /// Handles known differences between our parser and lxml:
 /// - Removes prolog whitespace (Text events before first element)
 /// - Converts Start+End pairs (no content) to Empty
+/// - Converts CDATA to Text and coalesces adjacent text content
 /// - Fills in default encoding (UTF-8) and standalone (no) for XML declaration
 /// - Reorders prolog: Decl first, then DocType, then Comments/PIs
 pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
@@ -338,6 +339,7 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
       PI(target~, data~) =>
         // lxml trims leading whitespace from PI data
         push_coalesced(result, PI(target~, data=data.trim_start().to_owned()))
+      CData(content) => push_coalesced(result, Text(content))
       _ => push_coalesced(result, event)
     }
     i += 1

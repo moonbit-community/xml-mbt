@@ -551,11 +551,10 @@ fn Reader::read_special(self : Reader) -> Event raise XmlError {
     if !self.seen_root || self.tag_stack.length() == 0 {
       raise InvalidSyntax("CDATA section not allowed in prolog")
     }
-    // Report as Text to match lxml behavior
     let _ = self.skip_string("[CDATA[")
     let content = self.read_until("]]>")
     let _ = self.skip_string("]]>")
-    Text(content)
+    CData(content)
   } else if self.check_string("DOCTYPE") {
     // DOCTYPE
     let _ = self.skip_string("DOCTYPE")

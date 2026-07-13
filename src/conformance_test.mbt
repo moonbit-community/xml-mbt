@@ -319,7 +319,7 @@ test "valid - CDATA section" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  @debug.debug_inspect(event, content="Text(\"<greeting>Hello</greeting>\")")
+  @debug.debug_inspect(event, content="CData(\"<greeting>Hello</greeting>\")")
 }
 
 ///|
@@ -328,7 +328,26 @@ test "valid - CDATA with special chars" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   let event = reader.read_event()
-  @debug.debug_inspect(event, content="Text(\"a]b]]c]\")")
+  @debug.debug_inspect(event, content="CData(\"a]b]]c]\")")
+}
+
+///|
+test "libxml format coalesces CDATA with adjacent text" {
+  let events : Array[Event] = [
+    Start(XmlElement::new("doc")),
+    Text("a"),
+    CData("b"),
+    Text("c"),
+    End("doc"),
+    Eof,
+  ]
+  let expected : Array[Event] = [
+    Start(XmlElement::new("doc")),
+    Text("abc"),
+    End("doc"),
+    Eof,
+  ]
+  assert_eq(to_libxml_format(events), expected)
 }
 
 // ============================================================================

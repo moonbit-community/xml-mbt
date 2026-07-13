@@ -154,7 +154,26 @@ test "parse CDATA section" {
   )
   let _ = reader.read_event() // Start(root)
   let event = reader.read_event() // CDATA
-  @debug.debug_inspect(event, content="Text(\"<html>raw content</html>\")")
+  @debug.debug_inspect(event, content="CData(\"<html>raw content</html>\")")
+}
+
+///|
+test "preserve text and CDATA boundaries" {
+  let reader = Reader::from_string("<root>a<![CDATA[b]]>c</root>")
+  let events = reader.read_events_until_eof()
+  @debug.debug_inspect(
+    events,
+    content=(
+      #|[
+      #|  Start({ name: "root", attributes: [] }),
+      #|  Text("a"),
+      #|  CData("b"),
+      #|  Text("c"),
+      #|  End("root"),
+      #|  Eof,
+      #|]
+    ),
+  )
 }
 
 ///|
