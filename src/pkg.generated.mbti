@@ -14,6 +14,13 @@ pub fn to_libxml_format(Array[Event]) -> Array[EventKind]
 pub fn unescape(String) -> String raise XmlErrorKind
 
 // Errors
+pub(all) suberror WriterError {
+  InvalidName(String)
+  InvalidContent(String)
+  InvalidStructure(String)
+  InvalidDeclaration(String)
+} derive(Eq, @debug.Debug)
+
 pub(all) suberror XmlError {
   At(error~ : XmlErrorKind, span~ : SourceSpan)
 } derive(Eq, @debug.Debug)
@@ -141,18 +148,20 @@ pub struct SourceSpan {
 
 pub struct Writer {
   buffer : StringBuilder
-  indent_level : Int
-  pretty : Bool
+  element_stack : Array[String]
+  mut seen_root : Bool
+  mut wrote_anything : Bool
+  mut wrote_doctype : Bool
 }
-pub fn Writer::cdata(Self, String) -> Unit
-pub fn Writer::comment(Self, String) -> Unit
-pub fn Writer::empty_element(Self, String, Array[(String, String)]) -> Unit
-pub fn Writer::end_element(Self, String) -> Unit
+pub fn Writer::cdata(Self, String) -> Unit raise WriterError
+pub fn Writer::comment(Self, String) -> Unit raise WriterError
+pub fn Writer::empty_element(Self, String, Array[(String, String)]) -> Unit raise WriterError
+pub fn Writer::end_element(Self, String) -> Unit raise WriterError
 pub fn Writer::new() -> Self
-pub fn Writer::start_element(Self, String, Array[(String, String)]) -> Unit
-pub fn Writer::text(Self, String) -> Unit
-pub fn Writer::to_string(Self) -> String
-pub fn Writer::write_event(Self, Event) -> Unit
+pub fn Writer::start_element(Self, String, Array[(String, String)]) -> Unit raise WriterError
+pub fn Writer::text(Self, String) -> Unit raise WriterError
+pub fn Writer::to_string(Self) -> String raise WriterError
+pub fn Writer::write_event(Self, Event) -> Unit raise WriterError
 
 pub struct XmlAttribute {
   name : String

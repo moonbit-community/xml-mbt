@@ -271,11 +271,22 @@ pub fn NamespaceReader::read_events_until_eof(
 // ============================================================================
 
 ///|
+/// An error raised when Writer would produce an invalid XML document.
+pub(all) suberror WriterError {
+  InvalidName(String)
+  InvalidContent(String)
+  InvalidStructure(String)
+  InvalidDeclaration(String)
+} derive(Debug, Eq)
+
+///|
 /// An XML writer for generating XML output
 pub struct Writer {
   buffer : StringBuilder
-  indent_level : Int
-  pretty : Bool
+  element_stack : Array[String]
+  mut seen_root : Bool
+  mut wrote_anything : Bool
+  mut wrote_doctype : Bool
 }
 
 ///|
@@ -288,7 +299,10 @@ pub fn Writer::new() -> Writer {
 ///|
 /// Write an XML event
 #declaration_only
-pub fn Writer::write_event(self : Writer, event : Event) -> Unit {
+pub fn Writer::write_event(
+  self : Writer,
+  event : Event,
+) -> Unit raise WriterError {
   ...
 }
 
@@ -299,14 +313,17 @@ pub fn Writer::start_element(
   self : Writer,
   name : String,
   attributes : Array[(String, String)],
-) -> Unit {
+) -> Unit raise WriterError {
   ...
 }
 
 ///|
 /// Write an end element
 #declaration_only
-pub fn Writer::end_element(self : Writer, name : String) -> Unit {
+pub fn Writer::end_element(
+  self : Writer,
+  name : String,
+) -> Unit raise WriterError {
   ...
 }
 
@@ -317,35 +334,38 @@ pub fn Writer::empty_element(
   self : Writer,
   name : String,
   attributes : Array[(String, String)],
-) -> Unit {
+) -> Unit raise WriterError {
   ...
 }
 
 ///|
 /// Write text content (escaped)
 #declaration_only
-pub fn Writer::text(self : Writer, content : String) -> Unit {
+pub fn Writer::text(self : Writer, content : String) -> Unit raise WriterError {
   ...
 }
 
 ///|
 /// Write CDATA section
 #declaration_only
-pub fn Writer::cdata(self : Writer, content : String) -> Unit {
+pub fn Writer::cdata(self : Writer, content : String) -> Unit raise WriterError {
   ...
 }
 
 ///|
 /// Write a comment
 #declaration_only
-pub fn Writer::comment(self : Writer, content : String) -> Unit {
+pub fn Writer::comment(
+  self : Writer,
+  content : String,
+) -> Unit raise WriterError {
   ...
 }
 
 ///|
 /// Get the generated XML string
 #declaration_only
-pub fn Writer::to_string(self : Writer) -> String {
+pub fn Writer::to_string(self : Writer) -> String raise WriterError {
   ...
 }
 

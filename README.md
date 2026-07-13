@@ -52,6 +52,10 @@ match reader.read_event().kind {
 
 Namespace declarations are exposed through `NamespaceElement::namespace_declarations` and are not included in its normal attributes. Default namespaces apply to element names but not to unprefixed attribute names.
 
+### Checked writing
+
+`Writer` validates XML names, characters, delimiter sequences, and document structure as output is added. Its write methods and `to_string` raise `WriterError` instead of returning malformed XML; `to_string` also requires exactly one complete root element.
+
 ### Source locations
 
 Every event returned by `Reader::read_event` includes its authored source range. Event and attribute spans are half-open; offsets count UTF-16 code units, so they can slice the original MoonBit `String` directly.
