@@ -254,27 +254,26 @@ pub fn NamespaceReader::read_event(
     match event.kind {
       Start(element) =>
         NamespaceEventKind::Start(self.resolve_element(element, true))
-      Empty(element) =>
-        NamespaceEventKind::Empty(self.resolve_element(element, false))
+      Empty(element) => Empty(self.resolve_element(element, false))
       End(qualified_name) => {
         let scope = self.scopes[self.scopes.length() - 1]
         let name = resolve_xml_name(qualified_name, scope, true)
         if self.scopes.length() > 1 {
           let _ = self.scopes.pop()
         }
-        NamespaceEventKind::End(name)
+        End(name)
       }
-      Text(content) => NamespaceEventKind::Text(content)
-      CData(content) => NamespaceEventKind::CData(content)
-      Comment(content) => NamespaceEventKind::Comment(content)
-      PI(target~, data~) => NamespaceEventKind::PI(target~, data~)
+      Text(content) => Text(content)
+      CData(content) => CData(content)
+      Comment(content) => Comment(content)
+      PI(target~, data~) => PI(target~, data~)
       Decl(version~, encoding~, standalone~) =>
-        NamespaceEventKind::Decl(version~, encoding~, standalone~)
-      DocType(name) => NamespaceEventKind::DocType(name)
-      Eof => NamespaceEventKind::Eof
+        Decl(version~, encoding~, standalone~)
+      DocType(name) => DocType(name)
+      Eof => Eof
     }
   } catch {
-    error => raise XmlError::At(error~, position=event.span.start)
+    error => raise At(error~, position=event.span.start)
   }
   { kind, span: event.span }
 }
@@ -288,7 +287,7 @@ pub fn NamespaceReader::read_events_until_eof(
   for ;; {
     let event = self.read_event()
     events.push(event)
-    if event.kind is NamespaceEventKind::Eof {
+    if event.kind is Eof {
       return events
     }
   }

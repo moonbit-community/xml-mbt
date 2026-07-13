@@ -318,7 +318,7 @@ test "error on unclosed tag" {
   let reader = Reader::from_string("<root>")
   let _ = reader.read_event() // Start
   try reader.read_event() catch {
-    XmlError::At(error~, position=_) =>
+    At(error~, position=_) =>
       @debug.debug_inspect(
         error,
         content="InvalidSyntax(\"unclosed element: <root>\")",
@@ -333,7 +333,7 @@ test "error on mismatched tags" {
   let reader = Reader::from_string("<root></other>")
   let _ = reader.read_event() // Start
   try reader.read_event() catch {
-    XmlError::At(error~, position=_) =>
+    At(error~, position=_) =>
       @debug.debug_inspect(
         error,
         content=(
@@ -349,7 +349,7 @@ test "error on mismatched tags" {
 test "error on invalid syntax" {
   let reader = Reader::from_string("<root<>")
   try reader.read_event() catch {
-    XmlError::At(error~, position=_) =>
+    At(error~, position=_) =>
       @debug.debug_inspect(
         error,
         content=(

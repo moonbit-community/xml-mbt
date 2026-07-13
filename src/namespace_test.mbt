@@ -17,9 +17,7 @@ test "resolve default namespace without applying it to attributes" {
   let input = "<root xmlns=\"urn:default\" id=\"1\"/>"
   let reader = NamespaceReader::from_string(input)
   let event = reader.read_event()
-  guard event.kind is NamespaceEventKind::Empty(element) else {
-    fail("expected an empty element")
-  }
+  guard event.kind is Empty(element) else { fail("expected an empty element") }
   assert_eq(input[event.span.start.offset:event.span.end.offset], input)
   assert_eq(element.name.qualified_name, "root")
   assert_eq(element.name.prefix, None)
@@ -47,7 +45,7 @@ test "resolve prefixed element and attribute names" {
   let reader = NamespaceReader::from_string(
     "<p:root xmlns:p=\"urn:p\" p:id=\"1\" id=\"2\"/>",
   )
-  guard reader.read_event().kind is NamespaceEventKind::Empty(element) else {
+  guard reader.read_event().kind is Empty(element) else {
     fail("expected an empty element")
   }
   assert_eq(element.name.prefix, Some("p"))
@@ -65,22 +63,22 @@ test "restore parent namespace after nested rebinding" {
   let reader = NamespaceReader::from_string(
     "<root xmlns=\"urn:outer\"><child xmlns=\"urn:inner\">x</child></root>",
   )
-  guard reader.read_event().kind is NamespaceEventKind::Start(root) else {
+  guard reader.read_event().kind is Start(root) else {
     fail("expected root start")
   }
   assert_eq(root.name.namespace_uri, Some("urn:outer"))
-  guard reader.read_event().kind is NamespaceEventKind::Start(child) else {
+  guard reader.read_event().kind is Start(child) else {
     fail("expected child start")
   }
   assert_eq(child.name.namespace_uri, Some("urn:inner"))
-  guard reader.read_event().kind is NamespaceEventKind::Text("x") else {
+  guard reader.read_event().kind is Text("x") else {
     fail("expected child text")
   }
-  guard reader.read_event().kind is NamespaceEventKind::End(child_name) else {
+  guard reader.read_event().kind is End(child_name) else {
     fail("expected child end")
   }
   assert_eq(child_name.namespace_uri, Some("urn:inner"))
-  guard reader.read_event().kind is NamespaceEventKind::End(root_name) else {
+  guard reader.read_event().kind is End(root_name) else {
     fail("expected root end")
   }
   assert_eq(root_name.namespace_uri, Some("urn:outer"))
@@ -90,7 +88,7 @@ test "restore parent namespace after nested rebinding" {
 test "reject undeclared namespace prefix" {
   let reader = NamespaceReader::from_string("<p:root/>")
   try reader.read_event() catch {
-    XmlError::At(error~, position=_) =>
+    At(error~, position=_) =>
       @debug.debug_inspect(
         error,
         content="InvalidSyntax(\"undeclared namespace prefix: p\")",
@@ -106,7 +104,7 @@ test "reject duplicate expanded attribute names" {
     "<root xmlns:a=\"urn:x\" xmlns:b=\"urn:x\" a:id=\"1\" b:id=\"2\"/>",
   )
   try reader.read_event() catch {
-    XmlError::At(error~, position=_) =>
+    At(error~, position=_) =>
       @debug.debug_inspect(
         error,
         content="InvalidSyntax(\"duplicate expanded attribute name: {urn:x}id\")",
@@ -120,7 +118,7 @@ test "reject duplicate expanded attribute names" {
 test "reject invalid qualified name" {
   let reader = NamespaceReader::from_string("<a:b:c/>")
   try reader.read_event() catch {
-    XmlError::At(error~, position=_) =>
+    At(error~, position=_) =>
       @debug.debug_inspect(
         error,
         content="InvalidSyntax(\"invalid qualified name: a:b:c\")",
@@ -134,7 +132,7 @@ test "reject invalid qualified name" {
 test "enforce reserved xml namespace binding" {
   let reader = NamespaceReader::from_string("<root xmlns:xml=\"urn:not-xml\"/>")
   try reader.read_event() catch {
-    XmlError::At(error~, position=_) =>
+    At(error~, position=_) =>
       @debug.debug_inspect(
         error,
         content=(

@@ -73,7 +73,7 @@ test "split text events retain their authored source ranges" {
 test "parsing reports the source position of errors" {
   let reader = Reader::from_string("<root id=>")
   try reader.read_event() catch {
-    XmlError::At(error~, position~) => {
+    At(error~, position~) => {
       assert_eq(error, InvalidSyntax("expected quoted attribute value"))
       assert_eq(position.offset, 9)
       assert_eq(position.line, 1)
@@ -90,7 +90,7 @@ test "error positions treat a carriage return as a source line break" {
   let _ = reader.read_event()
   let _ = reader.read_event()
   try reader.read_event() catch {
-    XmlError::At(error=_, position~) => {
+    At(error=_, position~) => {
       assert_eq(position.line, 2)
       assert_eq(position.column, 11)
     }
