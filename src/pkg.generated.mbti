@@ -15,7 +15,7 @@ pub fn unescape(String) -> String raise XmlErrorKind
 
 // Errors
 pub(all) suberror XmlError {
-  At(error~ : XmlErrorKind, position~ : SourcePosition)
+  At(error~ : XmlErrorKind, span~ : SourceSpan)
 } derive(Eq, @debug.Debug)
 pub impl Show for XmlError
 

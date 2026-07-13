@@ -273,7 +273,7 @@ pub fn NamespaceReader::read_event(
       Eof => Eof
     }
   } catch {
-    error => raise At(error~, position=event.span.start)
+    error => raise At(error~, span=event.span)
   }
   { kind, span: event.span }
 }

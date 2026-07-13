@@ -235,12 +235,16 @@ pub impl Show for XmlErrorKind with fn output(self, logger) {
 ///|
 pub impl Show for XmlError with fn output(self, logger) {
   match self {
-    At(error~, position~) => {
+    At(error~, span~) => {
       logger.write_object(error)
       logger.write_string(" at ")
-      logger.write_object(position.line)
+      logger.write_object(span.start.line)
       logger.write_string(":")
-      logger.write_object(position.column)
+      logger.write_object(span.start.column)
+      logger.write_string("-")
+      logger.write_object(span.end.line)
+      logger.write_string(":")
+      logger.write_object(span.end.column)
     }
   }
 }

@@ -86,13 +86,16 @@ test "restore parent namespace after nested rebinding" {
 
 ///|
 test "reject undeclared namespace prefix" {
-  let reader = NamespaceReader::from_string("<p:root/>")
+  let input = "<p:root/>"
+  let reader = NamespaceReader::from_string(input)
   try reader.read_event() catch {
-    At(error~, position=_) =>
+    At(error~, span~) => {
       @debug.debug_inspect(
         error,
         content="InvalidSyntax(\"undeclared namespace prefix: p\")",
       )
+      assert_eq(input[span.start.offset:span.end.offset], input)
+    }
   } noraise {
     _ => fail("expected namespace resolution to raise")
   }
@@ -104,7 +107,7 @@ test "reject duplicate expanded attribute names" {
     "<root xmlns:a=\"urn:x\" xmlns:b=\"urn:x\" a:id=\"1\" b:id=\"2\"/>",
   )
   try reader.read_event() catch {
-    At(error~, position=_) =>
+    At(error~, span=_) =>
       @debug.debug_inspect(
         error,
         content="InvalidSyntax(\"duplicate expanded attribute name: {urn:x}id\")",
@@ -118,7 +121,7 @@ test "reject duplicate expanded attribute names" {
 test "reject invalid qualified name" {
   let reader = NamespaceReader::from_string("<a:b:c/>")
   try reader.read_event() catch {
-    At(error~, position=_) =>
+    At(error~, span=_) =>
       @debug.debug_inspect(
         error,
         content="InvalidSyntax(\"invalid qualified name: a:b:c\")",
@@ -132,7 +135,7 @@ test "reject invalid qualified name" {
 test "enforce reserved xml namespace binding" {
   let reader = NamespaceReader::from_string("<root xmlns:xml=\"urn:not-xml\"/>")
   try reader.read_event() catch {
-    At(error~, position=_) =>
+    At(error~, span=_) =>
       @debug.debug_inspect(
         error,
         content=(

@@ -70,14 +70,14 @@ test "split text events retain their authored source ranges" {
 }
 
 ///|
-test "parsing reports the source position of errors" {
+test "parsing reports the source span of errors" {
   let reader = Reader::from_string("<root id=>")
   try reader.read_event() catch {
-    At(error~, position~) => {
+    At(error~, span~) => {
       assert_eq(error, InvalidSyntax("expected quoted attribute value"))
-      assert_eq(position.offset, 9)
-      assert_eq(position.line, 1)
-      assert_eq(position.column, 10)
+      assert_eq((span.start.offset, span.end.offset), (0, 9))
+      assert_eq((span.start.line, span.start.column), (1, 1))
+      assert_eq((span.end.line, span.end.column), (1, 10))
     }
   } noraise {
     _ => fail("expected parsing to raise")
@@ -85,14 +85,15 @@ test "parsing reports the source position of errors" {
 }
 
 ///|
-test "error positions treat a carriage return as a source line break" {
+test "error spans treat a carriage return as a source line break" {
   let reader = Reader::from_string("<root>\r<child id=>")
   let _ = reader.read_event()
   let _ = reader.read_event()
   try reader.read_event() catch {
-    At(error=_, position~) => {
-      assert_eq(position.line, 2)
-      assert_eq(position.column, 11)
+    At(error=_, span~) => {
+      assert_eq((span.start.offset, span.end.offset), (7, 17))
+      assert_eq((span.start.line, span.start.column), (2, 1))
+      assert_eq((span.end.line, span.end.column), (2, 11))
     }
   } noraise {
     _ => fail("expected parsing to raise")

@@ -316,8 +316,9 @@ fn Reader::check_string(self : Reader, s : String) -> Bool {
 ///|
 /// Read the next XML event
 pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
+  let start = self.source_position()
   self.read_event_internal() catch {
-    error => raise At(error~, position=self.source_position())
+    error => raise At(error~, span=source_span(start, self.source_position()))
   }
 }
 

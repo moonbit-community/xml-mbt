@@ -60,9 +60,9 @@ pub struct Event {
 } derive(Eq)
 
 ///|
-/// An XML parsing error paired with the position where it was detected.
+/// An XML parsing error paired with the source range consumed while detecting it.
 pub(all) suberror XmlError {
-  At(error~ : XmlErrorKind, position~ : SourcePosition)
+  At(error~ : XmlErrorKind, span~ : SourceSpan)
 } derive(Debug, Eq)
 
 ///|
