@@ -24,10 +24,55 @@
 // ============================================================================
 
 ///|
+/// A position in the original XML source.
+/// `offset` is a zero-indexed UTF-16 code-unit offset suitable for slicing the
+/// original MoonBit `String`; `line` and `column` are one-indexed and count
+/// Unicode characters.
+pub struct SourcePosition {
+  offset : Int
+  line : Int
+  column : Int
+} derive(Debug, Eq)
+
+///|
+/// A half-open range `[start, end)` in the original XML source.
+pub struct SourceSpan {
+  start : SourcePosition
+  end : SourcePosition
+} derive(Debug, Eq)
+
+///|
+/// A parsed attribute together with its authored source ranges.
+/// `value_span` excludes the surrounding quote characters.
+pub struct SpannedAttribute {
+  name : String
+  value : String
+  span : SourceSpan
+  name_span : SourceSpan
+  value_span : SourceSpan
+} derive(Debug, Eq)
+
+///|
+/// An XML event together with its authored source range.
+/// `attributes` is populated only for `Start` and `Empty` events.
+pub struct SpannedEvent {
+  event : Event
+  span : SourceSpan
+  attributes : Array[SpannedAttribute]
+} derive(Debug, Eq)
+
+///|
+/// An XML parsing error paired with the position where it was detected.
+pub(all) suberror LocatedXmlError {
+  At(error~ : XmlError, position~ : SourcePosition)
+} derive(Debug, Eq)
+
+///|
 /// A streaming XML reader
 pub struct Reader {
   input : Array[Char]
   mut pos : Int
+  mut offset : Int
   mut line : Int
   mut column : Int
   entities : Map[String, String] // Custom entities from DTD
@@ -39,7 +84,10 @@ pub struct Reader {
   mut seen_content : Bool // Whether any content has been parsed (for XML decl position check)
   mut just_saw_decl : Bool // Skip whitespace after XML declaration (lxml behavior)
   pending_events : Array[Event] // Queue of events to return (for text splitting)
+  pending_event_spans : Array[SourceSpan]
+  pending_event_attributes : Array[Array[SpannedAttribute]]
   internal_subset_events : Array[Event] // PIs/comments from internal subset (emit after prolog whitespace)
+  internal_subset_event_spans : Array[SourceSpan]
   mut just_saw_doctype : Bool // Track if we just returned DocType to handle internal subset events
   had_bom : Bool // Whether input started with BOM (affects Decl emission)
 }
@@ -62,6 +110,16 @@ pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
 /// Read the next XML event
 #declaration_only
 pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
+  ...
+}
+
+///|
+/// Read the next XML event with its exact source range.
+/// Entity-expansion events use the range of the authored entity reference.
+#declaration_only
+pub fn Reader::read_spanned_event(
+  self : Reader,
+) -> SpannedEvent raise LocatedXmlError {
   ...
 }
 
@@ -94,6 +152,15 @@ pub fn Reader::column(self : Reader) -> Int {
 pub fn Reader::read_events_until_eof(
   self : Reader,
 ) -> Array[Event] raise XmlError {
+  ...
+}
+
+///|
+/// Read all spanned events until EOF, including the final `Eof` event.
+#declaration_only
+pub fn Reader::read_spanned_events_until_eof(
+  self : Reader,
+) -> Array[SpannedEvent] raise LocatedXmlError {
   ...
 }
 

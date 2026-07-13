@@ -14,6 +14,10 @@ pub fn to_libxml_format(Array[Event]) -> Array[Event]
 pub fn unescape(String) -> String raise XmlError
 
 // Errors
+pub(all) suberror LocatedXmlError {
+  At(error~ : XmlError, position~ : SourcePosition)
+} derive(Eq, @debug.Debug)
+
 pub(all) suberror XmlError {
   UnexpectedEof
   InvalidSyntax(String)
@@ -82,6 +86,7 @@ pub fn NamespaceReader::read_events_until_eof(Self) -> Array[NamespaceEvent] rai
 pub struct Reader {
   input : Array[Char]
   mut pos : Int
+  mut offset : Int
   mut line : Int
   mut column : Int
   entities : Map[String, String]
@@ -93,7 +98,10 @@ pub struct Reader {
   mut seen_content : Bool
   mut just_saw_decl : Bool
   pending_events : Array[Event]
+  pending_event_spans : Array[SourceSpan]
+  pending_event_attributes : Array[Array[SpannedAttribute]]
   internal_subset_events : Array[Event]
+  internal_subset_event_spans : Array[SourceSpan]
   mut just_saw_doctype : Bool
   had_bom : Bool
 }
@@ -104,6 +112,33 @@ pub fn Reader::is_eof(Self) -> Bool
 pub fn Reader::line(Self) -> Int
 pub fn Reader::read_event(Self) -> Event raise XmlError
 pub fn Reader::read_events_until_eof(Self) -> Array[Event] raise XmlError
+pub fn Reader::read_spanned_event(Self) -> SpannedEvent raise LocatedXmlError
+pub fn Reader::read_spanned_events_until_eof(Self) -> Array[SpannedEvent] raise LocatedXmlError
+
+pub struct SourcePosition {
+  offset : Int
+  line : Int
+  column : Int
+} derive(Eq, @debug.Debug)
+
+pub struct SourceSpan {
+  start : SourcePosition
+  end : SourcePosition
+} derive(Eq, @debug.Debug)
+
+pub struct SpannedAttribute {
+  name : String
+  value : String
+  span : SourceSpan
+  name_span : SourceSpan
+  value_span : SourceSpan
+} derive(Eq, @debug.Debug)
+
+pub struct SpannedEvent {
+  event : Event
+  span : SourceSpan
+  attributes : Array[SpannedAttribute]
+} derive(Eq, @debug.Debug)
 
 pub struct Writer {
   buffer : StringBuilder

@@ -8,6 +8,7 @@ A streaming XML parser for MoonBit, inspired by [quick-xml](https://github.com/t
 - **Streaming** - Memory-efficient processing of large documents
 - **Multi-backend** - Works on wasm, wasm-gc, js, and native
 - **XML 1.0 + Namespaces 1.0** - Unicode names plus namespace-aware events
+- **Source-aware parsing** - Exact ranges for events, attributes, and errors
 
 ## Usage
 
@@ -51,6 +52,21 @@ match reader.read_event() {
 
 Namespace declarations are exposed through `NamespaceElement::namespace_declarations` and are not included in its normal attributes. Default namespaces apply to element names but not to unprefixed attribute names.
 
+### Source locations
+
+Use `Reader::read_spanned_event` when parsed values must map back to their authored source. Event and attribute spans are half-open; offsets count UTF-16 code units, so they can slice the original MoonBit `String` directly.
+
+```moonbit
+let input = "<root id='a&amp;b'/>"
+let reader = @xml.Reader::from_string(input)
+let parsed = reader.read_spanned_event()
+let authored = input[parsed.span.start.offset:parsed.span.end.offset]
+assert_eq(authored, input)
+assert_eq(parsed.attributes[0].value, "a&b")
+```
+
+Each `SpannedAttribute` contains the whole attribute span plus separate name and unquoted value spans. `read_spanned_event` raises `LocatedXmlError`, which preserves the original `XmlError` and the position where parsing detected it. Events produced by entity expansion point to the authored entity reference.
+
 ## Event Types
 
 | Event | Description |
@@ -70,14 +86,14 @@ Namespace declarations are exposed through `NamespaceElement::namespace_declarat
 
 This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using libxml2 (lxml) as the reference parser.
 
-**Current status: 810/810 tests passing**
+**Current status: 817/817 tests passing**
 
 | Category | Tests | Description |
 |----------|-------|-------------|
 | Valid (with events) | 448 | Parser produces correct event sequence |
 | Valid (error-only) | 6 | Parser does not error on valid XML |
 | Not-well-formed | 281 | Parser correctly rejects malformed XML |
-| Unit tests | 75 | Reader, writer, escape, namespace, conformance tests |
+| Unit tests | 82 | Reader, writer, escape, namespace, source spans, conformance tests |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)

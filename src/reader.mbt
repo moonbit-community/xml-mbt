@@ -13,6 +13,12 @@
 // limitations under the License.
 
 ///|
+priv struct ParsedEvent {
+  event : Event
+  attributes : Array[SpannedAttribute]
+}
+
+///|
 /// Create a new reader from a string
 pub fn Reader::from_string(input : String) -> Reader {
   let chars = input.to_array()
@@ -25,6 +31,7 @@ pub fn Reader::from_string(input : String) -> Reader {
   {
     input: chars,
     pos: start_pos,
+    offset: start_pos,
     line: 1,
     column: 1,
     entities: Map([]),
@@ -36,7 +43,10 @@ pub fn Reader::from_string(input : String) -> Reader {
     seen_content: false,
     just_saw_decl: false,
     pending_events: [],
+    pending_event_spans: [],
+    pending_event_attributes: [],
     internal_subset_events: [],
+    internal_subset_event_spans: [],
     just_saw_doctype: false,
     had_bom: start_pos > 0,
   }
@@ -57,6 +67,7 @@ pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
   {
     input: chars,
     pos: start_pos,
+    offset: start_pos,
     line: 1,
     column: 1,
     entities: Map([]),
@@ -68,7 +79,10 @@ pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
     seen_content: false,
     just_saw_decl: false,
     pending_events: [],
+    pending_event_spans: [],
+    pending_event_attributes: [],
     internal_subset_events: [],
+    internal_subset_event_spans: [],
     just_saw_doctype: false,
     had_bom: start_pos > 0,
   }
@@ -114,6 +128,32 @@ pub fn Reader::column(self : Reader) -> Int {
 }
 
 ///|
+fn Reader::source_position(self : Reader) -> SourcePosition {
+  { offset: self.offset, line: self.line, column: self.column }
+}
+
+///|
+fn source_span(start : SourcePosition, end : SourcePosition) -> SourceSpan {
+  { start, end }
+}
+
+///|
+fn Reader::push_pending_event(self : Reader, event : SpannedEvent) -> Unit {
+  self.pending_events.push(event.event)
+  self.pending_event_spans.push(event.span)
+  self.pending_event_attributes.push(event.attributes)
+}
+
+///|
+fn Reader::pop_pending_event(self : Reader) -> SpannedEvent {
+  {
+    event: self.pending_events.remove(0),
+    span: self.pending_event_spans.remove(0),
+    attributes: self.pending_event_attributes.remove(0),
+  }
+}
+
+///|
 /// Read all events until EOF (inclusive) as an Array.
 /// Includes the final Eof event in the result.
 /// Raises XmlError if parsing fails.
@@ -130,6 +170,21 @@ pub fn Reader::read_events_until_eof(
     }
   }
   abort("unreachable")
+}
+
+///|
+/// Read all spanned events until EOF, including the final `Eof` event.
+pub fn Reader::read_spanned_events_until_eof(
+  self : Reader,
+) -> Array[SpannedEvent] raise LocatedXmlError {
+  let events : Array[SpannedEvent] = []
+  for ;; {
+    let event = self.read_spanned_event()
+    events.push(event)
+    if event.event is Eof {
+      return events
+    }
+  }
 }
 
 ///|
@@ -159,8 +214,14 @@ fn Reader::advance(self : Reader) -> Char? {
   if self.pos < self.input.length() {
     let c = self.input[self.pos]
     self.pos += 1
-    if c == '\n' {
+    self.offset += if c.to_int() > 0xFFFF { 2 } else { 1 }
+    if c == '\r' {
       self.line += 1
+      self.column = 1
+    } else if c == '\n' {
+      if self.pos < 2 || self.input[self.pos - 2] != '\r' {
+        self.line += 1
+      }
       self.column = 1
     } else {
       self.column += 1
@@ -290,12 +351,30 @@ fn Reader::check_string(self : Reader, s : String) -> Bool {
 ///|
 /// Read the next XML event
 pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
+  self.read_spanned_event_internal().event
+}
+
+///|
+/// Read the next XML event with its exact source range.
+/// Entity-expansion events use the range of the authored entity reference.
+pub fn Reader::read_spanned_event(
+  self : Reader,
+) -> SpannedEvent raise LocatedXmlError {
+  self.read_spanned_event_internal() catch {
+    error => raise At(error~, position=self.source_position())
+  }
+}
+
+///|
+fn Reader::read_spanned_event_internal(
+  self : Reader,
+) -> SpannedEvent raise XmlError {
   // Return pending events first (from split text)
   if self.pending_events.length() > 0 {
-    let event = self.pending_events.remove(0)
+    let event = self.pop_pending_event()
     // Skip empty Text events
-    match event {
-      Text(s) if s == "" => return self.read_event()
+    match event.event {
+      Text(s) if s == "" => return self.read_spanned_event_internal()
       _ => {
         self.seen_content = true
         return event
@@ -312,13 +391,19 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
     if !self.seen_root {
       raise InvalidSyntax("empty document - no root element")
     }
-    return Eof
+    let position = self.source_position()
+    return { event: Eof, span: source_span(position, position), attributes: [] }
   }
+  let event_start = self.source_position()
   match self.peek() {
     Some('<') => {
-      let event = self.read_tag()
+      let parsed = self.read_tag()
+      if self.had_bom && parsed.event is Decl(_) {
+        self.just_saw_decl = true
+        return self.read_spanned_event_internal()
+      }
       // Track root element state
-      match event {
+      match parsed.event {
         Start(_) => {
           self.seen_content = true
           if self.root_closed {
@@ -375,7 +460,11 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
         Decl(_) => self.just_saw_decl = true // Skip next whitespace
         Eof => ()
       }
-      event
+      {
+        event: parsed.event,
+        span: source_span(event_start, self.source_position()),
+        attributes: parsed.attributes,
+      }
     }
     Some(_) =>
       // Check for non-whitespace content in prolog or after root
@@ -395,7 +484,7 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
           }
         }
         // After skipping whitespace, try to read the next event
-        return self.read_event()
+        return self.read_spanned_event_internal()
       } else if !self.seen_root {
         // Before root element: only literal whitespace is allowed
         if self.just_saw_decl {
@@ -412,7 +501,7 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
             }
           }
           self.just_saw_decl = false
-          return self.read_event()
+          return self.read_spanned_event_internal()
         }
         // Read prolog whitespace
         let text_event = self.read_whitespace_only()
@@ -421,17 +510,24 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
         // Move internal subset events to pending queue
         if self.just_saw_doctype {
           self.just_saw_doctype = false
-          for event in self.internal_subset_events {
-            self.pending_events.push(event)
+          while self.internal_subset_events.length() > 0 {
+            self.push_pending_event({
+              event: self.internal_subset_events.remove(0),
+              span: self.internal_subset_event_spans.remove(0),
+              attributes: [],
+            })
           }
-          self.internal_subset_events.clear()
         }
-        text_event
+        {
+          event: text_event,
+          span: source_span(event_start, self.source_position()),
+          attributes: [],
+        }
       } else {
         let text_event = self.read_text()
         // Skip empty Text events (lxml doesn't emit them)
-        match text_event {
-          Text(s) if s == "" => return self.read_event()
+        match text_event.event {
+          Text(s) if s == "" => return self.read_spanned_event_internal()
           _ => {
             // Mark that we've seen content (affects XML declaration placement check)
             self.seen_content = true
@@ -449,19 +545,20 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
       if !self.seen_root {
         raise InvalidSyntax("empty document - no root element")
       }
-      Eof
+      let position = self.source_position()
+      { event: Eof, span: source_span(position, position), attributes: [] }
     }
   }
 }
 
 ///|
 /// Read a tag (element, comment, CDATA, PI, DOCTYPE, etc.)
-fn Reader::read_tag(self : Reader) -> Event raise XmlError {
+fn Reader::read_tag(self : Reader) -> ParsedEvent raise XmlError {
   let _ = self.advance() // consume '<'
   match self.peek() {
-    Some('/') => self.read_end_tag()
-    Some('!') => self.read_special()
-    Some('?') => self.read_pi()
+    Some('/') => { event: self.read_end_tag(), attributes: [] }
+    Some('!') => { event: self.read_special(), attributes: [] }
+    Some('?') => { event: self.read_pi(), attributes: [] }
     Some(_) => self.read_start_tag()
     None => raise UnexpectedEof
   }
@@ -499,9 +596,9 @@ fn Reader::read_end_tag(self : Reader) -> Event raise XmlError {
 
 ///|
 /// Read a start tag or empty element: <name ...> or <name .../>
-fn Reader::read_start_tag(self : Reader) -> Event raise XmlError {
+fn Reader::read_start_tag(self : Reader) -> ParsedEvent raise XmlError {
   let name = self.read_name()
-  let attributes = self.read_attributes(name)
+  let (attributes, spanned_attributes) = self.read_attributes(name)
   // Skip whitespace and control characters before tag end
   self.skip_ws_and_control()
   match self.peek() {
@@ -511,7 +608,10 @@ fn Reader::read_start_tag(self : Reader) -> Event raise XmlError {
       match self.peek() {
         Some('>') => {
           let _ = self.advance()
-          Empty(XmlElement::with_attrs(name, attributes))
+          {
+            event: Empty(XmlElement::with_attrs(name, attributes)),
+            attributes: spanned_attributes,
+          }
         }
         _ => raise InvalidSyntax("expected '>' after '/'")
       }
@@ -519,7 +619,10 @@ fn Reader::read_start_tag(self : Reader) -> Event raise XmlError {
     Some('>') => {
       let _ = self.advance()
       self.tag_stack.push(name)
-      Start(XmlElement::with_attrs(name, attributes))
+      {
+        event: Start(XmlElement::with_attrs(name, attributes)),
+        attributes: spanned_attributes,
+      }
     }
     _ => raise InvalidSyntax("expected '>' or '/>' at end of start tag")
   }
@@ -650,13 +753,7 @@ fn Reader::read_pi(self : Reader) -> Event raise XmlError {
       raise InvalidSyntax("PI target 'xml' is reserved (case-insensitive)")
     }
     // XML declaration
-    let decl = self.read_xml_decl()
-    // When BOM is present, lxml skips the Decl event entirely
-    if self.had_bom {
-      self.just_saw_decl = true
-      return self.read_event()
-    }
-    decl
+    self.read_xml_decl()
   } else {
     // After target, must have whitespace before data, or ?> to end
     match self.peek() {
@@ -885,8 +982,9 @@ fn Reader::read_name(self : Reader) -> String raise XmlError {
 fn Reader::read_attributes(
   self : Reader,
   elem_name : String,
-) -> Array[(String, String)] raise XmlError {
+) -> (Array[(String, String)], Array[SpannedAttribute]) raise XmlError {
   let attrs : Array[(String, String)] = []
+  let spanned_attrs : Array[SpannedAttribute] = []
   let mut need_whitespace = false
   while true {
     let had_whitespace = self.skip_whitespace_count() > 0
@@ -896,13 +994,16 @@ fn Reader::read_attributes(
         if need_whitespace && !had_whitespace {
           raise InvalidSyntax("whitespace required between attributes")
         }
+        let attribute_start = self.source_position()
+        let name_start = attribute_start
         let attr_name = self.read_name()
+        let name_end = self.source_position()
         self.skip_whitespace()
         match self.peek() {
           Some('=') => {
             let _ = self.advance()
             self.skip_whitespace()
-            let raw_value = self.read_attr_value()
+            let (raw_value, value_span) = self.read_attr_value()
             // Normalize attribute value based on declared type
             let normalized_value = self.normalize_attr_by_type(
               elem_name, attr_name, raw_value,
@@ -913,6 +1014,13 @@ fn Reader::read_attributes(
               raise InvalidSyntax("duplicate attribute: " + attr_name)
             }
             attrs.push((attr_name, normalized_value))
+            spanned_attrs.push({
+              name: attr_name,
+              value: normalized_value,
+              span: source_span(attribute_start, self.source_position()),
+              name_span: source_span(name_start, name_end),
+              value_span,
+            })
             need_whitespace = true
           }
           _ => raise InvalidSyntax("expected '=' after attribute name")
@@ -931,7 +1039,7 @@ fn Reader::read_attributes(
       None => break
     }
   }
-  attrs
+  (attrs, spanned_attrs)
 }
 
 ///|
@@ -1002,19 +1110,23 @@ fn Reader::read_raw_attr_value(self : Reader) -> String raise XmlError {
 
 ///|
 /// Read attribute value (quoted) and decode entities
-fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
+fn Reader::read_attr_value(
+  self : Reader,
+) -> (String, SourceSpan) raise XmlError {
   let quote = match self.peek() {
     Some('"') => '"'
     Some('\'') => '\''
     _ => raise InvalidSyntax("expected quoted attribute value")
   }
   let _ = self.advance() // consume opening quote
+  let value_start = self.source_position()
   let buf = StringBuilder::new()
   while !self.is_eof() {
     match self.peek() {
       Some(c) if c == quote => {
+        let value_end = self.source_position()
         let _ = self.advance()
-        break
+        return (buf.to_string(), source_span(value_start, value_end))
       }
       Some('<') =>
         // < is not allowed in attribute values
@@ -1075,7 +1187,7 @@ fn Reader::read_attr_value(self : Reader) -> String raise XmlError {
       None => break
     }
   }
-  buf.to_string()
+  (buf.to_string(), source_span(value_start, self.source_position()))
 }
 
 ///|
@@ -1144,7 +1256,11 @@ fn is_well_formed_content(s : String) -> Bool {
 
 ///|
 /// Parse entity content as XML markup and push events to pending queue
-fn Reader::parse_entity_content(self : Reader, content : String) -> Unit {
+fn Reader::parse_entity_content(
+  self : Reader,
+  content : String,
+  entity_span : SourceSpan,
+) -> Unit {
   // Create a temporary reader to parse the entity content
   let sub_reader = Reader::from_string(content)
   // Copy entity definitions to sub-reader
@@ -1157,18 +1273,35 @@ fn Reader::parse_entity_content(self : Reader, content : String) -> Unit {
   sub_reader.tag_stack.push("_entity_content_")
   // Parse all events from entity content
   while true {
-    let event = sub_reader.read_event() catch { _ => break }
-    match event {
+    let event = sub_reader.read_spanned_event_internal() catch { _ => break }
+    match event.event {
       Eof => break
-      e => self.pending_events.push(e)
+      parsed_event => {
+        let attributes : Array[SpannedAttribute] = []
+        for attribute in event.attributes {
+          attributes.push({
+            name: attribute.name,
+            value: attribute.value,
+            span: entity_span,
+            name_span: entity_span,
+            value_span: entity_span,
+          })
+        }
+        self.push_pending_event({
+          event: parsed_event,
+          span: entity_span,
+          attributes,
+        })
+      }
     }
   }
 }
 
 ///|
 /// Read text content - splits on entities to match lxml behavior
-fn Reader::read_text(self : Reader) -> Event raise XmlError {
+fn Reader::read_text(self : Reader) -> SpannedEvent raise XmlError {
   let buf = StringBuilder::new()
+  let mut text_start = self.source_position()
   while !self.is_eof() {
     match self.peek() {
       Some('<') => break
@@ -1176,10 +1309,15 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
         // Push current buffer as text event before processing entity
         let current_text = buf.to_string()
         if current_text.length() > 0 {
-          self.pending_events.push(Text(current_text))
+          self.push_pending_event({
+            event: Text(current_text),
+            span: source_span(text_start, self.source_position()),
+            attributes: [],
+          })
           buf.reset()
         }
         // Read entity
+        let entity_start = self.source_position()
         let _ = self.advance() // consume '&'
         // Check for valid entity name start (# for char ref, or NameStartChar)
         match self.peek() {
@@ -1192,7 +1330,11 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                 let entity = "&" + entity_name + ";"
                 let decoded = unescape(entity)
                 // Character references preserve literal character (no line ending normalization)
-                self.pending_events.push(Text(decoded))
+                self.push_pending_event({
+                  event: Text(decoded),
+                  span: source_span(entity_start, self.source_position()),
+                  attributes: [],
+                })
               }
               _ => raise InvalidSyntax("entity reference must end with ';'")
             }
@@ -1211,7 +1353,10 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                     if has_markup(stored_value) &&
                       is_well_formed_content(stored_value) {
                       // Parse stored entity content as XML (handles &#38; correctly)
-                      self.parse_entity_content(stored_value)
+                      self.parse_entity_content(
+                        stored_value,
+                        source_span(entity_start, self.source_position()),
+                      )
                     } else {
                       // Expand fully and return as text
                       let entity_ref = "&" + entity_name + ";"
@@ -1222,7 +1367,11 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                         seen,
                       )
                       let normalized = normalize_line_endings(expanded)
-                      self.pending_events.push(Text(normalized))
+                      self.push_pending_event({
+                        event: Text(normalized),
+                        span: source_span(entity_start, self.source_position()),
+                        attributes: [],
+                      })
                     }
                   None => {
                     // Built-in entity (like &amp;) - expand and push as text
@@ -1234,7 +1383,11 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
                       seen,
                     )
                     let normalized = normalize_line_endings(expanded)
-                    self.pending_events.push(Text(normalized))
+                    self.push_pending_event({
+                      event: Text(normalized),
+                      span: source_span(entity_start, self.source_position()),
+                      attributes: [],
+                    })
                   }
                 }
               }
@@ -1243,6 +1396,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
           }
           _ => raise InvalidSyntax("invalid entity reference")
         }
+        text_start = self.source_position()
       }
       Some(']') => {
         // Check for forbidden ]]> in content
@@ -1277,13 +1431,18 @@ fn Reader::read_text(self : Reader) -> Event raise XmlError {
   // Push any remaining text
   let final_text = buf.to_string()
   if final_text.length() > 0 {
-    self.pending_events.push(Text(final_text))
+    self.push_pending_event({
+      event: Text(final_text),
+      span: source_span(text_start, self.source_position()),
+      attributes: [],
+    })
   }
   // Return first pending event, or empty Text if none
   if self.pending_events.length() > 0 {
-    self.pending_events.remove(0)
+    self.pop_pending_event()
   } else {
-    Text("")
+    let position = self.source_position()
+    { event: Text(""), span: source_span(position, position), attributes: [] }
   }
 }
 
@@ -1480,6 +1639,7 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
         return
       }
       Some('<') => {
+        let declaration_start = self.source_position()
         let _ = self.advance()
         if self.peek() is Some('!') {
           let _ = self.advance()
@@ -1650,6 +1810,9 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
               }
             }
             self.internal_subset_events.push(Comment(comment_buf.to_string()))
+            self.internal_subset_event_spans.push(
+              source_span(declaration_start, self.source_position()),
+            )
           } else if self.check_string("NOTATION") {
             // NOTATION declaration - validate PUBLIC ID if present
             let _ = self.skip_string("NOTATION")
@@ -1709,6 +1872,9 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
               self.internal_subset_events.push(
                 PI(target~, data=data_buf.to_string()),
               )
+              self.internal_subset_event_spans.push(
+                source_span(declaration_start, self.source_position()),
+              )
             }
             Some('?') =>
               // Check for ?>
@@ -1716,6 +1882,9 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlError {
                 let _ = self.skip_string("?>")
                 // Push PI event with empty data to internal subset queue
                 self.internal_subset_events.push(PI(target~, data=""))
+                self.internal_subset_event_spans.push(
+                  source_span(declaration_start, self.source_position()),
+                )
               } else {
                 raise InvalidSyntax(
                   "expected whitespace or '?>' after PI target",
