@@ -76,6 +76,7 @@ pub struct Reader {
   mut line : Int
   mut column : Int
   entities : Map[String, String] // Custom entities from DTD
+  mut entity_expansion_remaining : Int // Remaining expanded characters for this document
   attr_types : Map[String, String] // Attribute types from ATTLIST (key: "elem:attr", value: type)
   tag_stack : Array[(String, SourceSpan)] // Open element names and authored start-tag spans
   mut seen_root : Bool // Whether we've seen the root element

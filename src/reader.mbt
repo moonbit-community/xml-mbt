@@ -29,6 +29,7 @@ pub fn Reader::from_string(input : String) -> Reader {
     line: 1,
     column: 1,
     entities: Map([]),
+    entity_expansion_remaining: MAX_ENTITY_EXPANSION_CHARS,
     attr_types: Map([]),
     tag_stack: [],
     seen_root: false,
@@ -74,6 +75,22 @@ fn Reader::source_position(self : Reader) -> SourcePosition {
 ///|
 fn source_span(start : SourcePosition, end : SourcePosition) -> SourceSpan {
   { start, end }
+}
+
+///|
+fn Reader::expand_entity_value(
+  self : Reader,
+  value : String,
+) -> String raise XmlErrorKind {
+  let seen : Map[String, Bool] = Map([])
+  let (expanded, remaining) = expand_entity_value_with_remaining(
+    value,
+    self.entities,
+    seen,
+    self.entity_expansion_remaining,
+  )
+  self.entity_expansion_remaining = remaining
+  expanded
 }
 
 ///|
@@ -1031,12 +1048,7 @@ fn Reader::read_attr_value(
             } else {
               // Entity reference - expand with validation
               let entity_ref = "&" + entity_name + ";"
-              let seen : Map[String, Bool] = Map([])
-              let expanded = expand_entity_value(
-                entity_ref,
-                self.entities,
-                seen,
-              )
+              let expanded = self.expand_entity_value(entity_ref)
               // Normalize whitespace in entity expansion (unlike char refs, which are preserved)
               for c in expanded {
                 if c == '\t' || c == '\n' || c == '\r' {
@@ -1247,12 +1259,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
                 match self.entities.get(entity_name) {
                   Some(stored_value) => {
                     let entity_ref = "&" + entity_name + ";"
-                    let seen : Map[String, Bool] = Map([])
-                    let expanded = expand_entity_value(
-                      entity_ref,
-                      self.entities,
-                      seen,
-                    )
+                    let expanded = self.expand_entity_value(entity_ref)
                     // Check if stored value has markup and is well-formed
                     // Use stored value (with &#38; intact) for well-formedness check
                     if has_markup(stored_value) &&
@@ -1274,12 +1281,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
                   None => {
                     // Built-in entity (like &amp;) - expand and push as text
                     let entity_ref = "&" + entity_name + ";"
-                    let seen : Map[String, Bool] = Map([])
-                    let expanded = expand_entity_value(
-                      entity_ref,
-                      self.entities,
-                      seen,
-                    )
+                    let expanded = self.expand_entity_value(entity_ref)
                     let normalized = normalize_line_endings(expanded)
                     self.push_pending_event({
                       kind: Text(normalized),

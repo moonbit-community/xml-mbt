@@ -139,7 +139,7 @@ The following test categories are skipped:
 - **Non-validating** - Does not validate against DTD
 - **UTF-8 only** - Other encodings not supported
 - **XML 1.0 only** - XML 1.1 not supported
-- **Bounded entity expansion** - Internal entities are limited to 32 nesting levels and 262,144 expanded characters per reference
+- **Bounded entity expansion** - Internal entities are limited to 32 nesting levels and 262,144 expanded characters per document
 
 External entity declarations are parsed, but their contents are not resolved. Referencing an external entity raises an error.
 

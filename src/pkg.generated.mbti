@@ -114,6 +114,7 @@ pub struct Reader {
   mut line : Int
   mut column : Int
   entities : Map[String, String]
+  mut entity_expansion_remaining : Int
   attr_types : Map[String, String]
   tag_stack : Array[(String, SourceSpan)]
   mut seen_root : Bool

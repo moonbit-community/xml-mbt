@@ -449,6 +449,31 @@ test "reject entity expansion over the nesting-depth budget" {
 }
 
 ///|
+test "share the entity expansion budget across the document" {
+  let xml =
+    #|<!DOCTYPE root [
+    #|<!ENTITY a "1234567890">
+    #|<!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;">
+    #|<!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;&b;&b;">
+    #|<!ENTITY d "&c;&c;&c;&c;&c;&c;&c;&c;&c;&c;">
+    #|<!ENTITY e "&d;&d;&d;&d;&d;&d;&d;&d;&d;&d;">
+    #|]><root>&e;&e;&e;</root>
+
+  let reader = Reader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    At(error~, span=_) =>
+      @debug.debug_inspect(
+        error,
+        content=(
+          #|InvalidEntity("entity expansion limit exceeded")
+        ),
+      )
+  } noraise {
+    _ => fail("expected document-wide entity expansion budget to raise")
+  }
+}
+
+///|
 test "reject non-XML whitespace in tag grammar" {
   let reader = Reader::from_string("<root\u{00A0}id=\"1\"/>")
   try reader.read_event() catch {

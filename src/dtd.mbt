@@ -588,18 +588,17 @@ fn EntityExpansionBudget::consume(
 /// Expand entity value recursively, validating all nested entity refs
 /// Returns the fully expanded string
 /// Raises error for undefined entities or recursive references
-fn expand_entity_value(
+fn expand_entity_value_with_remaining(
   value : String,
   entities : Map[String, String],
   seen : Map[String, Bool],
-) -> String raise XmlErrorKind {
-  expand_entity_value_with_budget(
-    value,
-    entities,
-    seen,
-    { remaining: MAX_ENTITY_EXPANSION_CHARS },
-    0,
+  remaining : Int,
+) -> (String, Int) raise XmlErrorKind {
+  let budget : EntityExpansionBudget = { remaining, }
+  let expanded = expand_entity_value_with_budget(
+    value, entities, seen, budget, 0,
   )
+  (expanded, budget.remaining)
 }
 
 ///|
@@ -840,8 +839,7 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlErrorKind 
           skip_ws(reader)
           let value = read_quoted_value(reader)
           // Expand entity references to validate them (detects undefined and recursive refs)
-          let seen : Map[String, Bool] = Map([])
-          let _ = expand_entity_value(value, reader.entities, seen)
+          let _ = reader.expand_entity_value(value)
         }
         _ =>
           raise InvalidSyntax("invalid attribute default keyword: #" + keyword)
@@ -850,8 +848,7 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlErrorKind 
     Some('"') | Some('\'') => {
       let value = read_quoted_value(reader)
       // Expand entity references to validate them (detects undefined and recursive refs)
-      let seen : Map[String, Bool] = Map([])
-      let _ = expand_entity_value(value, reader.entities, seen)
+      let _ = reader.expand_entity_value(value)
     }
     _ => raise InvalidSyntax("expected attribute default value or keyword")
   }
