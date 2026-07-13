@@ -9,8 +9,6 @@ import {
 // Values
 pub fn escape(String) -> String
 
-pub fn to_libxml_format(Array[Event]) -> Array[EventKind]
-
 pub fn unescape(String) -> String raise XmlErrorKind
 
 // Errors

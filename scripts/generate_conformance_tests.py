@@ -18,7 +18,7 @@ from typing import List, Tuple, Optional
 from xml_reference import parse_xml, escape_for_debug
 
 XMLCONF_DIR = Path(__file__).parent.parent / "xmlconf"
-OUTPUT_FILE = Path(__file__).parent.parent / "src" / "w3c_conformance_test.mbt"
+OUTPUT_FILE = Path(__file__).parent.parent / "src" / "w3c_conformance_wbtest.mbt"
 
 LICENSE_HEADER = """// ============================================================================
 // AUTO-GENERATED FILE - DO NOT MODIFY MANUALLY
