@@ -518,17 +518,8 @@ fn Reader::read_start_tag(self : Reader) -> Event raise XmlError {
     }
     Some('>') => {
       let _ = self.advance()
-      // Check for immediately following end tag (empty element like <foo></foo>)
-      // lxml reports non-root empty elements as Empty, but root element as Start+End
-      let end_tag = "</" + name + ">"
-      if self.tag_stack.length() > 0 && self.check_string(end_tag) {
-        let _ = self.skip_string(end_tag)
-        Empty(XmlElement::with_attrs(name, attributes))
-      } else {
-        // Push tag name onto stack for matching with end tag
-        self.tag_stack.push(name)
-        Start(XmlElement::with_attrs(name, attributes))
-      }
+      self.tag_stack.push(name)
+      Start(XmlElement::with_attrs(name, attributes))
     }
     _ => raise InvalidSyntax("expected '>' or '/>' at end of start tag")
   }

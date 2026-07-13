@@ -49,6 +49,24 @@ test "parse self-closing element" {
 }
 
 ///|
+test "preserve explicit start and end tags for empty nested element" {
+  let reader = Reader::from_string("<root><child></child></root>")
+  let events = reader.read_events_until_eof()
+  @debug.debug_inspect(
+    events,
+    content=(
+      #|[
+      #|  Start({ name: "root", attributes: [] }),
+      #|  Start({ name: "child", attributes: [] }),
+      #|  End("child"),
+      #|  End("root"),
+      #|  Eof,
+      #|]
+    ),
+  )
+}
+
+///|
 test "parse element with text" {
   let reader = Reader::from_string("<p>Hello World</p>")
   let event1 = reader.read_event()

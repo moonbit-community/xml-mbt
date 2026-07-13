@@ -70,14 +70,14 @@ Namespace declarations are exposed through `NamespaceElement::namespace_declarat
 
 This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using libxml2 (lxml) as the reference parser.
 
-**Current status: 809/809 tests passing**
+**Current status: 810/810 tests passing**
 
 | Category | Tests | Description |
 |----------|-------|-------------|
 | Valid (with events) | 448 | Parser produces correct event sequence |
 | Valid (error-only) | 6 | Parser does not error on valid XML |
 | Not-well-formed | 281 | Parser correctly rejects malformed XML |
-| Unit tests | 74 | Reader, writer, escape, namespace, conformance tests |
+| Unit tests | 75 | Reader, writer, escape, namespace, conformance tests |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
