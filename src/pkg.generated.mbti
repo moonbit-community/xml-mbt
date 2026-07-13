@@ -9,23 +9,9 @@ import {
 // Values
 pub fn escape(String) -> String
 
-pub fn expand_char_refs_only(String) -> String raise XmlError
-
-pub fn expand_entity_value(String, Map[String, String], Map[String, Bool]) -> String raise XmlError
-
-pub fn parse_attlist(Reader) -> Unit raise XmlError
-
-pub fn parse_element_decl(Reader) -> Unit raise XmlError
-
 pub fn to_libxml_format(Array[Event]) -> Array[Event]
 
 pub fn unescape(String) -> String raise XmlError
-
-pub fn validate_entity_refs(String, Map[String, String]) -> Unit raise XmlError
-
-pub fn validate_entity_value(String) -> Unit raise XmlError
-
-pub fn validate_pe_value(String) -> Unit raise XmlError
 
 // Errors
 pub(all) suberror XmlError {

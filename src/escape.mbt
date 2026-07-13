@@ -64,7 +64,7 @@ pub fn unescape(text : String) -> String raise XmlError {
 ///|
 /// Expand only character references (&#NN; &#xHH;), leaving entity refs as-is.
 /// Used for processing entity replacement text per XML spec 4.5.
-pub fn expand_char_refs_only(text : String) -> String raise XmlError {
+fn expand_char_refs_only(text : String) -> String raise XmlError {
   let buf = StringBuilder::new()
   let chars = text.to_array()
   let len = chars.length()

@@ -15,7 +15,7 @@
 ///|
 /// Validate parameter entity value (less strict than general entity)
 /// Checks for PE references, invalid characters, and bare &
-pub fn validate_pe_value(value : String) -> Unit raise XmlError {
+fn validate_pe_value(value : String) -> Unit raise XmlError {
   let chars = value.to_array()
   let len = chars.length()
   let mut i = 0
@@ -75,7 +75,7 @@ pub fn validate_pe_value(value : String) -> Unit raise XmlError {
 /// Validate entity replacement text for well-formedness
 /// Checks that entity values don't contain bare & not followed by valid reference
 /// Also validates character references when expanded
-pub fn validate_entity_value(value : String) -> Unit raise XmlError {
+fn validate_entity_value(value : String) -> Unit raise XmlError {
   let chars = value.to_array()
   let len = chars.length()
   let mut i = 0
@@ -545,51 +545,6 @@ fn expand_char_refs(chars : Array[Char], len : Int) -> String {
 }
 
 ///|
-/// Validate that all entity references in a value are defined
-/// Checks against the reader's entities map plus predefined entities
-pub fn validate_entity_refs(
-  value : String,
-  entities : Map[String, String],
-) -> Unit raise XmlError {
-  let chars = value.to_array()
-  let len = chars.length()
-  let mut i = 0
-  while i < len {
-    if chars[i] == '&' {
-      i += 1
-      if i >= len {
-        return // syntax error handled elsewhere
-      }
-      if chars[i] == '#' {
-        // Character reference - skip to ;
-        while i < len && chars[i] != ';' {
-          i += 1
-        }
-        if i < len {
-          i += 1 // skip ;
-        }
-      } else {
-        // Entity reference - extract name and check if defined
-        let name_start = i
-        while i < len && chars[i] != ';' && is_name_char(chars[i]) {
-          i += 1
-        }
-        if i < len && chars[i] == ';' {
-          let name = substring_from_chars(chars, name_start, i)
-          // Check if entity is defined (including predefined entities)
-          if !is_predefined_entity(name) && !entities.contains(name) {
-            raise InvalidEntity("undefined entity reference: &" + name + ";")
-          }
-          i += 1 // skip ;
-        }
-      }
-    } else {
-      i += 1
-    }
-  }
-}
-
-///|
 fn substring_from_chars(chars : Array[Char], start : Int, end : Int) -> String {
   let buf = StringBuilder::new()
   for i = start; i < end; i = i + 1 {
@@ -611,7 +566,7 @@ fn is_predefined_entity(name : String) -> Bool {
 /// Expand entity value recursively, validating all nested entity refs
 /// Returns the fully expanded string
 /// Raises error for undefined entities or recursive references
-pub fn expand_entity_value(
+fn expand_entity_value(
   value : String,
   entities : Map[String, String],
   seen : Map[String, Bool],
@@ -724,7 +679,7 @@ pub fn expand_entity_value(
 ///|
 /// Parse ATTLIST declaration with validation
 /// ATTLIST format: <!ATTLIST element_name attr_name type default>
-pub fn parse_attlist(reader : Reader) -> Unit raise XmlError {
+fn parse_attlist(reader : Reader) -> Unit raise XmlError {
   // Skip whitespace after ATTLIST
   skip_ws(reader)
 
@@ -1011,7 +966,7 @@ fn parse_decimal_code(chars : Array[Char], start : Int, end : Int) -> Int {
 ///|
 /// Parse ELEMENT declaration with validation
 /// ELEMENT format: <!ELEMENT name content-model>
-pub fn parse_element_decl(reader : Reader) -> Unit raise XmlError {
+fn parse_element_decl(reader : Reader) -> Unit raise XmlError {
   // Skip whitespace after ELEMENT
   skip_ws(reader)
 
