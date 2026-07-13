@@ -60,7 +60,9 @@ pub struct Event {
 } derive(Eq)
 
 ///|
-/// An XML parsing error paired with the source range consumed while detecting it.
+/// An XML parsing error paired with its relevant authored source range.
+/// Syntax errors normally cover input consumed while detecting the failure;
+/// an unclosed-element error covers the unmatched opening tag.
 pub(all) suberror XmlError {
   At(error~ : XmlErrorKind, span~ : SourceSpan)
 } derive(Debug, Eq)
@@ -75,7 +77,7 @@ pub struct Reader {
   mut column : Int
   entities : Map[String, String] // Custom entities from DTD
   attr_types : Map[String, String] // Attribute types from ATTLIST (key: "elem:attr", value: type)
-  tag_stack : Array[String] // Stack of open element names for validation
+  tag_stack : Array[(String, SourceSpan)] // Open element names and authored start-tag spans
   mut seen_root : Bool // Whether we've seen the root element
   mut root_closed : Bool // Whether the root element has been closed
   mut seen_content : Bool // Whether any content has been parsed (for XML decl position check)

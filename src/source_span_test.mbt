@@ -85,6 +85,40 @@ test "parsing reports the source span of errors" {
 }
 
 ///|
+test "unclosed element errors point to the opening tag" {
+  let reader = Reader::from_string("<root>")
+  let _ = reader.read_event()
+  try reader.read_event() catch {
+    At(error~, span~) => {
+      assert_eq(error, InvalidSyntax("unclosed element: <root>"))
+      assert_eq((span.start.offset, span.end.offset), (0, 6))
+      assert_eq((span.start.line, span.start.column), (1, 1))
+      assert_eq((span.end.line, span.end.column), (1, 7))
+    }
+  } noraise {
+    _ => fail("expected unclosed element to raise")
+  }
+}
+
+///|
+test "nested unclosed element errors point to the innermost opening tag" {
+  let reader = Reader::from_string("<root>\n  <child>")
+  let _ = reader.read_event()
+  let _ = reader.read_event()
+  let _ = reader.read_event()
+  try reader.read_event() catch {
+    At(error~, span~) => {
+      assert_eq(error, InvalidSyntax("unclosed element: <child>"))
+      assert_eq((span.start.offset, span.end.offset), (9, 16))
+      assert_eq((span.start.line, span.start.column), (2, 3))
+      assert_eq((span.end.line, span.end.column), (2, 10))
+    }
+  } noraise {
+    _ => fail("expected nested unclosed element to raise")
+  }
+}
+
+///|
 test "error spans treat a carriage return as a source line break" {
   let reader = Reader::from_string("<root>\r<child id=>")
   let _ = reader.read_event()

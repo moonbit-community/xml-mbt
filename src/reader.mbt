@@ -247,6 +247,13 @@ fn Reader::check_string(self : Reader, s : String) -> Bool {
 ///|
 /// Read the next XML event
 pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
+  if self.is_eof() && self.tag_stack.length() > 0 {
+    let unclosed = self.tag_stack[self.tag_stack.length() - 1]
+    raise At(
+      error=InvalidSyntax("unclosed element: <" + unclosed.0 + ">"),
+      span=unclosed.1,
+    )
+  }
   let start = self.source_position()
   self.read_event_internal() catch {
     error => raise At(error~, span=source_span(start, self.source_position()))
@@ -270,8 +277,8 @@ fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
   if self.is_eof() {
     // Check for unclosed tags
     if self.tag_stack.length() > 0 {
-      let unclosed = self.tag_stack.pop().unwrap()
-      raise InvalidSyntax("unclosed element: <" + unclosed + ">")
+      let unclosed = self.tag_stack[self.tag_stack.length() - 1]
+      raise InvalidSyntax("unclosed element: <" + unclosed.0 + ">")
     }
     // Empty document is not valid
     if !self.seen_root {
@@ -283,7 +290,7 @@ fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
   let event_start = self.source_position()
   match self.peek() {
     Some('<') => {
-      let parsed = self.read_tag()
+      let parsed = self.read_tag(event_start)
       if self.had_bom && parsed is Decl(_) {
         self.just_saw_decl = true
         return self.read_event_internal()
@@ -415,8 +422,8 @@ fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
     None => {
       // Check for unclosed tags at EOF
       if self.tag_stack.length() > 0 {
-        let unclosed = self.tag_stack.pop().unwrap()
-        raise InvalidSyntax("unclosed element: <" + unclosed + ">")
+        let unclosed = self.tag_stack[self.tag_stack.length() - 1]
+        raise InvalidSyntax("unclosed element: <" + unclosed.0 + ">")
       }
       // Empty document is not valid
       if !self.seen_root {
@@ -430,13 +437,16 @@ fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
 
 ///|
 /// Read a tag (element, comment, CDATA, PI, DOCTYPE, etc.)
-fn Reader::read_tag(self : Reader) -> EventKind raise XmlErrorKind {
+fn Reader::read_tag(
+  self : Reader,
+  start : SourcePosition,
+) -> EventKind raise XmlErrorKind {
   let _ = self.advance() // consume '<'
   match self.peek() {
     Some('/') => self.read_end_tag()
     Some('!') => self.read_special()
     Some('?') => self.read_pi()
-    Some(_) => self.read_start_tag()
+    Some(_) => self.read_start_tag(start)
     None => raise UnexpectedEof
   }
 }
@@ -454,7 +464,7 @@ fn Reader::read_end_tag(self : Reader) -> EventKind raise XmlErrorKind {
   if self.tag_stack.length() == 0 {
     raise InvalidSyntax("unexpected end tag, no matching start tag")
   }
-  let expected = self.tag_stack.pop().unwrap()
+  let expected = self.tag_stack.pop().unwrap().0
   if expected != name {
     raise InvalidSyntax(
       "end tag mismatch: expected </" + expected + ">, found </" + name + ">",
@@ -472,7 +482,10 @@ fn Reader::read_end_tag(self : Reader) -> EventKind raise XmlErrorKind {
 
 ///|
 /// Read a start tag or empty element: <name ...> or <name .../>
-fn Reader::read_start_tag(self : Reader) -> EventKind raise XmlErrorKind {
+fn Reader::read_start_tag(
+  self : Reader,
+  start : SourcePosition,
+) -> EventKind raise XmlErrorKind {
   let name = self.read_name()
   let attributes = self.read_attributes(name)
   self.skip_whitespace()
@@ -490,7 +503,7 @@ fn Reader::read_start_tag(self : Reader) -> EventKind raise XmlErrorKind {
     }
     Some('>') => {
       let _ = self.advance()
-      self.tag_stack.push(name)
+      self.tag_stack.push((name, source_span(start, self.source_position())))
       Start({ name, attributes })
     }
     _ => raise InvalidSyntax("expected '>' or '/>' at end of start tag")
@@ -1139,7 +1152,10 @@ fn Reader::parse_entity_content(
   // Disable root element checking for entity content
   sub_reader.seen_root = true
   // Add dummy tag to stack so CDATA is allowed (we're inside element context)
-  sub_reader.tag_stack.push("_entity_content_")
+  let position = sub_reader.source_position()
+  sub_reader.tag_stack.push(
+    ("_entity_content_", source_span(position, position)),
+  )
   // Parse all events from entity content
   while true {
     let event = sub_reader.read_event_internal() catch { _ => break }

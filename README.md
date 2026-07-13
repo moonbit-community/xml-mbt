@@ -70,7 +70,7 @@ guard parsed.kind is Empty(element) else { abort("expected empty element") }
 assert_eq(element.attributes[0].value, "a&b")
 ```
 
-Each `XmlAttribute` contains the whole attribute span plus separate name and unquoted value spans. Parse failures raise `XmlError::At`, which contains an `XmlErrorKind` and the source span consumed while detecting it. Events produced by entity expansion point to the authored entity reference.
+Each `XmlAttribute` contains the whole attribute span plus separate name and unquoted value spans. Parse failures raise `XmlError::At`, which contains an `XmlErrorKind` and a relevant authored source span. Syntax failures normally cover input consumed while detecting the error, while an unclosed-element error points to the unmatched opening tag. Events produced by entity expansion point to the authored entity reference.
 
 ## Event Types
 

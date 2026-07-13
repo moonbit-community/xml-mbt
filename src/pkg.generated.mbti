@@ -117,7 +117,7 @@ pub struct Reader {
   mut column : Int
   entities : Map[String, String]
   attr_types : Map[String, String]
-  tag_stack : Array[String]
+  tag_stack : Array[(String, SourceSpan)]
   mut seen_root : Bool
   mut root_closed : Bool
   mut seen_content : Bool
