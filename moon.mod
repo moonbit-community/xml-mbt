@@ -1,6 +1,6 @@
 name = "Milky2018/xml"
 
-version = "0.3.0"
+version = "0.4.0"
 
 import {
   "moonbitlang/x@0.4.38",
