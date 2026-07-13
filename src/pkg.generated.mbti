@@ -150,7 +150,7 @@ pub struct Writer {
   element_stack : Array[String]
   mut seen_root : Bool
   mut wrote_anything : Bool
-  mut wrote_doctype : Bool
+  mut doctype_root : String?
 }
 pub fn Writer::cdata(Self, String) -> Unit raise WriterError
 pub fn Writer::comment(Self, String) -> Unit raise WriterError

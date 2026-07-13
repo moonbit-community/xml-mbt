@@ -345,3 +345,20 @@ test "reject XML declarations after other output" {
     _ => fail("expected misplaced XML declaration to raise")
   }
 }
+
+///|
+test "reject a root element that disagrees with DOCTYPE" {
+  let reader = Reader::from_string("<!DOCTYPE expected><expected/>")
+  let doctype = reader.read_event()
+  let w = Writer::new()
+  w.write_event(doctype)
+  try w.empty_element("actual", []) catch {
+    InvalidStructure(message) =>
+      assert_eq(
+        message, "root element mismatch: DOCTYPE declares expected, found actual",
+      )
+    _ => fail("expected invalid-structure writer error")
+  } noraise {
+    _ => fail("expected mismatched DOCTYPE root to raise")
+  }
+}

@@ -20,7 +20,7 @@ pub fn Writer::new() -> Writer {
     element_stack: [],
     seen_root: false,
     wrote_anything: false,
-    wrote_doctype: false,
+    doctype_root: None,
   }
 }
 
@@ -62,16 +62,8 @@ pub fn Writer::start_element(
 ) -> Unit raise WriterError {
   validate_writer_name(name, "element")
   validate_writer_attributes(attributes)
-  self.begin_element()
-  self.buffer.write_string("<")
-  self.buffer.write_string(name)
-  for attr in attributes {
-    self.buffer.write_string(" ")
-    self.buffer.write_string(attr.0)
-    self.buffer.write_string("=\"")
-    self.buffer.write_string(escape_attr(attr.1))
-    self.buffer.write_string("\"")
-  }
+  self.record_element_start(name)
+  self.write_opening_tag(name, attributes)
   self.buffer.write_string(">")
   self.element_stack.push(name)
   self.wrote_anything = true
@@ -109,16 +101,8 @@ pub fn Writer::empty_element(
 ) -> Unit raise WriterError {
   validate_writer_name(name, "element")
   validate_writer_attributes(attributes)
-  self.begin_element()
-  self.buffer.write_string("<")
-  self.buffer.write_string(name)
-  for attr in attributes {
-    self.buffer.write_string(" ")
-    self.buffer.write_string(attr.0)
-    self.buffer.write_string("=\"")
-    self.buffer.write_string(escape_attr(attr.1))
-    self.buffer.write_string("\"")
-  }
+  self.record_element_start(name)
+  self.write_opening_tag(name, attributes)
   self.buffer.write_string("/>")
   self.wrote_anything = true
 }
@@ -228,12 +212,42 @@ fn validate_writer_content(
 }
 
 ///|
-fn Writer::begin_element(self : Writer) -> Unit raise WriterError {
+fn Writer::record_element_start(
+  self : Writer,
+  name : String,
+) -> Unit raise WriterError {
   if self.element_stack.length() == 0 {
     if self.seen_root {
       raise InvalidStructure("document cannot contain multiple root elements")
     }
+    match self.doctype_root {
+      Some(expected) if expected != name =>
+        raise InvalidStructure(
+          "root element mismatch: DOCTYPE declares " +
+          expected +
+          ", found " +
+          name,
+        )
+      _ => ()
+    }
     self.seen_root = true
+  }
+}
+
+///|
+fn Writer::write_opening_tag(
+  self : Writer,
+  name : String,
+  attributes : Array[(String, String)],
+) -> Unit {
+  self.buffer.write_string("<")
+  self.buffer.write_string(name)
+  for attribute in attributes {
+    self.buffer.write_string(" ")
+    self.buffer.write_string(attribute.0)
+    self.buffer.write_string("=\"")
+    self.buffer.write_string(escape_attr(attribute.1))
+    self.buffer.write_string("\"")
   }
 }
 
@@ -326,18 +340,15 @@ fn Writer::write_doctype(
   if self.seen_root || self.element_stack.length() > 0 {
     raise InvalidStructure("DOCTYPE must appear before the root element")
   }
-  if self.wrote_doctype {
+  if self.doctype_root is Some(_) {
     raise InvalidStructure(
       "document cannot contain multiple DOCTYPE declarations",
     )
   }
-  let validator = Reader::from_string("<!DOCTYPE " + content + "><root/>")
-  let _ = validator.read_events_until_eof() catch {
-    _ => raise InvalidContent("invalid DOCTYPE declaration")
-  }
+  validate_writer_name(content, "DOCTYPE")
   self.buffer.write_string("<!DOCTYPE ")
   self.buffer.write_string(content)
   self.buffer.write_string(">")
   self.wrote_anything = true
-  self.wrote_doctype = true
+  self.doctype_root = Some(content)
 }

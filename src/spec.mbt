@@ -289,7 +289,7 @@ pub struct Writer {
   element_stack : Array[String]
   mut seen_root : Bool
   mut wrote_anything : Bool
-  mut wrote_doctype : Bool
+  mut doctype_root : String?
 }
 
 ///|
