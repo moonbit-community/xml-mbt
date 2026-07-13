@@ -1251,7 +1251,14 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
                 let _ = self.advance()
                 // Get the stored entity value (may still have &#38; etc.)
                 match self.entities.get(entity_name) {
-                  Some(stored_value) =>
+                  Some(stored_value) => {
+                    let entity_ref = "&" + entity_name + ";"
+                    let seen : Map[String, Bool] = Map([])
+                    let expanded = expand_entity_value(
+                      entity_ref,
+                      self.entities,
+                      seen,
+                    )
                     // Check if stored value has markup and is well-formed
                     // Use stored value (with &#38; intact) for well-formedness check
                     if has_markup(stored_value) &&
@@ -1263,19 +1270,13 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
                       )
                     } else {
                       // Expand fully and return as text
-                      let entity_ref = "&" + entity_name + ";"
-                      let seen : Map[String, Bool] = Map([])
-                      let expanded = expand_entity_value(
-                        entity_ref,
-                        self.entities,
-                        seen,
-                      )
                       let normalized = normalize_line_endings(expanded)
                       self.push_pending_event({
                         kind: Text(normalized),
                         span: source_span(entity_start, self.source_position()),
                       })
                     }
+                  }
                   None => {
                     // Built-in entity (like &amp;) - expand and push as text
                     let entity_ref = "&" + entity_name + ";"

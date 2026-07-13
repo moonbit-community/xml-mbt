@@ -376,3 +376,74 @@ test "from_file does not resolve external entities implicitly" {
     _ => fail("expected external entity reference to remain unresolved")
   }
 }
+
+///|
+test "reject entity expansion over the output budget" {
+  let xml =
+    #|<!DOCTYPE root [
+    #|<!ENTITY a "1234567890">
+    #|<!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;">
+    #|<!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;&b;&b;">
+    #|<!ENTITY d "&c;&c;&c;&c;&c;&c;&c;&c;&c;&c;">
+    #|<!ENTITY e "&d;&d;&d;&d;&d;&d;&d;&d;&d;&d;">
+    #|<!ENTITY f "&e;&e;&e;&e;&e;&e;&e;&e;&e;&e;">
+    #|]><root>&f;</root>
+
+  let reader = Reader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    At(error~, span=_) =>
+      @debug.debug_inspect(
+        error,
+        content=(
+          #|InvalidEntity("entity expansion limit exceeded")
+        ),
+      )
+  } noraise {
+    _ => fail("expected oversized entity expansion to raise")
+  }
+}
+
+///|
+test "apply entity expansion budget before parsing replacement markup" {
+  let payload = StringBuilder::new()
+  for i = 0; i < 262_145; i = i + 1 {
+    payload.write_char('x')
+  }
+  let xml = "<!DOCTYPE root [<!ENTITY markup \"<child>" +
+    payload.to_string() +
+    "</child>\">]><root>&markup;</root>"
+  let reader = Reader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    At(error~, span=_) =>
+      @debug.debug_inspect(
+        error,
+        content=(
+          #|InvalidEntity("entity expansion limit exceeded")
+        ),
+      )
+  } noraise {
+    _ => fail("expected replacement markup expansion to raise")
+  }
+}
+
+///|
+test "reject entity expansion over the nesting-depth budget" {
+  let xml = StringBuilder::new()
+  xml.write_string("<!DOCTYPE root [<!ENTITY e0 \"ok\">")
+  for i = 1; i <= 33; i = i + 1 {
+    xml.write_string("<!ENTITY e\{i} \"&e\{i - 1};\">")
+  }
+  xml.write_string("]><root>&e33;</root>")
+  let reader = Reader::from_string(xml.to_string())
+  try reader.read_events_until_eof() catch {
+    At(error~, span=_) =>
+      @debug.debug_inspect(
+        error,
+        content=(
+          #|InvalidEntity("entity expansion depth exceeded")
+        ),
+      )
+  } noraise {
+    _ => fail("expected deeply nested entity expansion to raise")
+  }
+}

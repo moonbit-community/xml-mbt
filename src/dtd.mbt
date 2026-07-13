@@ -563,6 +563,28 @@ fn is_predefined_entity(name : String) -> Bool {
 }
 
 ///|
+const MAX_ENTITY_EXPANSION_CHARS : Int = 262_144
+
+///|
+const MAX_ENTITY_EXPANSION_DEPTH : Int = 32
+
+///|
+priv struct EntityExpansionBudget {
+  mut remaining : Int
+}
+
+///|
+fn EntityExpansionBudget::consume(
+  self : EntityExpansionBudget,
+  amount : Int,
+) -> Unit raise XmlErrorKind {
+  if amount > self.remaining {
+    raise InvalidEntity("entity expansion limit exceeded")
+  }
+  self.remaining -= amount
+}
+
+///|
 /// Expand entity value recursively, validating all nested entity refs
 /// Returns the fully expanded string
 /// Raises error for undefined entities or recursive references
@@ -571,6 +593,26 @@ fn expand_entity_value(
   entities : Map[String, String],
   seen : Map[String, Bool],
 ) -> String raise XmlErrorKind {
+  expand_entity_value_with_budget(
+    value,
+    entities,
+    seen,
+    { remaining: MAX_ENTITY_EXPANSION_CHARS },
+    0,
+  )
+}
+
+///|
+fn expand_entity_value_with_budget(
+  value : String,
+  entities : Map[String, String],
+  seen : Map[String, Bool],
+  budget : EntityExpansionBudget,
+  depth : Int,
+) -> String raise XmlErrorKind {
+  if depth > MAX_ENTITY_EXPANSION_DEPTH {
+    raise InvalidEntity("entity expansion depth exceeded")
+  }
   let buf = StringBuilder::new()
   let chars = value.to_array()
   let len = chars.length()
@@ -588,6 +630,7 @@ fn expand_entity_value(
       chars[i + 7] == 'A' &&
       chars[i + 8] == '[' {
       // Found <![CDATA[ - copy until ]]>
+      budget.consume(9)
       buf.write_string("<![CDATA[")
       i += 9
       while i < len {
@@ -595,10 +638,12 @@ fn expand_entity_value(
           chars[i] == ']' &&
           chars[i + 1] == ']' &&
           chars[i + 2] == '>' {
+          budget.consume(3)
           buf.write_string("]]>")
           i += 3
           break
         }
+        budget.consume(1)
         buf.write_char(chars[i])
         i += 1
       }
@@ -607,6 +652,7 @@ fn expand_entity_value(
     if chars[i] == '&' {
       i += 1
       if i >= len {
+        budget.consume(1)
         buf.write_char('&')
         continue
       }
@@ -621,6 +667,7 @@ fn expand_entity_value(
           i += 1 // include ;
           let char_ref = substring_from_chars(chars, ref_start, i)
           let decoded = unescape(char_ref)
+          budget.consume(decoded.length())
           buf.write_string(decoded)
         }
       } else {
@@ -636,6 +683,7 @@ fn expand_entity_value(
             // Predefined entities - decode to actual character
             let entity = "&" + name + ";"
             let decoded = unescape(entity)
+            budget.consume(decoded.length())
             buf.write_string(decoded)
           } else {
             // Check if entity is defined
@@ -653,7 +701,13 @@ fn expand_entity_value(
                 }
                 // Mark as seen and expand recursively
                 seen.set(name, true)
-                let expanded = expand_entity_value(entity_value, entities, seen)
+                let expanded = expand_entity_value_with_budget(
+                  entity_value,
+                  entities,
+                  seen,
+                  budget,
+                  depth + 1,
+                )
                 buf.write_string(expanded)
                 // Unmark after expansion (allow same entity in different branches)
                 seen.remove(name)
@@ -662,13 +716,16 @@ fn expand_entity_value(
           }
         } else {
           // Malformed entity ref - just write it
+          budget.consume(1)
           buf.write_char('&')
           for j = name_start; j < i; j = j + 1 {
+            budget.consume(1)
             buf.write_char(chars[j])
           }
         }
       }
     } else {
+      budget.consume(1)
       buf.write_char(chars[i])
       i += 1
     }
