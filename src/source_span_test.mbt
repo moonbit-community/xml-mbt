@@ -119,6 +119,26 @@ test "nested unclosed element errors point to the innermost opening tag" {
 }
 
 ///|
+test "unclosed element errors follow queued entity-split text" {
+  let reader = Reader::from_string("<root>a&amp;b")
+  guard reader.read_event().kind is Start(root) else {
+    fail("expected root start event")
+  }
+  assert_eq(root.name, "root")
+  assert_eq(reader.read_event().kind, Text("a"))
+  assert_eq(reader.read_event().kind, Text("&"))
+  assert_eq(reader.read_event().kind, Text("b"))
+  try reader.read_event() catch {
+    At(error~, span~) => {
+      assert_eq(error, InvalidSyntax("unclosed element: <root>"))
+      assert_eq((span.start.offset, span.end.offset), (0, 6))
+    }
+  } noraise {
+    _ => fail("expected unclosed element after queued text")
+  }
+}
+
+///|
 test "error spans treat a carriage return as a source line break" {
   let reader = Reader::from_string("<root>\r<child id=>")
   let _ = reader.read_event()

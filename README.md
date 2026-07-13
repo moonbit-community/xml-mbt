@@ -8,7 +8,7 @@ A document-buffered pull XML parser for MoonBit, inspired by [quick-xml](https:/
 - **Document-buffered input** - Constructors load the full input, then callers pull events one at a time
 - **Multi-backend** - Works on wasm, wasm-gc, js, and native
 - **XML 1.0 + Namespaces 1.0** - Unicode names plus namespace-aware events
-- **Source-aware parsing** - Exact ranges for events, attributes, and errors
+- **Source-aware parsing** - Authored ranges for events and attributes, plus contextual spans for errors
 
 ## Usage
 

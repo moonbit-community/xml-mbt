@@ -264,7 +264,9 @@ fn Reader::check_string(self : Reader, s : String) -> Bool {
 ///|
 /// Read the next XML event
 pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
-  if self.is_eof() && self.tag_stack.length() > 0 {
+  if self.is_eof() &&
+    self.pending_events.length() == 0 &&
+    self.tag_stack.length() > 0 {
     let unclosed = self.tag_stack[self.tag_stack.length() - 1]
     raise At(
       error=InvalidSyntax("unclosed element: <" + unclosed.0 + ">"),
