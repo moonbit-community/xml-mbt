@@ -16,19 +16,25 @@
 /// An XML element with tag name and attributes
 pub struct XmlElement {
   name : String
+  attributes : Array[XmlAttribute]
+} derive(Eq)
+
+///|
+priv struct DebugXmlElement {
+  name : String
   attributes : Array[(String, String)]
-} derive(Debug, Eq)
+} derive(Debug)
 
 ///|
 /// Transform attributes to match lxml behavior:
 /// - Filter out xmlns namespace declarations
 /// - Strip namespace prefixes (a:attr -> attr)
 fn transform_attrs_for_libxml(
-  attrs : Array[(String, String)],
-) -> Array[(String, String)] {
-  let result : Array[(String, String)] = []
+  attrs : Array[XmlAttribute],
+) -> Array[XmlAttribute] {
+  let result : Array[XmlAttribute] = []
   for attr in attrs {
-    let name = attr.0
+    let name = attr.name
     if name == "xmlns" || name.has_prefix("xmlns:") {
       // Skip namespace declarations
       continue
@@ -39,7 +45,13 @@ fn transform_attrs_for_libxml(
       None => name
     }
     // Attribute value is already normalized by the parser
-    result.push((final_name, attr.1))
+    result.push({
+      name: final_name,
+      value: attr.value,
+      span: attr.span,
+      name_span: attr.name_span,
+      value_span: attr.value_span,
+    })
   }
   result
 }
@@ -54,24 +66,11 @@ fn strip_ns_prefix(name : String) -> String {
 }
 
 ///|
-pub fn XmlElement::new(name : String) -> XmlElement {
-  { name, attributes: [] }
-}
-
-///|
-pub fn XmlElement::with_attrs(
-  name : String,
-  attributes : Array[(String, String)],
-) -> XmlElement {
-  { name, attributes }
-}
-
-///|
 /// Get an attribute value by name
 pub fn XmlElement::get(self : XmlElement, attr_name : String) -> String? {
   for pair in self.attributes {
-    if pair.0 == attr_name {
-      return Some(pair.1)
+    if pair.name == attr_name {
+      return Some(pair.value)
     }
   }
   None
@@ -79,7 +78,7 @@ pub fn XmlElement::get(self : XmlElement, attr_name : String) -> String? {
 
 ///|
 /// An XML event returned by the parser
-pub(all) enum Event {
+pub(all) enum EventKind {
   /// Start of an XML element: <tag attr="value">
   Start(XmlElement)
   /// End of an XML element: </tag>
@@ -104,7 +103,7 @@ pub(all) enum Event {
 
 ///|
 /// XML parsing error
-pub(all) suberror XmlError {
+pub(all) suberror XmlErrorKind {
   UnexpectedEof
   InvalidSyntax(String)
   UnmatchedTag(expected~ : String, found~ : String)
@@ -117,12 +116,37 @@ pub impl Show for XmlElement with fn output(self, logger) {
   logger.write_string("{name: ")
   logger.write_object(self.name)
   logger.write_string(", attributes: ")
-  logger.write_object(to_repr(self.attributes))
+  logger.write_object(
+    to_repr(
+      self.attributes.map(fn(attribute) { (attribute.name, attribute.value) }),
+    ),
+  )
   logger.write_string("}")
 }
 
 ///|
+pub impl Debug for XmlElement with fn to_repr(self) {
+  let debug : DebugXmlElement = {
+    name: self.name,
+    attributes: self.attributes.map(fn(attribute) {
+      (attribute.name, attribute.value)
+    }),
+  }
+  to_repr(debug)
+}
+
+///|
+pub impl Debug for Event with fn to_repr(self) {
+  to_repr(self.kind)
+}
+
+///|
 pub impl Show for Event with fn output(self, logger) {
+  logger.write_object(self.kind)
+}
+
+///|
+pub impl Show for EventKind with fn output(self, logger) {
   match self {
     Start(elem) => {
       logger.write_string("Start(")
@@ -180,7 +204,7 @@ pub impl Show for Event with fn output(self, logger) {
 }
 
 ///|
-pub impl Show for XmlError with fn output(self, logger) {
+pub impl Show for XmlErrorKind with fn output(self, logger) {
   match self {
     UnexpectedEof => logger.write_string("UnexpectedEof")
     InvalidSyntax(message) => {
@@ -209,12 +233,25 @@ pub impl Show for XmlError with fn output(self, logger) {
 }
 
 ///|
+pub impl Show for XmlError with fn output(self, logger) {
+  match self {
+    At(error~, position~) => {
+      logger.write_object(error)
+      logger.write_string(" at ")
+      logger.write_object(position.line)
+      logger.write_string(":")
+      logger.write_object(position.column)
+    }
+  }
+}
+
+///|
 /// Push an event into `result`, coalescing adjacent `Text(...)` events.
 ///
 /// lxml (and many streaming parsers) may split text into multiple adjacent
 /// chunks; for conformance testing we treat adjacent text events as equivalent
 /// by concatenating them.
-fn push_coalesced(result : Array[Event], event : Event) -> Unit {
+fn push_coalesced(result : Array[EventKind], event : EventKind) -> Unit {
   match event {
     Text(s) => {
       let n = result.length()
@@ -242,12 +279,12 @@ fn push_coalesced(result : Array[Event], event : Event) -> Unit {
 /// - Converts CDATA to Text and coalesces adjacent text content
 /// - Fills in default encoding (UTF-8) and standalone (no) for XML declaration
 /// - Reorders prolog: Decl first, then DocType, then Comments/PIs
-pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
-  let result : Array[Event] = []
+pub fn to_libxml_format(events : Array[Event]) -> Array[EventKind] {
+  let result : Array[EventKind] = []
   // First pass: collect prolog events and find first element
   let mut first_element_idx = 0
   for i, event in events {
-    match event {
+    match event.kind {
       Start(_) | Empty(_) => {
         first_element_idx = i
         break
@@ -256,11 +293,11 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
     }
   }
   // Process prolog: reorder Decl -> DocType -> others
-  let mut decl_event : Event? = None
-  let mut doctype_event : Event? = None
-  let prolog_others : Array[Event] = []
+  let mut decl_event : EventKind? = None
+  let mut doctype_event : EventKind? = None
+  let prolog_others : Array[EventKind] = []
   for i = 0; i < first_element_idx; i = i + 1 {
-    match events[i] {
+    match events[i].kind {
       Decl(version~, encoding~, standalone~) => {
         // lxml fills in defaults
         let enc = match encoding {
@@ -297,18 +334,18 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
   let len = events.length()
   let mut i = first_element_idx
   while i < len {
-    let event = events[i]
+    let event = events[i].kind
     match event {
       Start(elem) => {
         // Transform element name and attributes for lxml compatibility
         let elem_name = strip_ns_prefix(elem.name)
-        let filtered_elem = XmlElement::with_attrs(
-          elem_name,
-          transform_attrs_for_libxml(elem.attributes),
-        )
+        let filtered_elem : XmlElement = {
+          name: elem_name,
+          attributes: transform_attrs_for_libxml(elem.attributes),
+        }
         // Check if next event is matching End (empty element)
         if i + 1 < len {
-          match events[i + 1] {
+          match events[i + 1].kind {
             End(name) =>
               if name == elem.name {
                 // Convert Start+End to Empty
@@ -324,10 +361,10 @@ pub fn to_libxml_format(events : Array[Event]) -> Array[Event] {
       Empty(elem) => {
         // Transform element name and attributes for lxml compatibility
         let elem_name = strip_ns_prefix(elem.name)
-        let filtered_elem = XmlElement::with_attrs(
-          elem_name,
-          transform_attrs_for_libxml(elem.attributes),
-        )
+        let filtered_elem : XmlElement = {
+          name: elem_name,
+          attributes: transform_attrs_for_libxml(elem.attributes),
+        }
         push_coalesced(result, Empty(filtered_elem))
       }
       End(name) =>

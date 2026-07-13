@@ -44,7 +44,7 @@ pub struct SourceSpan {
 ///|
 /// A parsed attribute together with its authored source ranges.
 /// `value_span` excludes the surrounding quote characters.
-pub struct SpannedAttribute {
+pub struct XmlAttribute {
   name : String
   value : String
   span : SourceSpan
@@ -54,17 +54,15 @@ pub struct SpannedAttribute {
 
 ///|
 /// An XML event together with its authored source range.
-/// `attributes` is populated only for `Start` and `Empty` events.
-pub struct SpannedEvent {
-  event : Event
+pub struct Event {
+  kind : EventKind
   span : SourceSpan
-  attributes : Array[SpannedAttribute]
-} derive(Debug, Eq)
+} derive(Eq)
 
 ///|
 /// An XML parsing error paired with the position where it was detected.
-pub(all) suberror LocatedXmlError {
-  At(error~ : XmlError, position~ : SourcePosition)
+pub(all) suberror XmlError {
+  At(error~ : XmlErrorKind, position~ : SourcePosition)
 } derive(Debug, Eq)
 
 ///|
@@ -84,10 +82,7 @@ pub struct Reader {
   mut seen_content : Bool // Whether any content has been parsed (for XML decl position check)
   mut just_saw_decl : Bool // Skip whitespace after XML declaration (lxml behavior)
   pending_events : Array[Event] // Queue of events to return (for text splitting)
-  pending_event_spans : Array[SourceSpan]
-  pending_event_attributes : Array[Array[SpannedAttribute]]
   internal_subset_events : Array[Event] // PIs/comments from internal subset (emit after prolog whitespace)
-  internal_subset_event_spans : Array[SourceSpan]
   mut just_saw_doctype : Bool // Track if we just returned DocType to handle internal subset events
   had_bom : Bool // Whether input started with BOM (affects Decl emission)
 }
@@ -110,16 +105,6 @@ pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
 /// Read the next XML event
 #declaration_only
 pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
-  ...
-}
-
-///|
-/// Read the next XML event with its exact source range.
-/// Entity-expansion events use the range of the authored entity reference.
-#declaration_only
-pub fn Reader::read_spanned_event(
-  self : Reader,
-) -> SpannedEvent raise LocatedXmlError {
   ...
 }
 
@@ -155,15 +140,6 @@ pub fn Reader::read_events_until_eof(
   ...
 }
 
-///|
-/// Read all spanned events until EOF, including the final `Eof` event.
-#declaration_only
-pub fn Reader::read_spanned_events_until_eof(
-  self : Reader,
-) -> Array[SpannedEvent] raise LocatedXmlError {
-  ...
-}
-
 // ============================================================================
 // Namespace-aware Reader API
 // ============================================================================
@@ -183,6 +159,9 @@ pub struct XmlName {
 pub struct NamespaceDeclaration {
   prefix : String?
   namespace_uri : String
+  span : SourceSpan
+  name_span : SourceSpan
+  value_span : SourceSpan
 } derive(Debug, Eq)
 
 ///|
@@ -190,6 +169,9 @@ pub struct NamespaceDeclaration {
 pub struct NamespaceAttribute {
   name : XmlName
   value : String
+  span : SourceSpan
+  name_span : SourceSpan
+  value_span : SourceSpan
 } derive(Debug, Eq)
 
 ///|
@@ -202,8 +184,8 @@ pub struct NamespaceElement {
 } derive(Debug, Eq)
 
 ///|
-/// An XML event whose element and attribute names have resolved namespaces.
-pub(all) enum NamespaceEvent {
+/// The semantic kind of a namespace-aware XML event.
+pub(all) enum NamespaceEventKind {
   Start(NamespaceElement)
   End(XmlName)
   Empty(NamespaceElement)
@@ -214,6 +196,13 @@ pub(all) enum NamespaceEvent {
   Decl(version~ : String, encoding~ : String?, standalone~ : String?)
   DocType(String)
   Eof
+} derive(Debug, Eq)
+
+///|
+/// A namespace-aware XML event with its authored source range.
+pub struct NamespaceEvent {
+  kind : NamespaceEventKind
+  span : SourceSpan
 } derive(Debug, Eq)
 
 ///|
@@ -375,6 +364,6 @@ pub fn escape(text : String) -> String {
 ///|
 /// Unescape XML entities (&lt; &gt; &amp; &quot; &apos;)
 #declaration_only
-pub fn unescape(text : String) -> String raise XmlError {
+pub fn unescape(text : String) -> String raise XmlErrorKind {
   ...
 }

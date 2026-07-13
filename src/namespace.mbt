@@ -62,7 +62,7 @@ pub fn NamespaceReader::column(self : NamespaceReader) -> Int {
 }
 
 ///|
-fn split_qualified_name(name : String) -> (String?, String) raise XmlError {
+fn split_qualified_name(name : String) -> (String?, String) raise XmlErrorKind {
   if name == "" {
     raise InvalidSyntax("invalid qualified name: " + name)
   }
@@ -84,17 +84,30 @@ fn split_qualified_name(name : String) -> (String?, String) raise XmlError {
 
 ///|
 fn namespace_declaration(
-  attribute_name : String,
-  namespace_uri : String,
-) -> NamespaceDeclaration? raise XmlError {
+  attribute : XmlAttribute,
+) -> NamespaceDeclaration? raise XmlErrorKind {
+  let attribute_name = attribute.name
+  let namespace_uri = attribute.value
   if attribute_name == "xmlns" {
-    Some({ prefix: None, namespace_uri })
+    Some({
+      prefix: None,
+      namespace_uri,
+      span: attribute.span,
+      name_span: attribute.name_span,
+      value_span: attribute.value_span,
+    })
   } else if attribute_name.has_prefix("xmlns:") {
     let declared_prefix = attribute_name[6:].to_owned()
     if declared_prefix == "" || declared_prefix.find(":") is Some(_) {
       raise InvalidSyntax("invalid qualified name: " + attribute_name)
     }
-    Some({ prefix: Some(declared_prefix), namespace_uri })
+    Some({
+      prefix: Some(declared_prefix),
+      namespace_uri,
+      span: attribute.span,
+      name_span: attribute.name_span,
+      value_span: attribute.value_span,
+    })
   } else {
     None
   }
@@ -104,7 +117,7 @@ fn namespace_declaration(
 fn apply_namespace_declaration(
   scope : Map[String, String],
   declaration : NamespaceDeclaration,
-) -> Unit raise XmlError {
+) -> Unit raise XmlErrorKind {
   let uri = declaration.namespace_uri
   match declaration.prefix {
     None => {
@@ -166,7 +179,7 @@ fn resolve_xml_name(
   qualified_name : String,
   scope : Map[String, String],
   use_default_namespace : Bool,
-) -> XmlName raise XmlError {
+) -> XmlName raise XmlErrorKind {
   let (prefix, local_name) = split_qualified_name(qualified_name)
   let namespace_uri = match prefix {
     Some("xmlns") => raise InvalidSyntax("namespace prefix 'xmlns' is reserved")
@@ -185,11 +198,11 @@ fn NamespaceReader::resolve_element(
   self : NamespaceReader,
   element : XmlElement,
   push_scope : Bool,
-) -> NamespaceElement raise XmlError {
+) -> NamespaceElement raise XmlErrorKind {
   let scope = self.copy_current_scope()
   let declarations : Array[NamespaceDeclaration] = []
   for attribute in element.attributes {
-    match namespace_declaration(attribute.0, attribute.1) {
+    match namespace_declaration(attribute) {
       Some(declaration) => {
         apply_namespace_declaration(scope, declaration)
         declarations.push(declaration)
@@ -201,8 +214,8 @@ fn NamespaceReader::resolve_element(
   let attributes : Array[NamespaceAttribute] = []
   let expanded_names : Map[String, Bool] = Map([])
   for attribute in element.attributes {
-    if namespace_declaration(attribute.0, attribute.1) is None {
-      let attribute_name = resolve_xml_name(attribute.0, scope, false)
+    if namespace_declaration(attribute) is None {
+      let attribute_name = resolve_xml_name(attribute.name, scope, false)
       let uri = attribute_name.namespace_uri.unwrap_or("")
       let expanded_name = uri + "\u{0}" + attribute_name.local_name
       if expanded_names.contains(expanded_name) {
@@ -216,7 +229,13 @@ fn NamespaceReader::resolve_element(
         )
       }
       expanded_names.set(expanded_name, true)
-      attributes.push({ name: attribute_name, value: attribute.1 })
+      attributes.push({
+        name: attribute_name,
+        value: attribute.value,
+        span: attribute.span,
+        name_span: attribute.name_span,
+        value_span: attribute.value_span,
+      })
     }
   }
   if push_scope {
@@ -230,27 +249,34 @@ fn NamespaceReader::resolve_element(
 pub fn NamespaceReader::read_event(
   self : NamespaceReader,
 ) -> NamespaceEvent raise XmlError {
-  match self.reader.read_event() {
-    Start(element) => NamespaceEvent::Start(self.resolve_element(element, true))
-    Empty(element) =>
-      NamespaceEvent::Empty(self.resolve_element(element, false))
-    End(qualified_name) => {
-      let scope = self.scopes[self.scopes.length() - 1]
-      let name = resolve_xml_name(qualified_name, scope, true)
-      if self.scopes.length() > 1 {
-        let _ = self.scopes.pop()
+  let event = self.reader.read_event()
+  let kind = try {
+    match event.kind {
+      Start(element) =>
+        NamespaceEventKind::Start(self.resolve_element(element, true))
+      Empty(element) =>
+        NamespaceEventKind::Empty(self.resolve_element(element, false))
+      End(qualified_name) => {
+        let scope = self.scopes[self.scopes.length() - 1]
+        let name = resolve_xml_name(qualified_name, scope, true)
+        if self.scopes.length() > 1 {
+          let _ = self.scopes.pop()
+        }
+        NamespaceEventKind::End(name)
       }
-      NamespaceEvent::End(name)
+      Text(content) => NamespaceEventKind::Text(content)
+      CData(content) => NamespaceEventKind::CData(content)
+      Comment(content) => NamespaceEventKind::Comment(content)
+      PI(target~, data~) => NamespaceEventKind::PI(target~, data~)
+      Decl(version~, encoding~, standalone~) =>
+        NamespaceEventKind::Decl(version~, encoding~, standalone~)
+      DocType(name) => NamespaceEventKind::DocType(name)
+      Eof => NamespaceEventKind::Eof
     }
-    Text(content) => NamespaceEvent::Text(content)
-    CData(content) => NamespaceEvent::CData(content)
-    Comment(content) => NamespaceEvent::Comment(content)
-    PI(target~, data~) => NamespaceEvent::PI(target~, data~)
-    Decl(version~, encoding~, standalone~) =>
-      NamespaceEvent::Decl(version~, encoding~, standalone~)
-    DocType(name) => NamespaceEvent::DocType(name)
-    Eof => NamespaceEvent::Eof
+  } catch {
+    error => raise XmlError::At(error~, position=event.span.start)
   }
+  { kind, span: event.span }
 }
 
 ///|
@@ -262,7 +288,7 @@ pub fn NamespaceReader::read_events_until_eof(
   for ;; {
     let event = self.read_event()
     events.push(event)
-    if event is NamespaceEvent::Eof {
+    if event.kind is NamespaceEventKind::Eof {
       return events
     }
   }

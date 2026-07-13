@@ -21,10 +21,18 @@ pub fn Writer::new() -> Writer {
 ///|
 /// Write an XML event
 pub fn Writer::write_event(self : Writer, event : Event) -> Unit {
-  match event {
-    Start(elem) => self.start_element(elem.name, elem.attributes)
+  match event.kind {
+    Start(elem) =>
+      self.start_element(
+        elem.name,
+        elem.attributes.map(fn(attribute) { (attribute.name, attribute.value) }),
+      )
     End(name) => self.end_element(name)
-    Empty(elem) => self.empty_element(elem.name, elem.attributes)
+    Empty(elem) =>
+      self.empty_element(
+        elem.name,
+        elem.attributes.map(fn(attribute) { (attribute.name, attribute.value) }),
+      )
     Text(content) => self.text(content)
     CData(content) => self.cdata(content)
     Comment(content) => self.comment(content)

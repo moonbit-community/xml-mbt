@@ -129,9 +129,14 @@ test "write text with escaping" {
 ///|
 test "write using events" {
   let w = Writer::new()
-  w.write_event(Start(XmlElement::with_attrs("div", [("id", "main")])))
-  w.write_event(Text("content"))
-  w.write_event(End("div"))
+  let reader = Reader::from_string("<div id=\"main\">content</div>")
+  for ;; {
+    let event = reader.read_event()
+    w.write_event(event)
+    if event.kind is Eof {
+      break
+    }
+  }
   @debug.debug_inspect(
     w.to_string(),
     content=(

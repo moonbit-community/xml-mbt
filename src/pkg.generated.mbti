@@ -9,26 +9,34 @@ import {
 // Values
 pub fn escape(String) -> String
 
-pub fn to_libxml_format(Array[Event]) -> Array[Event]
+pub fn to_libxml_format(Array[Event]) -> Array[EventKind]
 
-pub fn unescape(String) -> String raise XmlError
+pub fn unescape(String) -> String raise XmlErrorKind
 
 // Errors
-pub(all) suberror LocatedXmlError {
-  At(error~ : XmlError, position~ : SourcePosition)
-} derive(Eq, @debug.Debug)
-
 pub(all) suberror XmlError {
+  At(error~ : XmlErrorKind, position~ : SourcePosition)
+} derive(Eq, @debug.Debug)
+pub impl Show for XmlError
+
+pub(all) suberror XmlErrorKind {
   UnexpectedEof
   InvalidSyntax(String)
   UnmatchedTag(expected~ : String, found~ : String)
   InvalidAttribute(String)
   InvalidEntity(String)
 } derive(Eq, @debug.Debug)
-pub impl Show for XmlError
+pub impl Show for XmlErrorKind
 
 // Types and methods
-pub(all) enum Event {
+pub struct Event {
+  kind : EventKind
+  span : SourceSpan
+} derive(Eq)
+pub impl Show for Event
+pub impl @debug.Debug for Event
+
+pub(all) enum EventKind {
   Start(XmlElement)
   End(String)
   Empty(XmlElement)
@@ -40,16 +48,22 @@ pub(all) enum Event {
   DocType(String)
   Eof
 } derive(Eq, @debug.Debug)
-pub impl Show for Event
+pub impl Show for EventKind
 
 pub struct NamespaceAttribute {
   name : XmlName
   value : String
+  span : SourceSpan
+  name_span : SourceSpan
+  value_span : SourceSpan
 } derive(Eq, @debug.Debug)
 
 pub struct NamespaceDeclaration {
   prefix : String?
   namespace_uri : String
+  span : SourceSpan
+  name_span : SourceSpan
+  value_span : SourceSpan
 } derive(Eq, @debug.Debug)
 
 pub struct NamespaceElement {
@@ -58,7 +72,12 @@ pub struct NamespaceElement {
   namespace_declarations : Array[NamespaceDeclaration]
 } derive(Eq, @debug.Debug)
 
-pub(all) enum NamespaceEvent {
+pub struct NamespaceEvent {
+  kind : NamespaceEventKind
+  span : SourceSpan
+} derive(Eq, @debug.Debug)
+
+pub(all) enum NamespaceEventKind {
   Start(NamespaceElement)
   End(XmlName)
   Empty(NamespaceElement)
@@ -98,10 +117,7 @@ pub struct Reader {
   mut seen_content : Bool
   mut just_saw_decl : Bool
   pending_events : Array[Event]
-  pending_event_spans : Array[SourceSpan]
-  pending_event_attributes : Array[Array[SpannedAttribute]]
   internal_subset_events : Array[Event]
-  internal_subset_event_spans : Array[SourceSpan]
   mut just_saw_doctype : Bool
   had_bom : Bool
 }
@@ -112,8 +128,6 @@ pub fn Reader::is_eof(Self) -> Bool
 pub fn Reader::line(Self) -> Int
 pub fn Reader::read_event(Self) -> Event raise XmlError
 pub fn Reader::read_events_until_eof(Self) -> Array[Event] raise XmlError
-pub fn Reader::read_spanned_event(Self) -> SpannedEvent raise LocatedXmlError
-pub fn Reader::read_spanned_events_until_eof(Self) -> Array[SpannedEvent] raise LocatedXmlError
 
 pub struct SourcePosition {
   offset : Int
@@ -124,20 +138,6 @@ pub struct SourcePosition {
 pub struct SourceSpan {
   start : SourcePosition
   end : SourcePosition
-} derive(Eq, @debug.Debug)
-
-pub struct SpannedAttribute {
-  name : String
-  value : String
-  span : SourceSpan
-  name_span : SourceSpan
-  value_span : SourceSpan
-} derive(Eq, @debug.Debug)
-
-pub struct SpannedEvent {
-  event : Event
-  span : SourceSpan
-  attributes : Array[SpannedAttribute]
 } derive(Eq, @debug.Debug)
 
 pub struct Writer {
@@ -155,14 +155,21 @@ pub fn Writer::text(Self, String) -> Unit
 pub fn Writer::to_string(Self) -> String
 pub fn Writer::write_event(Self, Event) -> Unit
 
+pub struct XmlAttribute {
+  name : String
+  value : String
+  span : SourceSpan
+  name_span : SourceSpan
+  value_span : SourceSpan
+} derive(Eq, @debug.Debug)
+
 pub struct XmlElement {
   name : String
-  attributes : Array[(String, String)]
-} derive(Eq, @debug.Debug)
+  attributes : Array[XmlAttribute]
+} derive(Eq)
 pub fn XmlElement::get(Self, String) -> String?
-pub fn XmlElement::new(String) -> Self
-pub fn XmlElement::with_attrs(String, Array[(String, String)]) -> Self
 pub impl Show for XmlElement
+pub impl @debug.Debug for XmlElement
 
 pub struct XmlName {
   qualified_name : String

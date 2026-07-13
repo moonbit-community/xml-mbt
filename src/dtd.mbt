@@ -15,7 +15,7 @@
 ///|
 /// Validate parameter entity value (less strict than general entity)
 /// Checks for PE references, invalid characters, and bare &
-fn validate_pe_value(value : String) -> Unit raise XmlError {
+fn validate_pe_value(value : String) -> Unit raise XmlErrorKind {
   let chars = value.to_array()
   let len = chars.length()
   let mut i = 0
@@ -75,7 +75,7 @@ fn validate_pe_value(value : String) -> Unit raise XmlError {
 /// Validate entity replacement text for well-formedness
 /// Checks that entity values don't contain bare & not followed by valid reference
 /// Also validates character references when expanded
-fn validate_entity_value(value : String) -> Unit raise XmlError {
+fn validate_entity_value(value : String) -> Unit raise XmlErrorKind {
   let chars = value.to_array()
   let len = chars.length()
   let mut i = 0
@@ -254,7 +254,7 @@ fn validate_entity_value(value : String) -> Unit raise XmlError {
 fn validate_no_lt_in_attr_context(
   chars : Array[Char],
   len : Int,
-) -> Unit raise XmlError {
+) -> Unit raise XmlErrorKind {
   let mut i = 0
   while i < len {
     // Look for = followed by quote (attribute value start)
@@ -322,7 +322,7 @@ fn validate_no_lt_in_attr_context(
 fn validate_no_incomplete_markup(
   chars : Array[Char],
   len : Int,
-) -> Unit raise XmlError {
+) -> Unit raise XmlErrorKind {
   let mut i = 0
   while i < len {
     // Look for &#60; or &#x3c; (expands to <)
@@ -439,7 +439,7 @@ fn validate_no_incomplete_markup(
 fn validate_literal_markup(
   chars : Array[Char],
   len : Int,
-) -> Unit raise XmlError {
+) -> Unit raise XmlErrorKind {
   // First expand character references to get actual markup
   let expanded = expand_char_refs(chars, len)
   let exp_chars = expanded.to_array()
@@ -570,7 +570,7 @@ fn expand_entity_value(
   value : String,
   entities : Map[String, String],
   seen : Map[String, Bool],
-) -> String raise XmlError {
+) -> String raise XmlErrorKind {
   let buf = StringBuilder::new()
   let chars = value.to_array()
   let len = chars.length()
@@ -679,7 +679,7 @@ fn expand_entity_value(
 ///|
 /// Parse ATTLIST declaration with validation
 /// ATTLIST format: <!ATTLIST element_name attr_name type default>
-fn parse_attlist(reader : Reader) -> Unit raise XmlError {
+fn parse_attlist(reader : Reader) -> Unit raise XmlErrorKind {
   // Skip whitespace after ATTLIST
   skip_ws(reader)
 
@@ -707,7 +707,7 @@ fn parse_attlist(reader : Reader) -> Unit raise XmlError {
 }
 
 ///|
-fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
+fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlErrorKind {
   // Read attribute name
   let attr_name = read_name(reader)
 
@@ -801,7 +801,7 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlError {
 }
 
 ///|
-fn parse_enumeration(reader : Reader) -> Unit raise XmlError {
+fn parse_enumeration(reader : Reader) -> Unit raise XmlErrorKind {
   // Skip opening (
   let _ = reader.advance()
   skip_ws(reader)
@@ -836,7 +836,7 @@ fn parse_enumeration(reader : Reader) -> Unit raise XmlError {
 }
 
 ///|
-fn read_quoted_value(reader : Reader) -> String raise XmlError {
+fn read_quoted_value(reader : Reader) -> String raise XmlErrorKind {
   let quote = match reader.peek() {
     Some('"') => '"'
     Some('\'') => '\''
@@ -966,7 +966,7 @@ fn parse_decimal_code(chars : Array[Char], start : Int, end : Int) -> Int {
 ///|
 /// Parse ELEMENT declaration with validation
 /// ELEMENT format: <!ELEMENT name content-model>
-fn parse_element_decl(reader : Reader) -> Unit raise XmlError {
+fn parse_element_decl(reader : Reader) -> Unit raise XmlErrorKind {
   // Skip whitespace after ELEMENT
   skip_ws(reader)
 
@@ -1009,7 +1009,7 @@ fn parse_element_decl(reader : Reader) -> Unit raise XmlError {
 }
 
 ///|
-fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlError {
+fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlErrorKind {
   // Skip opening (
   let _ = reader.advance()
   skip_ws(reader)

@@ -32,12 +32,13 @@ test "valid/sa/001 - empty element with DTD" {
   let reader = Reader::from_string(xml)
   let events : Array[Event] = []
   for ;; {
-    match reader.read_event() {
+    let event = reader.read_event()
+    match event.kind {
       Eof => {
-        events.push(Eof)
+        events.push(event)
         break
       }
-      event => events.push(event)
+      _ => events.push(event)
     }
   }
   // Use to_libxml_format to skip prolog whitespace
@@ -275,7 +276,8 @@ test "not-wf/sa/017 - CDATA needs terminating ]]>" {
   let reader = Reader::from_string(xml)
   let _ = reader.read_event() // Start
   try reader.read_event() catch {
-    err => @debug.debug_inspect(err, content="UnexpectedEof")
+    XmlError::At(error~, position=_) =>
+      @debug.debug_inspect(error, content="UnexpectedEof")
   } noraise {
     _ => fail("expected reader.read_event to raise")
   }
@@ -288,9 +290,9 @@ test "not-wf/sa/027 - comments must end with -->" {
   let _ = reader.read_event() // Start
   // Comment has -- not followed by >, which is invalid
   try reader.read_event() catch {
-    err =>
+    XmlError::At(error~, position=_) =>
       @debug.debug_inspect(
-        err,
+        error,
         content="InvalidSyntax(\"'--' is not allowed in comments\")",
       )
   } noraise {
@@ -303,7 +305,8 @@ test "not-wf/sa/028 - PI must end with ?>" {
   let xml = "<?xml-test test?"
   let reader = Reader::from_string(xml)
   try reader.read_event() catch {
-    err => @debug.debug_inspect(err, content="UnexpectedEof")
+    XmlError::At(error~, position=_) =>
+      @debug.debug_inspect(error, content="UnexpectedEof")
   } noraise {
     _ => fail("expected reader.read_event to raise")
   }
@@ -333,21 +336,13 @@ test "valid - CDATA with special chars" {
 
 ///|
 test "libxml format coalesces CDATA with adjacent text" {
-  let events : Array[Event] = [
-    Start(XmlElement::new("doc")),
-    Text("a"),
-    CData("b"),
-    Text("c"),
-    End("doc"),
-    Eof,
-  ]
-  let expected : Array[Event] = [
-    Start(XmlElement::new("doc")),
-    Text("abc"),
-    End("doc"),
-    Eof,
-  ]
-  assert_eq(to_libxml_format(events), expected)
+  let events = Reader::from_string("<doc>a<![CDATA[b]]>c</doc>").read_events_until_eof()
+  @debug.debug_inspect(
+    to_libxml_format(events),
+    content=(
+      #|[Start({ name: "doc", attributes: [] }), Text("abc"), End("doc"), Eof]
+    ),
+  )
 }
 
 // ============================================================================
@@ -440,7 +435,7 @@ test "valid - deeply nested elements" {
   while true {
     let event = reader.read_event()
     events.push(event)
-    if event is Eof {
+    if event.kind is Eof {
       break
     }
   }

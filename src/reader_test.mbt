@@ -243,7 +243,7 @@ test "parse text with entities" {
   let events : Array[Event] = []
   while true {
     let event = reader.read_event()
-    if event is End(_) {
+    if event.kind is End(_) {
       break
     }
     events.push(event)
@@ -318,9 +318,9 @@ test "error on unclosed tag" {
   let reader = Reader::from_string("<root>")
   let _ = reader.read_event() // Start
   try reader.read_event() catch {
-    err =>
+    XmlError::At(error~, position=_) =>
       @debug.debug_inspect(
-        err,
+        error,
         content="InvalidSyntax(\"unclosed element: <root>\")",
       )
   } noraise {
@@ -333,9 +333,9 @@ test "error on mismatched tags" {
   let reader = Reader::from_string("<root></other>")
   let _ = reader.read_event() // Start
   try reader.read_event() catch {
-    err =>
+    XmlError::At(error~, position=_) =>
       @debug.debug_inspect(
-        err,
+        error,
         content=(
           #|InvalidSyntax("end tag mismatch: expected </root>, found </other>")
         ),
@@ -349,9 +349,9 @@ test "error on mismatched tags" {
 test "error on invalid syntax" {
   let reader = Reader::from_string("<root<>")
   try reader.read_event() catch {
-    err =>
+    XmlError::At(error~, position=_) =>
       @debug.debug_inspect(
-        err,
+        error,
         content=(
           #|InvalidSyntax("unexpected character in tag: '<'")
         ),

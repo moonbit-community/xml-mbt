@@ -22,7 +22,7 @@ let reader = @xml.Reader::from_file("document.xml")
 
 while true {
   let event = reader.read_event()
-  match event {
+  match event.kind {
     Start(elem) => println("Start: \{elem.name}")
     End(name) => println("End: \{name}")
     Text(content) => println("Text: \{content}")
@@ -41,7 +41,7 @@ let reader = @xml.NamespaceReader::from_string(
   "<p:root xmlns:p=\"urn:example\" p:id=\"1\"/>",
 )
 
-match reader.read_event() {
+match reader.read_event().kind {
   Empty(element) => {
     println(element.name.local_name) // root
     println(element.name.namespace_uri) // Some("urn:example")
@@ -54,20 +54,23 @@ Namespace declarations are exposed through `NamespaceElement::namespace_declarat
 
 ### Source locations
 
-Use `Reader::read_spanned_event` when parsed values must map back to their authored source. Event and attribute spans are half-open; offsets count UTF-16 code units, so they can slice the original MoonBit `String` directly.
+Every event returned by `Reader::read_event` includes its authored source range. Event and attribute spans are half-open; offsets count UTF-16 code units, so they can slice the original MoonBit `String` directly.
 
 ```moonbit
 let input = "<root id='a&amp;b'/>"
 let reader = @xml.Reader::from_string(input)
-let parsed = reader.read_spanned_event()
+let parsed = reader.read_event()
 let authored = input[parsed.span.start.offset:parsed.span.end.offset]
 assert_eq(authored, input)
-assert_eq(parsed.attributes[0].value, "a&b")
+guard parsed.kind is Empty(element) else { abort("expected empty element") }
+assert_eq(element.attributes[0].value, "a&b")
 ```
 
-Each `SpannedAttribute` contains the whole attribute span plus separate name and unquoted value spans. `read_spanned_event` raises `LocatedXmlError`, which preserves the original `XmlError` and the position where parsing detected it. Events produced by entity expansion point to the authored entity reference.
+Each `XmlAttribute` contains the whole attribute span plus separate name and unquoted value spans. Parse failures raise `XmlError::At`, which contains an `XmlErrorKind` and the position where parsing detected it. Events produced by entity expansion point to the authored entity reference.
 
 ## Event Types
+
+`Event` contains an `EventKind` and a `SourceSpan`. The `EventKind` variants are:
 
 | Event | Description |
 |-------|-------------|
