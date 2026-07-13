@@ -16,4 +16,4 @@ keywords = [ "xml", "parser" ]
 
 source = "src"
 
-description = "A fast XML parser for MoonBit, inspired by quick-xml"
+description = "A document-buffered pull XML parser for MoonBit"

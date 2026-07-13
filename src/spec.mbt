@@ -16,7 +16,7 @@
 /// XML Parser Specification
 /// Inspired by quick-xml (https://github.com/tafia/quick-xml)
 ///
-/// This module provides a streaming XML parser using a pull-parser model.
+/// This module provides a pull parser over a fully buffered XML document.
 /// Users read events one at a time, similar to StAX in Java.
 
 // ============================================================================
@@ -68,7 +68,7 @@ pub(all) suberror XmlError {
 } derive(Debug, Eq)
 
 ///|
-/// A streaming XML reader
+/// A pull XML reader over a fully buffered document
 pub struct Reader {
   input : Array[Char]
   mut pos : Int

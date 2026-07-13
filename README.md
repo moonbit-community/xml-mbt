@@ -1,11 +1,11 @@
 # xml
 
-A streaming XML parser for MoonBit, inspired by [quick-xml](https://github.com/tafia/quick-xml).
+A document-buffered pull XML parser for MoonBit, inspired by [quick-xml](https://github.com/tafia/quick-xml).
 
 ## Features
 
 - **Pull-parser model** - Read XML events one at a time (like StAX in Java)
-- **Streaming** - Memory-efficient processing of large documents
+- **Document-buffered input** - Constructors load the full input, then callers pull events one at a time
 - **Multi-backend** - Works on wasm, wasm-gc, js, and native
 - **XML 1.0 + Namespaces 1.0** - Unicode names plus namespace-aware events
 - **Source-aware parsing** - Exact ranges for events, attributes, and errors
