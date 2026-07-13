@@ -98,6 +98,120 @@ pub fn Reader::read_events_until_eof(
 }
 
 // ============================================================================
+// Namespace-aware Reader API
+// ============================================================================
+
+///|
+/// An XML qualified name resolved against the namespace declarations in scope.
+pub struct XmlName {
+  qualified_name : String
+  prefix : String?
+  local_name : String
+  namespace_uri : String?
+} derive(Debug, Eq)
+
+///|
+/// A namespace declaration from an element start tag.
+/// `None` denotes the default namespace declaration.
+pub struct NamespaceDeclaration {
+  prefix : String?
+  namespace_uri : String
+} derive(Debug, Eq)
+
+///|
+/// An XML attribute with a namespace-resolved name.
+pub struct NamespaceAttribute {
+  name : XmlName
+  value : String
+} derive(Debug, Eq)
+
+///|
+/// An XML element with namespace-resolved element and attribute names.
+/// Namespace declarations are exposed separately and are not normal attributes.
+pub struct NamespaceElement {
+  name : XmlName
+  attributes : Array[NamespaceAttribute]
+  namespace_declarations : Array[NamespaceDeclaration]
+} derive(Debug, Eq)
+
+///|
+/// An XML event whose element and attribute names have resolved namespaces.
+pub(all) enum NamespaceEvent {
+  Start(NamespaceElement)
+  End(XmlName)
+  Empty(NamespaceElement)
+  Text(String)
+  CData(String)
+  Comment(String)
+  PI(target~ : String, data~ : String)
+  Decl(version~ : String, encoding~ : String?, standalone~ : String?)
+  DocType(String)
+  Eof
+} derive(Debug, Eq)
+
+///|
+/// A namespace-aware adapter over the raw XML `Reader` event stream.
+pub struct NamespaceReader {
+  reader : Reader
+  scopes : Array[Map[String, String]]
+}
+
+///|
+/// Create a namespace-aware reader from a string.
+#declaration_only
+pub fn NamespaceReader::from_string(input : String) -> NamespaceReader {
+  ...
+}
+
+///|
+/// Create a namespace-aware reader from a file path.
+#declaration_only
+pub fn NamespaceReader::from_file(
+  path : String,
+) -> NamespaceReader raise @fs.IOError {
+  ...
+}
+
+///|
+/// Check whether the underlying reader has consumed its input.
+#declaration_only
+pub fn NamespaceReader::is_eof(self : NamespaceReader) -> Bool {
+  ...
+}
+
+///|
+/// Get the current one-indexed line number.
+#declaration_only
+pub fn NamespaceReader::line(self : NamespaceReader) -> Int {
+  ...
+}
+
+///|
+/// Get the current one-indexed column number.
+#declaration_only
+pub fn NamespaceReader::column(self : NamespaceReader) -> Int {
+  ...
+}
+
+///|
+/// Read the next namespace-aware XML event.
+#declaration_only
+pub fn NamespaceReader::read_event(
+  self : NamespaceReader,
+) -> NamespaceEvent raise XmlError {
+  ...
+}
+
+///|
+/// Read all namespace-aware events through the final `Eof` event.
+#declaration_only
+pub fn NamespaceReader::read_events_until_eof(
+  self : NamespaceReader,
+) -> Array[NamespaceEvent] raise XmlError {
+  ...
+}
+
+// ============================================================================
 // Writer API
 // ============================================================================
 

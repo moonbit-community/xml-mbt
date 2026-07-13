@@ -38,6 +38,47 @@ pub(all) enum Event {
 } derive(Eq, @debug.Debug)
 pub impl Show for Event
 
+pub struct NamespaceAttribute {
+  name : XmlName
+  value : String
+} derive(Eq, @debug.Debug)
+
+pub struct NamespaceDeclaration {
+  prefix : String?
+  namespace_uri : String
+} derive(Eq, @debug.Debug)
+
+pub struct NamespaceElement {
+  name : XmlName
+  attributes : Array[NamespaceAttribute]
+  namespace_declarations : Array[NamespaceDeclaration]
+} derive(Eq, @debug.Debug)
+
+pub(all) enum NamespaceEvent {
+  Start(NamespaceElement)
+  End(XmlName)
+  Empty(NamespaceElement)
+  Text(String)
+  CData(String)
+  Comment(String)
+  PI(target~ : String, data~ : String)
+  Decl(version~ : String, encoding~ : String?, standalone~ : String?)
+  DocType(String)
+  Eof
+} derive(Eq, @debug.Debug)
+
+pub struct NamespaceReader {
+  reader : Reader
+  scopes : Array[Map[String, String]]
+}
+pub fn NamespaceReader::column(Self) -> Int
+pub fn NamespaceReader::from_file(String) -> Self raise @fs.IOError
+pub fn NamespaceReader::from_string(String) -> Self
+pub fn NamespaceReader::is_eof(Self) -> Bool
+pub fn NamespaceReader::line(Self) -> Int
+pub fn NamespaceReader::read_event(Self) -> NamespaceEvent raise XmlError
+pub fn NamespaceReader::read_events_until_eof(Self) -> Array[NamespaceEvent] raise XmlError
+
 pub struct Reader {
   input : Array[Char]
   mut pos : Int
@@ -87,6 +128,13 @@ pub fn XmlElement::get(Self, String) -> String?
 pub fn XmlElement::new(String) -> Self
 pub fn XmlElement::with_attrs(String, Array[(String, String)]) -> Self
 pub impl Show for XmlElement
+
+pub struct XmlName {
+  qualified_name : String
+  prefix : String?
+  local_name : String
+  namespace_uri : String?
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 

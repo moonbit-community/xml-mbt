@@ -7,7 +7,7 @@ A streaming XML parser for MoonBit, inspired by [quick-xml](https://github.com/t
 - **Pull-parser model** - Read XML events one at a time (like StAX in Java)
 - **Streaming** - Memory-efficient processing of large documents
 - **Multi-backend** - Works on wasm, wasm-gc, js, and native
-- **XML 1.0 + Namespaces 1.0** - Full Unicode name character support
+- **XML 1.0 + Namespaces 1.0** - Unicode names plus namespace-aware events
 
 ## Usage
 
@@ -31,6 +31,26 @@ while true {
 }
 ```
 
+### Namespace-aware parsing
+
+Use `NamespaceReader` when callers need namespace URI, prefix, and local-name information. The original `Reader` remains available for raw qualified names and namespace declaration attributes.
+
+```moonbit
+let reader = @xml.NamespaceReader::from_string(
+  "<p:root xmlns:p=\"urn:example\" p:id=\"1\"/>",
+)
+
+match reader.read_event() {
+  Empty(element) => {
+    println(element.name.local_name) // root
+    println(element.name.namespace_uri) // Some("urn:example")
+  }
+  _ => ()
+}
+```
+
+Namespace declarations are exposed through `NamespaceElement::namespace_declarations` and are not included in its normal attributes. Default namespaces apply to element names but not to unprefixed attribute names.
+
 ## Event Types
 
 | Event | Description |
@@ -50,14 +70,14 @@ while true {
 
 This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using libxml2 (lxml) as the reference parser.
 
-**Current status: 802/802 tests passing**
+**Current status: 809/809 tests passing**
 
 | Category | Tests | Description |
 |----------|-------|-------------|
 | Valid (with events) | 448 | Parser produces correct event sequence |
 | Valid (error-only) | 6 | Parser does not error on valid XML |
 | Not-well-formed | 281 | Parser correctly rejects malformed XML |
-| Unit tests | 67 | Reader, writer, escape, conformance tests |
+| Unit tests | 74 | Reader, writer, escape, namespace, conformance tests |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
