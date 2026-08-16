@@ -18,10 +18,18 @@ pub(all) suberror WriterError {
   InvalidStructure(String)
   InvalidDeclaration(String)
 } derive(Eq, @debug.Debug)
+pub fn WriterError::equal(Self, Self) -> Bool
+pub fn WriterError::not_equal(Self, Self) -> Bool
+pub fn WriterError::to_repr(Self) -> @debug.Repr
 
 pub(all) suberror XmlError {
   At(error~ : XmlErrorKind, span~ : SourceSpan)
 } derive(Eq, @debug.Debug)
+pub fn XmlError::equal(Self, Self) -> Bool
+pub fn XmlError::not_equal(Self, Self) -> Bool
+pub fn XmlError::output(Self, &Logger) -> Unit
+pub fn XmlError::to_repr(Self) -> @debug.Repr
+pub fn XmlError::to_string(Self) -> String
 pub impl Show for XmlError
 
 pub(all) suberror XmlErrorKind {
@@ -31,6 +39,11 @@ pub(all) suberror XmlErrorKind {
   InvalidAttribute(String)
   InvalidEntity(String)
 } derive(Eq, @debug.Debug)
+pub fn XmlErrorKind::equal(Self, Self) -> Bool
+pub fn XmlErrorKind::not_equal(Self, Self) -> Bool
+pub fn XmlErrorKind::output(Self, &Logger) -> Unit
+pub fn XmlErrorKind::to_repr(Self) -> @debug.Repr
+pub fn XmlErrorKind::to_string(Self) -> String
 pub impl Show for XmlErrorKind
 
 // Types and methods
@@ -38,6 +51,11 @@ pub struct Event {
   kind : EventKind
   span : SourceSpan
 } derive(Eq)
+pub fn Event::equal(Self, Self) -> Bool
+pub fn Event::not_equal(Self, Self) -> Bool
+pub fn Event::output(Self, &Logger) -> Unit
+pub fn Event::to_repr(Self) -> @debug.Repr
+pub fn Event::to_string(Self) -> String
 pub impl Show for Event
 pub impl @debug.Debug for Event
 
@@ -53,6 +71,11 @@ pub(all) enum EventKind {
   DocType(String)
   Eof
 } derive(Eq, @debug.Debug)
+pub fn EventKind::equal(Self, Self) -> Bool
+pub fn EventKind::not_equal(Self, Self) -> Bool
+pub fn EventKind::output(Self, &Logger) -> Unit
+pub fn EventKind::to_repr(Self) -> @debug.Repr
+pub fn EventKind::to_string(Self) -> String
 pub impl Show for EventKind
 
 pub struct NamespaceAttribute {
@@ -62,6 +85,9 @@ pub struct NamespaceAttribute {
   name_span : SourceSpan
   value_span : SourceSpan
 } derive(Eq, @debug.Debug)
+pub fn NamespaceAttribute::equal(Self, Self) -> Bool
+pub fn NamespaceAttribute::not_equal(Self, Self) -> Bool
+pub fn NamespaceAttribute::to_repr(Self) -> @debug.Repr
 
 pub struct NamespaceDeclaration {
   prefix : String?
@@ -70,17 +96,26 @@ pub struct NamespaceDeclaration {
   name_span : SourceSpan
   value_span : SourceSpan
 } derive(Eq, @debug.Debug)
+pub fn NamespaceDeclaration::equal(Self, Self) -> Bool
+pub fn NamespaceDeclaration::not_equal(Self, Self) -> Bool
+pub fn NamespaceDeclaration::to_repr(Self) -> @debug.Repr
 
 pub struct NamespaceElement {
   name : XmlName
   attributes : Array[NamespaceAttribute]
   namespace_declarations : Array[NamespaceDeclaration]
 } derive(Eq, @debug.Debug)
+pub fn NamespaceElement::equal(Self, Self) -> Bool
+pub fn NamespaceElement::not_equal(Self, Self) -> Bool
+pub fn NamespaceElement::to_repr(Self) -> @debug.Repr
 
 pub struct NamespaceEvent {
   kind : NamespaceEventKind
   span : SourceSpan
 } derive(Eq, @debug.Debug)
+pub fn NamespaceEvent::equal(Self, Self) -> Bool
+pub fn NamespaceEvent::not_equal(Self, Self) -> Bool
+pub fn NamespaceEvent::to_repr(Self) -> @debug.Repr
 
 pub(all) enum NamespaceEventKind {
   Start(NamespaceElement)
@@ -94,6 +129,9 @@ pub(all) enum NamespaceEventKind {
   DocType(String)
   Eof
 } derive(Eq, @debug.Debug)
+pub fn NamespaceEventKind::equal(Self, Self) -> Bool
+pub fn NamespaceEventKind::not_equal(Self, Self) -> Bool
+pub fn NamespaceEventKind::to_repr(Self) -> @debug.Repr
 
 pub struct NamespaceReader {
   reader : Reader
@@ -139,11 +177,17 @@ pub struct SourcePosition {
   line : Int
   column : Int
 } derive(Eq, @debug.Debug)
+pub fn SourcePosition::equal(Self, Self) -> Bool
+pub fn SourcePosition::not_equal(Self, Self) -> Bool
+pub fn SourcePosition::to_repr(Self) -> @debug.Repr
 
 pub struct SourceSpan {
   start : SourcePosition
   end : SourcePosition
 } derive(Eq, @debug.Debug)
+pub fn SourceSpan::equal(Self, Self) -> Bool
+pub fn SourceSpan::not_equal(Self, Self) -> Bool
+pub fn SourceSpan::to_repr(Self) -> @debug.Repr
 
 pub struct Writer {
   buffer : StringBuilder
@@ -169,12 +213,20 @@ pub struct XmlAttribute {
   name_span : SourceSpan
   value_span : SourceSpan
 } derive(Eq, @debug.Debug)
+pub fn XmlAttribute::equal(Self, Self) -> Bool
+pub fn XmlAttribute::not_equal(Self, Self) -> Bool
+pub fn XmlAttribute::to_repr(Self) -> @debug.Repr
 
 pub struct XmlElement {
   name : String
   attributes : Array[XmlAttribute]
 } derive(Eq)
+pub fn XmlElement::equal(Self, Self) -> Bool
 pub fn XmlElement::get(Self, String) -> String?
+pub fn XmlElement::not_equal(Self, Self) -> Bool
+pub fn XmlElement::output(Self, &Logger) -> Unit
+pub fn XmlElement::to_repr(Self) -> @debug.Repr
+pub fn XmlElement::to_string(Self) -> String
 pub impl Show for XmlElement
 pub impl @debug.Debug for XmlElement
 
@@ -184,8 +236,10 @@ pub struct XmlName {
   local_name : String
   namespace_uri : String?
 } derive(Eq, @debug.Debug)
+pub fn XmlName::equal(Self, Self) -> Bool
+pub fn XmlName::not_equal(Self, Self) -> Bool
+pub fn XmlName::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

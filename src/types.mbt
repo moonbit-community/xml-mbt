@@ -77,7 +77,7 @@ pub impl Show for XmlElement with fn output(self, logger) {
   logger.write_object(self.name)
   logger.write_string(", attributes: ")
   logger.write_object(
-    to_repr(
+    Repr(
       self.attributes.map(fn(attribute) { (attribute.name, attribute.value) }),
     ),
   )
@@ -92,12 +92,12 @@ pub impl Debug for XmlElement with fn to_repr(self) {
       (attribute.name, attribute.value)
     }),
   }
-  to_repr(debug)
+  Repr(debug)
 }
 
 ///|
 pub impl Debug for Event with fn to_repr(self) {
-  to_repr(self.kind)
+  Repr(self.kind)
 }
 
 ///|
@@ -149,9 +149,9 @@ pub impl Show for EventKind with fn output(self, logger) {
       logger.write_string("Decl(version=")
       logger.write_object(version)
       logger.write_string(", encoding=")
-      logger.write_object(to_repr(encoding))
+      logger.write_object(Repr(encoding))
       logger.write_string(", standalone=")
-      logger.write_object(to_repr(standalone))
+      logger.write_object(Repr(standalone))
       logger.write_string(")")
     }
     DocType(name) => {
