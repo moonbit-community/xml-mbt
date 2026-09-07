@@ -16,7 +16,7 @@
 /// Create a new writer
 pub fn Writer::new() -> Writer {
   {
-    buffer: StringBuilder::new(),
+    buffer: StringBuilder(),
     element_stack: [],
     seen_root: false,
     wrote_anything: false,

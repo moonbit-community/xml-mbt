@@ -405,7 +405,7 @@ test "reject entity expansion over the output budget" {
 
 ///|
 test "apply entity expansion budget before parsing replacement markup" {
-  let payload = StringBuilder::new()
+  let payload = StringBuilder()
   for i = 0; i < 262_145; i = i + 1 {
     payload.write_char('x')
   }
@@ -428,7 +428,7 @@ test "apply entity expansion budget before parsing replacement markup" {
 
 ///|
 test "reject entity expansion over the nesting-depth budget" {
-  let xml = StringBuilder::new()
+  let xml = StringBuilder()
   xml.write_string("<!DOCTYPE root [<!ENTITY e0 \"ok\">")
   for i = 1; i <= 33; i = i + 1 {
     xml.write_string("<!ENTITY e\{i} \"&e\{i - 1};\">")

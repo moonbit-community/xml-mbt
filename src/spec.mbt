@@ -389,3 +389,72 @@ pub fn escape(text : String) -> String {
 pub fn unescape(text : String) -> String raise XmlErrorKind {
   ...
 }
+
+///|
+pub extend Event with Eq::{not_equal, equal}
+
+///|
+pub extend NamespaceAttribute with Debug::{to_repr}
+
+///|
+pub extend NamespaceAttribute with Eq::{not_equal, equal}
+
+///|
+pub extend NamespaceDeclaration with Debug::{to_repr}
+
+///|
+pub extend NamespaceDeclaration with Eq::{not_equal, equal}
+
+///|
+pub extend NamespaceElement with Debug::{to_repr}
+
+///|
+pub extend NamespaceElement with Eq::{not_equal, equal}
+
+///|
+pub extend NamespaceEvent with Debug::{to_repr}
+
+///|
+pub extend NamespaceEvent with Eq::{not_equal, equal}
+
+///|
+pub extend NamespaceEventKind with Debug::{to_repr}
+
+///|
+pub extend NamespaceEventKind with Eq::{not_equal, equal}
+
+///|
+pub extend SourcePosition with Debug::{to_repr}
+
+///|
+pub extend SourcePosition with Eq::{not_equal, equal}
+
+///|
+pub extend SourceSpan with Debug::{to_repr}
+
+///|
+pub extend SourceSpan with Eq::{not_equal, equal}
+
+///|
+pub extend WriterError with Debug::{to_repr}
+
+///|
+pub extend WriterError with Eq::{not_equal, equal}
+
+///|
+pub extend XmlAttribute with Debug::{to_repr}
+
+///|
+pub extend XmlAttribute with Eq::{not_equal, equal}
+
+///|
+pub extend XmlError with Debug::{to_repr}
+
+///|
+pub extend XmlError with Eq::{not_equal, equal}
+
+///|
+pub extend XmlName with Debug::{to_repr}
+
+///|
+pub extend XmlName with Eq::{not_equal, equal}

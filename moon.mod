@@ -1,9 +1,9 @@
 name = "Milky2018/xml"
 
-version = "0.4.0"
+version = "0.4.1"
 
 import {
-  "moonbitlang/x@0.4.38",
+  "moonbitlang/x@0.5.1",
 }
 
 readme = "README.md"

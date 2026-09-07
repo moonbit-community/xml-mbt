@@ -511,7 +511,7 @@ fn validate_literal_markup(
 ///|
 /// Expand only character references in a string (not entity refs)
 fn expand_char_refs(chars : Array[Char], len : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = 0
   while i < len {
     if chars[i] == '&' && i + 1 < len && chars[i + 1] == '#' {
@@ -546,7 +546,7 @@ fn expand_char_refs(chars : Array[Char], len : Int) -> String {
 
 ///|
 fn substring_from_chars(chars : Array[Char], start : Int, end : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = start; i < end; i = i + 1 {
     buf.write_char(chars[i])
   }
@@ -612,7 +612,7 @@ fn expand_entity_value_with_budget(
   if depth > MAX_ENTITY_EXPANSION_DEPTH {
     raise InvalidEntity("entity expansion depth exceeded")
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let chars = value.to_array()
   let len = chars.length()
   let mut i = 0
@@ -897,7 +897,7 @@ fn read_quoted_value(reader : Reader) -> String raise XmlErrorKind {
     _ => raise InvalidSyntax("expected quoted value")
   }
   let _ = reader.advance()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   while reader.peek() is Some(c) && c != quote {
     buf.write_char(c)
     let _ = reader.advance()
@@ -926,7 +926,7 @@ fn skip_name(reader : Reader) -> Unit {
 
 ///|
 fn read_name(reader : Reader) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   while reader.peek() is Some(c) && is_name_char(c) {
     buf.write_char(c)
     let _ = reader.advance()

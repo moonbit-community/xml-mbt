@@ -3,3 +3,4 @@ xmlconf/
 tools/quickxml-ref/target/
 __pycache__/
 _build/
+.mooncakes/

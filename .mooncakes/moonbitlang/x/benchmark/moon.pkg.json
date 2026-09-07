@@ -1,9 +1,0 @@
-{
-    "import": [
-        {
-            "path": "moonbitlang/x/benchmark/internal/benchmark_ffi",
-            "alias": "ffi"
-        }
-    ],
-    "warn-list": "-deprecated"
-}

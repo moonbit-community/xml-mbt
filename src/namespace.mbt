@@ -26,7 +26,7 @@ fn xmlns_namespace_uri() -> String {
 fn namespace_reader_from_reader(reader : Reader) -> NamespaceReader {
   let base_scope : Map[String, String] = Map([])
   base_scope.set("xml", xml_namespace_uri())
-  { reader, scopes: [base_scope] }
+  { reader, scopes: [base_scope], }
 }
 
 ///|
@@ -190,7 +190,7 @@ fn resolve_xml_name(
       }
     None => if use_default_namespace { scope.get("") } else { None }
   }
-  { qualified_name, prefix, local_name, namespace_uri }
+  { qualified_name, prefix, local_name, namespace_uri, }
 }
 
 ///|
@@ -241,7 +241,7 @@ fn NamespaceReader::resolve_element(
   if push_scope {
     self.scopes.push(scope)
   }
-  { name, attributes, namespace_declarations: declarations }
+  { name, attributes, namespace_declarations: declarations, }
 }
 
 ///|
@@ -275,7 +275,7 @@ pub fn NamespaceReader::read_event(
   } catch {
     error => raise At(error~, span=event.span)
   }
-  { kind, span: event.span }
+  { kind, span: event.span, }
 }
 
 ///|

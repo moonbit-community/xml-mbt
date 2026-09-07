@@ -16,7 +16,7 @@
 /// Escape special XML characters in text
 /// Replaces: < > & " '
 pub fn escape(text : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in text {
     match c {
       '<' => buf.write_string("&lt;")
@@ -34,7 +34,7 @@ pub fn escape(text : String) -> String {
 /// Unescape XML entities
 /// Handles: &lt; &gt; &amp; &quot; &apos; &#NN; &#xHH;
 pub fn unescape(text : String) -> String raise XmlErrorKind {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let chars = text.to_array()
   let len = chars.length()
   let mut i = 0
@@ -65,7 +65,7 @@ pub fn unescape(text : String) -> String raise XmlErrorKind {
 /// Expand only character references (&#NN; &#xHH;), leaving entity refs as-is.
 /// Used for processing entity replacement text per XML spec 4.5.
 fn expand_char_refs_only(text : String) -> String raise XmlErrorKind {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let chars = text.to_array()
   let len = chars.length()
   let mut i = 0
@@ -121,7 +121,7 @@ fn decode_char_ref(entity : String) -> String raise XmlErrorKind {
 
 ///|
 fn substring_chars(chars : Array[Char], start : Int, end : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = start; i < end; i = i + 1 {
     buf.write_char(chars[i])
   }
