@@ -1,1 +1,0 @@
-<!DOCTYPE root [<!ENTITY leak SYSTEM "external-secret.txt">]><root>&leak;</root>
