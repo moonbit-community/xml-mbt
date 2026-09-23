@@ -1,8 +1,4 @@
 import {
-  "moonbitlang/x/fs",
-}
-
-import {
   "moonbitlang/core/debug",
 } for "test"
 

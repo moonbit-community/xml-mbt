@@ -3,7 +3,6 @@ package "Milky2018/xml"
 
 import {
   "moonbitlang/core/debug",
-  "moonbitlang/x/fs",
 }
 
 // Values
@@ -138,7 +137,6 @@ pub struct NamespaceReader {
   scopes : Array[Map[String, String]]
 }
 pub fn NamespaceReader::column(Self) -> Int
-pub fn NamespaceReader::from_file(String) -> Self raise @fs.IOError
 pub fn NamespaceReader::from_string(String) -> Self
 pub fn NamespaceReader::is_eof(Self) -> Bool
 pub fn NamespaceReader::line(Self) -> Int
@@ -165,7 +163,6 @@ pub struct Reader {
   had_bom : Bool
 }
 pub fn Reader::column(Self) -> Int
-pub fn Reader::from_file(String) -> Self raise @fs.IOError
 pub fn Reader::from_string(String) -> Self
 pub fn Reader::is_eof(Self) -> Bool
 pub fn Reader::line(Self) -> Int

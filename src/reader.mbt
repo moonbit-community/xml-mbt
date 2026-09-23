@@ -44,12 +44,6 @@ pub fn Reader::from_string(input : String) -> Reader {
 }
 
 ///|
-/// Create a new reader from a file path
-pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
-  Reader::from_string(@fs.read_file_to_string(path))
-}
-
-///|
 /// Check if the reader has reached the end
 pub fn Reader::is_eof(self : Reader) -> Bool {
   self.pos >= self.input.length()
