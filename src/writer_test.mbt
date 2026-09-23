@@ -68,6 +68,73 @@ test "write element with attributes" {
 }
 
 ///|
+test "writer preserves attribute whitespace on round trip" {
+  let value = "a\tb\nc\rd"
+  let writer = @xml.Writer::new()
+  writer.empty_element("root", [("value", value)])
+  let reader = @xml.NamespaceReader::from_string(writer.to_string())
+  guard reader.read_event().kind is Empty(element) else {
+    fail("expected empty root element")
+  }
+  assert_eq(element.attributes[0].value, value)
+}
+
+///|
+test "writer escapes each kind of attribute whitespace" {
+  let cases = [
+    ("a\tb", "a&#9;b"),
+    ("a\nb", "a&#10;b"),
+    ("a\rb", "a&#13;b"),
+    ("a\r\nb", "a&#13;&#10;b"),
+    ("a\tb\nc\rd", "a&#9;b&#10;c&#13;d"),
+    ("a b", "a b"),
+    ("<&\"'>", "&lt;&amp;&quot;&apos;&gt;"),
+  ]
+  for (value, escaped) in cases {
+    let writer = @xml.Writer::new()
+    writer.empty_element("root", [("value", value)])
+    let xml = writer.to_string()
+    assert_eq(xml, "<root value=\"" + escaped + "\"/>")
+    let reader = @xml.NamespaceReader::from_string(xml)
+    guard reader.read_event().kind is Empty(element) else {
+      fail("expected empty root element")
+    }
+    assert_eq(element.attributes[0].value, value)
+  }
+}
+
+///|
+test "writer preserves attribute whitespace through start and event methods" {
+  let value = "a\tb\nc\rd"
+  let expected_empty = "<root value=\"a&#9;b&#10;c&#13;d\"/>"
+  let expected_start = "<root value=\"a&#9;b&#10;c&#13;d\"></root>"
+
+  let direct = @xml.Writer::new()
+  direct.start_element("root", [("value", value)])
+  direct.end_element("root")
+  assert_eq(direct.to_string(), expected_start)
+
+  let empty_event = @xml.Reader::from_string(expected_empty).read_event()
+  guard empty_event.kind is Empty(empty_element) else {
+    fail("expected empty event")
+  }
+  assert_eq(empty_element.attributes[0].value, value)
+  let from_empty_event = @xml.Writer::new()
+  from_empty_event.write_event(empty_event)
+  assert_eq(from_empty_event.to_string(), expected_empty)
+
+  let start_event = @xml.Reader::from_string(expected_start).read_event()
+  guard start_event.kind is Start(start_element) else {
+    fail("expected start event")
+  }
+  assert_eq(start_element.attributes[0].value, value)
+  let from_start_event = @xml.Writer::new()
+  from_start_event.write_event(start_event)
+  from_start_event.end_element("root")
+  assert_eq(from_start_event.to_string(), expected_start)
+}
+
+///|
 test "write nested elements" {
   let w = @xml.Writer::new()
   w.start_element("ul", [])
