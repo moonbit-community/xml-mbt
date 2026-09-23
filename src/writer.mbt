@@ -166,9 +166,23 @@ pub fn Writer::to_string(self : Writer) -> String raise WriterError {
 }
 
 ///|
-/// Escape attribute value (escapes < > & " ')
+/// Escape attribute value, including whitespace normalized by XML readers.
 fn escape_attr(text : String) -> String {
-  escape(text)
+  let buf = StringBuilder()
+  for c in text {
+    match c {
+      '<' => buf.write_string("&lt;")
+      '>' => buf.write_string("&gt;")
+      '&' => buf.write_string("&amp;")
+      '"' => buf.write_string("&quot;")
+      '\'' => buf.write_string("&apos;")
+      '\t' => buf.write_string("&#9;")
+      '\n' => buf.write_string("&#10;")
+      '\r' => buf.write_string("&#13;")
+      _ => buf.write_char(c)
+    }
+  }
+  buf.to_string()
 }
 
 ///|
