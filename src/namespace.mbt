@@ -36,14 +36,6 @@ pub fn NamespaceReader::from_string(input : String) -> NamespaceReader {
 }
 
 ///|
-/// Create a namespace-aware reader from a file path.
-pub fn NamespaceReader::from_file(
-  path : String,
-) -> NamespaceReader raise @fs.IOError {
-  namespace_reader_from_reader(Reader::from_file(path))
-}
-
-///|
 /// Check whether the underlying reader has consumed its input.
 pub fn NamespaceReader::is_eof(self : NamespaceReader) -> Bool {
   self.reader.is_eof()

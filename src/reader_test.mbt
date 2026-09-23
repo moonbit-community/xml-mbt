@@ -364,8 +364,10 @@ test "error on invalid syntax" {
 }
 
 ///|
-test "from_file does not resolve external entities implicitly" {
-  let reader = @xml.Reader::from_file("src/testdata/external-entity.xml")
+test "reader does not resolve external entities implicitly" {
+  let reader = @xml.Reader::from_string(
+    "<!DOCTYPE root [<!ENTITY leak SYSTEM \"src/testdata/external-secret.txt\">]><root>&leak;</root>",
+  )
   try reader.read_events_until_eof() catch {
     At(error~, span=_) =>
       @debug.debug_inspect(

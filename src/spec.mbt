@@ -97,13 +97,6 @@ pub fn Reader::from_string(input : String) -> Reader {
 }
 
 ///|
-/// Create a new reader from a file path
-#declaration_only
-pub fn Reader::from_file(path : String) -> Reader raise @fs.IOError {
-  ...
-}
-
-///|
 /// Read the next XML event
 #declaration_only
 pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
@@ -218,15 +211,6 @@ pub struct NamespaceReader {
 /// Create a namespace-aware reader from a string.
 #declaration_only
 pub fn NamespaceReader::from_string(input : String) -> NamespaceReader {
-  ...
-}
-
-///|
-/// Create a namespace-aware reader from a file path.
-#declaration_only
-pub fn NamespaceReader::from_file(
-  path : String,
-) -> NamespaceReader raise @fs.IOError {
   ...
 }
 

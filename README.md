@@ -13,12 +13,8 @@ A document-buffered pull XML parser for MoonBit, inspired by [quick-xml](https:/
 ## Usage
 
 ```moonbit
-// From string
 let xml = "<root><item id=\"1\">Hello</item></root>"
 let reader = @xml.Reader::from_string(xml)
-
-// From file
-let reader = @xml.Reader::from_file("document.xml")
 
 while true {
   let event = reader.read_event()
@@ -31,6 +27,8 @@ while true {
   }
 }
 ```
+
+Callers obtain XML text from files, network responses, or other sources before passing it to `Reader::from_string` or `NamespaceReader::from_string`.
 
 ### Namespace-aware parsing
 
