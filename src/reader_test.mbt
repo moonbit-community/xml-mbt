@@ -22,7 +22,7 @@
 
 ///|
 test "parse simple element" {
-  let reader = Reader::from_string("<root></root>")
+  let reader = @xml.Reader::from_string("<root></root>")
   let event1 = reader.read_event()
   @debug.debug_inspect(
     event1,
@@ -38,7 +38,7 @@ test "parse simple element" {
 
 ///|
 test "parse self-closing element" {
-  let reader = Reader::from_string("<br/>")
+  let reader = @xml.Reader::from_string("<br/>")
   let event = reader.read_event()
   @debug.debug_inspect(
     event,
@@ -50,7 +50,7 @@ test "parse self-closing element" {
 
 ///|
 test "preserve explicit start and end tags for empty nested element" {
-  let reader = Reader::from_string("<root><child></child></root>")
+  let reader = @xml.Reader::from_string("<root><child></child></root>")
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     events,
@@ -68,7 +68,7 @@ test "preserve explicit start and end tags for empty nested element" {
 
 ///|
 test "parse element with text" {
-  let reader = Reader::from_string("<p>Hello World</p>")
+  let reader = @xml.Reader::from_string("<p>Hello World</p>")
   let event1 = reader.read_event()
   @debug.debug_inspect(
     event1,
@@ -84,7 +84,7 @@ test "parse element with text" {
 
 ///|
 test "parse nested elements" {
-  let reader = Reader::from_string("<div><span>text</span></div>")
+  let reader = @xml.Reader::from_string("<div><span>text</span></div>")
   let event1 = reader.read_event()
   @debug.debug_inspect(
     event1,
@@ -113,7 +113,7 @@ test "parse nested elements" {
 
 ///|
 test "parse element with single attribute" {
-  let reader = Reader::from_string("<div id=\"main\"></div>")
+  let reader = @xml.Reader::from_string("<div id=\"main\"></div>")
   let event = reader.read_event()
   @debug.debug_inspect(
     event,
@@ -125,7 +125,7 @@ test "parse element with single attribute" {
 
 ///|
 test "parse element with multiple attributes" {
-  let reader = Reader::from_string(
+  let reader = @xml.Reader::from_string(
     "<input type=\"text\" name=\"field\" value=\"hello\"/>",
   )
   let event = reader.read_event()
@@ -144,7 +144,7 @@ test "parse element with multiple attributes" {
 
 ///|
 test "parse attribute with single quotes" {
-  let reader = Reader::from_string("<div class='container'></div>")
+  let reader = @xml.Reader::from_string("<div class='container'></div>")
   let event = reader.read_event()
   @debug.debug_inspect(
     event,
@@ -160,14 +160,14 @@ test "parse attribute with single quotes" {
 
 ///|
 test "parse XML comment" {
-  let reader = Reader::from_string("<!-- This is a comment -->")
+  let reader = @xml.Reader::from_string("<!-- This is a comment -->")
   let event = reader.read_event()
   @debug.debug_inspect(event, content="Comment(\" This is a comment \")")
 }
 
 ///|
 test "parse CDATA section" {
-  let reader = Reader::from_string(
+  let reader = @xml.Reader::from_string(
     "<root><![CDATA[<html>raw content</html>]]></root>",
   )
   let _ = reader.read_event() // Start(root)
@@ -177,7 +177,7 @@ test "parse CDATA section" {
 
 ///|
 test "preserve text and CDATA boundaries" {
-  let reader = Reader::from_string("<root>a<![CDATA[b]]>c</root>")
+  let reader = @xml.Reader::from_string("<root>a<![CDATA[b]]>c</root>")
   let events = reader.read_events_until_eof()
   @debug.debug_inspect(
     events,
@@ -196,7 +196,7 @@ test "preserve text and CDATA boundaries" {
 
 ///|
 test "parse processing instruction" {
-  let reader = Reader::from_string(
+  let reader = @xml.Reader::from_string(
     "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>",
   )
   let event = reader.read_event()
@@ -213,7 +213,9 @@ test "parse processing instruction" {
 
 ///|
 test "parse XML declaration" {
-  let reader = Reader::from_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+  let reader = @xml.Reader::from_string(
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+  )
   let event = reader.read_event()
   @debug.debug_inspect(
     event,
@@ -223,7 +225,7 @@ test "parse XML declaration" {
 
 ///|
 test "parse DOCTYPE" {
-  let reader = Reader::from_string("<!DOCTYPE html>")
+  let reader = @xml.Reader::from_string("<!DOCTYPE html>")
   let event = reader.read_event()
   @debug.debug_inspect(event, content="DocType(\"html\")")
 }
@@ -235,12 +237,12 @@ test "parse DOCTYPE" {
 ///|
 test "parse text with entities" {
   // Entities are split into separate Text events (lxml behavior)
-  let reader = Reader::from_string(
+  let reader = @xml.Reader::from_string(
     "<p>&lt;hello&gt; &amp; &quot;world&quot;</p>",
   )
   let _ = reader.read_event() // Start
   // Each entity becomes a separate Text event
-  let events : Array[Event] = []
+  let events : Array[@xml.Event] = []
   while true {
     let event = reader.read_event()
     if event.kind is End(_) {
@@ -269,7 +271,7 @@ test "parse text with entities" {
 ///|
 test "parse numeric entities" {
   // Entities are split into separate Text events (lxml behavior)
-  let reader = Reader::from_string("<p>&#65;&#x42;</p>")
+  let reader = @xml.Reader::from_string("<p>&#65;&#x42;</p>")
   let _ = reader.read_event() // Start
   let event1 = reader.read_event()
   @debug.debug_inspect(event1, content="Text(\"A\")")
@@ -283,7 +285,7 @@ test "parse numeric entities" {
 
 ///|
 test "preserve whitespace in text" {
-  let reader = Reader::from_string("<pre>  hello\n  world  </pre>")
+  let reader = @xml.Reader::from_string("<pre>  hello\n  world  </pre>")
   let _ = reader.read_event() // Start
   let event = reader.read_event()
   @debug.debug_inspect(
@@ -296,7 +298,7 @@ test "preserve whitespace in text" {
 
 ///|
 test "parse with leading whitespace" {
-  let reader = Reader::from_string("  <root/>")
+  let reader = @xml.Reader::from_string("  <root/>")
   // Leading whitespace before root element is emitted as Text event
   let whitespace = reader.read_event()
   @debug.debug_inspect(whitespace, content="Text(\"  \")")
@@ -315,7 +317,7 @@ test "parse with leading whitespace" {
 
 ///|
 test "error on unclosed tag" {
-  let reader = Reader::from_string("<root>")
+  let reader = @xml.Reader::from_string("<root>")
   let _ = reader.read_event() // Start
   try reader.read_event() catch {
     At(error~, span=_) =>
@@ -330,7 +332,7 @@ test "error on unclosed tag" {
 
 ///|
 test "error on mismatched tags" {
-  let reader = Reader::from_string("<root></other>")
+  let reader = @xml.Reader::from_string("<root></other>")
   let _ = reader.read_event() // Start
   try reader.read_event() catch {
     At(error~, span=_) =>
@@ -347,7 +349,7 @@ test "error on mismatched tags" {
 
 ///|
 test "error on invalid syntax" {
-  let reader = Reader::from_string("<root<>")
+  let reader = @xml.Reader::from_string("<root<>")
   try reader.read_event() catch {
     At(error~, span=_) =>
       @debug.debug_inspect(
@@ -363,7 +365,7 @@ test "error on invalid syntax" {
 
 ///|
 test "from_file does not resolve external entities implicitly" {
-  let reader = Reader::from_file("src/testdata/external-entity.xml")
+  let reader = @xml.Reader::from_file("src/testdata/external-entity.xml")
   try reader.read_events_until_eof() catch {
     At(error~, span=_) =>
       @debug.debug_inspect(
@@ -389,7 +391,7 @@ test "reject entity expansion over the output budget" {
     #|<!ENTITY f "&e;&e;&e;&e;&e;&e;&e;&e;&e;&e;">
     #|]><root>&f;</root>
 
-  let reader = Reader::from_string(xml)
+  let reader = @xml.Reader::from_string(xml)
   try reader.read_events_until_eof() catch {
     At(error~, span=_) =>
       @debug.debug_inspect(
@@ -412,7 +414,7 @@ test "apply entity expansion budget before parsing replacement markup" {
   let xml = "<!DOCTYPE root [<!ENTITY markup \"<child>" +
     payload.to_string() +
     "</child>\">]><root>&markup;</root>"
-  let reader = Reader::from_string(xml)
+  let reader = @xml.Reader::from_string(xml)
   try reader.read_events_until_eof() catch {
     At(error~, span=_) =>
       @debug.debug_inspect(
@@ -434,7 +436,7 @@ test "reject entity expansion over the nesting-depth budget" {
     xml.write_string("<!ENTITY e\{i} \"&e\{i - 1};\">")
   }
   xml.write_string("]><root>&e33;</root>")
-  let reader = Reader::from_string(xml.to_string())
+  let reader = @xml.Reader::from_string(xml.to_string())
   try reader.read_events_until_eof() catch {
     At(error~, span=_) =>
       @debug.debug_inspect(
@@ -459,7 +461,7 @@ test "share the entity expansion budget across the document" {
     #|<!ENTITY e "&d;&d;&d;&d;&d;&d;&d;&d;&d;&d;">
     #|]><root>&e;&e;&e;</root>
 
-  let reader = Reader::from_string(xml)
+  let reader = @xml.Reader::from_string(xml)
   try reader.read_events_until_eof() catch {
     At(error~, span=_) =>
       @debug.debug_inspect(
@@ -475,7 +477,7 @@ test "share the entity expansion budget across the document" {
 
 ///|
 test "reject non-XML whitespace in tag grammar" {
-  let reader = Reader::from_string("<root\u{00A0}id=\"1\"/>")
+  let reader = @xml.Reader::from_string("<root\u{00A0}id=\"1\"/>")
   try reader.read_event() catch {
     At(error=InvalidSyntax(_), span=_) => ()
     _ => fail("expected an invalid-syntax error")
@@ -486,7 +488,7 @@ test "reject non-XML whitespace in tag grammar" {
 
 ///|
 test "reject control characters before end-tag close" {
-  let reader = Reader::from_string("<root></root\u{0001}>")
+  let reader = @xml.Reader::from_string("<root></root\u{0001}>")
   let _ = reader.read_event()
   try reader.read_event() catch {
     At(error~, span=_) =>
@@ -504,7 +506,7 @@ test "reject control characters before end-tag close" {
 ///|
 test "accept the four XML grammar whitespace characters" {
   for whitespace in [" ", "\t", "\n", "\r"] {
-    let reader = Reader::from_string("<root" + whitespace + "id=\"1\"/>")
+    let reader = @xml.Reader::from_string("<root" + whitespace + "id=\"1\"/>")
     @debug.debug_inspect(
       reader.read_event(),
       content=(

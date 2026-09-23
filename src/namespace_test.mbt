@@ -15,7 +15,7 @@
 ///|
 test "resolve default namespace without applying it to attributes" {
   let input = "<root xmlns=\"urn:default\" id=\"1\"/>"
-  let reader = NamespaceReader::from_string(input)
+  let reader = @xml.NamespaceReader::from_string(input)
   let event = reader.read_event()
   guard event.kind is Empty(element) else { fail("expected an empty element") }
   assert_eq(input[event.span.start.offset:event.span.end.offset], input)
@@ -42,7 +42,7 @@ test "resolve default namespace without applying it to attributes" {
 
 ///|
 test "resolve prefixed element and attribute names" {
-  let reader = NamespaceReader::from_string(
+  let reader = @xml.NamespaceReader::from_string(
     "<p:root xmlns:p=\"urn:p\" p:id=\"1\" id=\"2\"/>",
   )
   guard reader.read_event().kind is Empty(element) else {
@@ -60,7 +60,7 @@ test "resolve prefixed element and attribute names" {
 
 ///|
 test "restore parent namespace after nested rebinding" {
-  let reader = NamespaceReader::from_string(
+  let reader = @xml.NamespaceReader::from_string(
     "<root xmlns=\"urn:outer\"><child xmlns=\"urn:inner\">x</child></root>",
   )
   guard reader.read_event().kind is Start(root) else {
@@ -87,7 +87,7 @@ test "restore parent namespace after nested rebinding" {
 ///|
 test "reject undeclared namespace prefix" {
   let input = "<p:root/>"
-  let reader = NamespaceReader::from_string(input)
+  let reader = @xml.NamespaceReader::from_string(input)
   try reader.read_event() catch {
     At(error~, span~) => {
       @debug.debug_inspect(
@@ -103,7 +103,7 @@ test "reject undeclared namespace prefix" {
 
 ///|
 test "reject duplicate expanded attribute names" {
-  let reader = NamespaceReader::from_string(
+  let reader = @xml.NamespaceReader::from_string(
     "<root xmlns:a=\"urn:x\" xmlns:b=\"urn:x\" a:id=\"1\" b:id=\"2\"/>",
   )
   try reader.read_event() catch {
@@ -119,7 +119,7 @@ test "reject duplicate expanded attribute names" {
 
 ///|
 test "reject invalid qualified name" {
-  let reader = NamespaceReader::from_string("<a:b:c/>")
+  let reader = @xml.NamespaceReader::from_string("<a:b:c/>")
   try reader.read_event() catch {
     At(error~, span=_) =>
       @debug.debug_inspect(
@@ -133,7 +133,9 @@ test "reject invalid qualified name" {
 
 ///|
 test "enforce reserved xml namespace binding" {
-  let reader = NamespaceReader::from_string("<root xmlns:xml=\"urn:not-xml\"/>")
+  let reader = @xml.NamespaceReader::from_string(
+    "<root xmlns:xml=\"urn:not-xml\"/>",
+  )
   try reader.read_event() catch {
     At(error~, span=_) =>
       @debug.debug_inspect(

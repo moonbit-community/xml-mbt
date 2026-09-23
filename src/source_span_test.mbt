@@ -15,7 +15,7 @@
 ///|
 test "event spans use UTF-16 offsets and character-based columns" {
   let input = "<root>😀</root>"
-  let reader = Reader::from_string(input)
+  let reader = @xml.Reader::from_string(input)
   let start = reader.read_event()
   assert_eq(input[start.span.start.offset:start.span.end.offset], "<root>")
   assert_eq(start.span.start.line, 1)
@@ -33,7 +33,7 @@ test "event spans use UTF-16 offsets and character-based columns" {
 ///|
 test "start events expose whole, name, and value attribute spans" {
   let input = "<root id='a&amp;b'/>"
-  let reader = Reader::from_string(input)
+  let reader = @xml.Reader::from_string(input)
   let event = reader.read_event()
   guard event.kind is Empty(element) else { fail("expected empty element") }
   assert_eq(element.attributes.length(), 1)
@@ -56,7 +56,7 @@ test "start events expose whole, name, and value attribute spans" {
 
 ///|
 test "split text events retain their authored source ranges" {
-  let reader = Reader::from_string("<root>a&amp;b</root>")
+  let reader = @xml.Reader::from_string("<root>a&amp;b</root>")
   let _ = reader.read_event()
   let before = reader.read_event()
   let entity = reader.read_event()
@@ -71,7 +71,7 @@ test "split text events retain their authored source ranges" {
 
 ///|
 test "parsing reports the source span of errors" {
-  let reader = Reader::from_string("<root id=>")
+  let reader = @xml.Reader::from_string("<root id=>")
   try reader.read_event() catch {
     At(error~, span~) => {
       assert_eq(error, InvalidSyntax("expected quoted attribute value"))
@@ -86,7 +86,7 @@ test "parsing reports the source span of errors" {
 
 ///|
 test "unclosed element errors point to the opening tag" {
-  let reader = Reader::from_string("<root>")
+  let reader = @xml.Reader::from_string("<root>")
   let _ = reader.read_event()
   try reader.read_event() catch {
     At(error~, span~) => {
@@ -102,7 +102,7 @@ test "unclosed element errors point to the opening tag" {
 
 ///|
 test "nested unclosed element errors point to the innermost opening tag" {
-  let reader = Reader::from_string("<root>\n  <child>")
+  let reader = @xml.Reader::from_string("<root>\n  <child>")
   let _ = reader.read_event()
   let _ = reader.read_event()
   let _ = reader.read_event()
@@ -120,7 +120,7 @@ test "nested unclosed element errors point to the innermost opening tag" {
 
 ///|
 test "unclosed element errors follow queued entity-split text" {
-  let reader = Reader::from_string("<root>a&amp;b")
+  let reader = @xml.Reader::from_string("<root>a&amp;b")
   guard reader.read_event().kind is Start(root) else {
     fail("expected root start event")
   }
@@ -140,7 +140,7 @@ test "unclosed element errors follow queued entity-split text" {
 
 ///|
 test "error spans treat a carriage return as a source line break" {
-  let reader = Reader::from_string("<root>\r<child id=>")
+  let reader = @xml.Reader::from_string("<root>\r<child id=>")
   let _ = reader.read_event()
   let _ = reader.read_event()
   try reader.read_event() catch {
@@ -157,7 +157,7 @@ test "error spans treat a carriage return as a source line break" {
 ///|
 test "queued internal subset events retain their authored ranges" {
   let input = "<!DOCTYPE root [<!--inside--><?pi data?>]>\n<root/>"
-  let reader = Reader::from_string(input)
+  let reader = @xml.Reader::from_string(input)
   let _ = reader.read_event()
   let _ = reader.read_event()
   let comment = reader.read_event()
@@ -174,7 +174,7 @@ test "queued internal subset events retain their authored ranges" {
 ///|
 test "markup expanded from an entity maps back to the entity reference" {
   let input = "<!DOCTYPE root [<!ENTITY child \"<child id='1'/>\">]><root>&child;</root>"
-  let reader = Reader::from_string(input)
+  let reader = @xml.Reader::from_string(input)
   let _ = reader.read_event()
   let _ = reader.read_event()
   let child = reader.read_event()
@@ -189,7 +189,7 @@ test "markup expanded from an entity maps back to the entity reference" {
 
 ///|
 test "trailing text errors cover content and exclude leading whitespace" {
-  let reader = Reader::from_string("<root/>  trailing")
+  let reader = @xml.Reader::from_string("<root/>  trailing")
   let _ = reader.read_event()
   try reader.read_event() catch {
     At(error~, span~) => {
@@ -205,7 +205,7 @@ test "trailing text errors cover content and exclude leading whitespace" {
 
 ///|
 test "trailing entity-reference errors cover the complete reference" {
-  let reader = Reader::from_string("<root/>&foo;")
+  let reader = @xml.Reader::from_string("<root/>&foo;")
   let _ = reader.read_event()
   try reader.read_event() catch {
     At(error~, span~) => {
@@ -219,7 +219,7 @@ test "trailing entity-reference errors cover the complete reference" {
 
 ///|
 test "trailing extra-element errors cover the complete markup" {
-  let reader = Reader::from_string("<root/>  <extra/>")
+  let reader = @xml.Reader::from_string("<root/>  <extra/>")
   let _ = reader.read_event()
   try reader.read_event() catch {
     At(error~, span~) => {
@@ -233,7 +233,7 @@ test "trailing extra-element errors cover the complete markup" {
 
 ///|
 test "trailing text errors retain UTF-16 offsets" {
-  let reader = Reader::from_string("<root/>😀")
+  let reader = @xml.Reader::from_string("<root/>😀")
   let _ = reader.read_event()
   try reader.read_event() catch {
     At(error~, span~) => {
@@ -247,7 +247,7 @@ test "trailing text errors retain UTF-16 offsets" {
 
 ///|
 test "whitespace-only epilogs still reach EOF" {
-  let reader = Reader::from_string("<root/> \r\n\t")
+  let reader = @xml.Reader::from_string("<root/> \r\n\t")
   let _ = reader.read_event()
   let eof = reader.read_event()
   assert_eq(eof.kind, Eof)

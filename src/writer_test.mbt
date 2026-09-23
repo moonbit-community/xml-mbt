@@ -17,7 +17,7 @@
 
 ///|
 test "write simple element" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("root", [])
   w.end_element("root")
   @debug.debug_inspect(
@@ -30,7 +30,7 @@ test "write simple element" {
 
 ///|
 test "write self-closing element" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.empty_element("br", [])
   @debug.debug_inspect(
     w.to_string(),
@@ -42,7 +42,7 @@ test "write self-closing element" {
 
 ///|
 test "write element with text" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("p", [])
   w.text("Hello World")
   w.end_element("p")
@@ -56,7 +56,7 @@ test "write element with text" {
 
 ///|
 test "write element with attributes" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("div", [("id", "main"), ("class", "container")])
   w.end_element("div")
   @debug.debug_inspect(
@@ -69,7 +69,7 @@ test "write element with attributes" {
 
 ///|
 test "write nested elements" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("ul", [])
   w.start_element("li", [])
   w.text("Item 1")
@@ -88,7 +88,7 @@ test "write nested elements" {
 
 ///|
 test "write CDATA" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("script", [])
   w.cdata("var x = 1 < 2;")
   w.end_element("script")
@@ -102,7 +102,7 @@ test "write CDATA" {
 
 ///|
 test "write comment" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.comment(" This is a comment ")
   w.empty_element("root", [])
   @debug.debug_inspect(
@@ -115,7 +115,7 @@ test "write comment" {
 
 ///|
 test "write text with escaping" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("p", [])
   w.text("<script>alert('xss')</script>")
   w.end_element("p")
@@ -129,8 +129,8 @@ test "write text with escaping" {
 
 ///|
 test "write using events" {
-  let w = Writer::new()
-  let reader = Reader::from_string("<div id=\"main\">content</div>")
+  let w = @xml.Writer::new()
+  let reader = @xml.Reader::from_string("<div id=\"main\">content</div>")
   for ;; {
     let event = reader.read_event()
     w.write_event(event)
@@ -149,8 +149,8 @@ test "write using events" {
 ///|
 test "write prolog and miscellaneous events" {
   let xml = "<?xml version=\"1.0\"?><!DOCTYPE root><?build ok?><root><!--ok--></root>"
-  let reader = Reader::from_string(xml)
-  let w = Writer::new()
+  let reader = @xml.Reader::from_string(xml)
+  let w = @xml.Writer::new()
   for ;; {
     let event = reader.read_event()
     w.write_event(event)
@@ -163,7 +163,7 @@ test "write prolog and miscellaneous events" {
 
 ///|
 test "reject invalid element names" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   try w.empty_element("bad name", []) catch {
     InvalidName(message) => assert_eq(message, "invalid element name: bad name")
     _ => fail("expected invalid-name writer error")
@@ -174,7 +174,7 @@ test "reject invalid element names" {
 
 ///|
 test "reject invalid attribute names" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   try w.empty_element("root", [("bad name", "value")]) catch {
     InvalidName(message) =>
       assert_eq(message, "invalid attribute name: bad name")
@@ -186,7 +186,7 @@ test "reject invalid attribute names" {
 
 ///|
 test "reject invalid XML characters in text" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("root", [])
   try w.text("bad\u{0001}text") catch {
     InvalidContent(message) =>
@@ -199,7 +199,7 @@ test "reject invalid XML characters in text" {
 
 ///|
 test "reject invalid XML comment text" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   try w.comment("a--b") catch {
     InvalidContent(message) =>
       assert_eq(message, "comment cannot contain '--' or end with '-'")
@@ -211,7 +211,7 @@ test "reject invalid XML comment text" {
 
 ///|
 test "reject comments ending with a hyphen" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   try w.comment("trailing-") catch {
     InvalidContent(message) =>
       assert_eq(message, "comment cannot contain '--' or end with '-'")
@@ -223,7 +223,7 @@ test "reject comments ending with a hyphen" {
 
 ///|
 test "reject invalid CDATA text" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("root", [])
   try w.cdata("x]]>y") catch {
     InvalidContent(message) => assert_eq(message, "CDATA cannot contain ']]>'")
@@ -235,7 +235,7 @@ test "reject invalid CDATA text" {
 
 ///|
 test "reject invalid XML characters in attribute values" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   try w.empty_element("root", [("id", "bad\u{0001}value")]) catch {
     InvalidContent(message) =>
       assert_eq(message, "invalid XML character in attribute value")
@@ -247,7 +247,7 @@ test "reject invalid XML characters in attribute values" {
 
 ///|
 test "reject duplicate attributes" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   try w.empty_element("root", [("id", "1"), ("id", "2")]) catch {
     InvalidStructure(message) => assert_eq(message, "duplicate attribute: id")
     _ => fail("expected invalid-structure writer error")
@@ -258,7 +258,7 @@ test "reject duplicate attributes" {
 
 ///|
 test "reject mismatched end elements" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("root", [])
   try w.end_element("other") catch {
     InvalidStructure(message) =>
@@ -271,7 +271,7 @@ test "reject mismatched end elements" {
 
 ///|
 test "reject multiple root elements" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.empty_element("first", [])
   try w.empty_element("second", []) catch {
     InvalidStructure(message) =>
@@ -284,7 +284,7 @@ test "reject multiple root elements" {
 
 ///|
 test "reject non-whitespace text outside the root element" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   try w.text("outside") catch {
     InvalidStructure(message) =>
       assert_eq(message, "non-whitespace text is not allowed outside the root")
@@ -296,7 +296,7 @@ test "reject non-whitespace text outside the root element" {
 
 ///|
 test "reject incomplete documents when finishing" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.start_element("root", [])
   try w.to_string() catch {
     InvalidStructure(message) => assert_eq(message, "unclosed element: root")
@@ -308,7 +308,7 @@ test "reject incomplete documents when finishing" {
 
 ///|
 test "reject documents without a root element" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.comment("no root")
   try w.to_string() catch {
     InvalidStructure(message) =>
@@ -321,7 +321,7 @@ test "reject documents without a root element" {
 
 ///|
 test "reject CDATA outside the root element" {
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   try w.cdata("outside") catch {
     InvalidStructure(message) =>
       assert_eq(message, "CDATA is only allowed inside an element")
@@ -333,9 +333,9 @@ test "reject CDATA outside the root element" {
 
 ///|
 test "reject XML declarations after other output" {
-  let reader = Reader::from_string("<?xml version=\"1.0\"?><root/>")
+  let reader = @xml.Reader::from_string("<?xml version=\"1.0\"?><root/>")
   let declaration = reader.read_event()
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.comment("before declaration")
   try w.write_event(declaration) catch {
     InvalidDeclaration(message) =>
@@ -348,9 +348,9 @@ test "reject XML declarations after other output" {
 
 ///|
 test "reject a root element that disagrees with DOCTYPE" {
-  let reader = Reader::from_string("<!DOCTYPE expected><expected/>")
+  let reader = @xml.Reader::from_string("<!DOCTYPE expected><expected/>")
   let doctype = reader.read_event()
-  let w = Writer::new()
+  let w = @xml.Writer::new()
   w.write_event(doctype)
   try w.empty_element("actual", []) catch {
     InvalidStructure(message) =>

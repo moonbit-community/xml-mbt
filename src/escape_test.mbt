@@ -18,31 +18,31 @@
 ///|
 test "escape special characters" {
   @debug.debug_inspect(
-    escape("<"),
+    @xml.escape("<"),
     content=(
       #|"&lt;"
     ),
   )
   @debug.debug_inspect(
-    escape(">"),
+    @xml.escape(">"),
     content=(
       #|"&gt;"
     ),
   )
   @debug.debug_inspect(
-    escape("&"),
+    @xml.escape("&"),
     content=(
       #|"&amp;"
     ),
   )
   @debug.debug_inspect(
-    escape("\""),
+    @xml.escape("\""),
     content=(
       #|"&quot;"
     ),
   )
   @debug.debug_inspect(
-    escape("'"),
+    @xml.escape("'"),
     content=(
       #|"&apos;"
     ),
@@ -52,7 +52,7 @@ test "escape special characters" {
 ///|
 test "escape mixed content" {
   @debug.debug_inspect(
-    escape("<div class=\"test\">"),
+    @xml.escape("<div class=\"test\">"),
     content=(
       #|"&lt;div class=&quot;test&quot;&gt;"
     ),
@@ -62,7 +62,7 @@ test "escape mixed content" {
 ///|
 test "escape no special characters" {
   @debug.debug_inspect(
-    escape("hello world"),
+    @xml.escape("hello world"),
     content=(
       #|"hello world"
     ),
@@ -72,31 +72,31 @@ test "escape no special characters" {
 ///|
 test "unescape entities" {
   @debug.debug_inspect(
-    unescape("&lt;"),
+    @xml.unescape("&lt;"),
     content=(
       #|"<"
     ),
   )
   @debug.debug_inspect(
-    unescape("&gt;"),
+    @xml.unescape("&gt;"),
     content=(
       #|">"
     ),
   )
   @debug.debug_inspect(
-    unescape("&amp;"),
+    @xml.unescape("&amp;"),
     content=(
       #|"&"
     ),
   )
   @debug.debug_inspect(
-    unescape("&quot;"),
+    @xml.unescape("&quot;"),
     content=(
       #|"\""
     ),
   )
   @debug.debug_inspect(
-    unescape("&apos;"),
+    @xml.unescape("&apos;"),
     content=(
       #|"'"
     ),
@@ -106,19 +106,19 @@ test "unescape entities" {
 ///|
 test "unescape numeric entities" {
   @debug.debug_inspect(
-    unescape("&#65;"),
+    @xml.unescape("&#65;"),
     content=(
       #|"A"
     ),
   )
   @debug.debug_inspect(
-    unescape("&#x41;"),
+    @xml.unescape("&#x41;"),
     content=(
       #|"A"
     ),
   )
   @debug.debug_inspect(
-    unescape("&#x4F;"),
+    @xml.unescape("&#x4F;"),
     content=(
       #|"O"
     ),
@@ -128,7 +128,7 @@ test "unescape numeric entities" {
 ///|
 test "unescape mixed content" {
   @debug.debug_inspect(
-    unescape("&lt;div&gt; &amp; &quot;hello&quot;"),
+    @xml.unescape("&lt;div&gt; &amp; &quot;hello&quot;"),
     content=(
       #|"<div> & \"hello\""
     ),
@@ -138,7 +138,7 @@ test "unescape mixed content" {
 ///|
 test "unescape no entities" {
   @debug.debug_inspect(
-    unescape("hello world"),
+    @xml.unescape("hello world"),
     content=(
       #|"hello world"
     ),
@@ -148,7 +148,7 @@ test "unescape no entities" {
 ///|
 test "unescape unknown entity error" {
   // Unknown entities raise InvalidEntity error
-  try unescape("&invalid;") catch {
+  try @xml.unescape("&invalid;") catch {
     err => @debug.debug_inspect(err, content="InvalidEntity(\"&invalid;\")")
   } noraise {
     _ => fail("expected unescape to raise")
