@@ -1,6 +1,6 @@
 name = "Milky2018/xml"
 
-version = "0.4.1"
+version = "0.5.0"
 
 readme = "README.md"
 
