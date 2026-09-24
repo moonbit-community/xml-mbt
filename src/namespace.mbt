@@ -66,7 +66,8 @@ fn split_qualified_name(name : String) -> (String?, String) raise XmlErrorKind {
       }
       let prefix = name[:index].to_owned()
       let local_name = name[index + 1:].to_owned()
-      if local_name.find(":") is Some(_) {
+      if !is_name_start_char(local_name.to_array()[0]) ||
+        local_name.find(":") is Some(_) {
         raise InvalidSyntax("invalid qualified name: " + name)
       }
       (Some(prefix), local_name)
@@ -90,7 +91,9 @@ fn namespace_declaration(
     })
   } else if attribute_name.has_prefix("xmlns:") {
     let declared_prefix = attribute_name[6:].to_owned()
-    if declared_prefix == "" || declared_prefix.find(":") is Some(_) {
+    if declared_prefix == "" ||
+      !is_name_start_char(declared_prefix.to_array()[0]) ||
+      declared_prefix.find(":") is Some(_) {
       raise InvalidSyntax("invalid qualified name: " + attribute_name)
     }
     Some({

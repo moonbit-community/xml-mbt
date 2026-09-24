@@ -49,6 +49,17 @@ test "parse self-closing element" {
 }
 
 ///|
+test "reject an empty element name" {
+  let reader = @xml.Reader::from_string("< />")
+  try reader.read_events_until_eof() catch {
+    At(error=InvalidSyntax(_), span=_) => ()
+    _ => fail("expected an invalid-syntax error")
+  } noraise {
+    _ => fail("expected an empty element name to raise")
+  }
+}
+
+///|
 test "preserve explicit start and end tags for empty nested element" {
   let reader = @xml.Reader::from_string("<root><child></child></root>")
   let events = reader.read_events_until_eof()
@@ -378,6 +389,66 @@ test "reader does not resolve external entities implicitly" {
       )
   } noraise {
     _ => fail("expected external entity reference to remain unresolved")
+  }
+}
+
+///|
+test "parse markup in an entity containing another entity reference" {
+  let xml = "<!DOCTYPE root [<!ENTITY text \"hi\"><!ENTITY nested \"<child>&text;</child>\">]><root>&nested;</root>"
+  let events = @xml.Reader::from_string(xml).read_events_until_eof()
+  @debug.debug_inspect(
+    events,
+    content=(
+      #|[
+      #|  DocType("root"),
+      #|  Start({ name: "root", attributes: [] }),
+      #|  Start({ name: "child", attributes: [] }),
+      #|  Text("hi"),
+      #|  End("child"),
+      #|  End("root"),
+      #|  Eof,
+      #|]
+    ),
+  )
+}
+
+///|
+test "reject malformed markup in an entity" {
+  let xml = "<!DOCTYPE root [<!ENTITY child \"<child id='1' id='2'/>\">]><root>&child;</root>"
+  let reader = @xml.Reader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    At(error=InvalidSyntax(_), span=_) => ()
+    _ => fail("expected an invalid-syntax error")
+  } noraise {
+    _ => fail("expected malformed entity markup to raise")
+  }
+}
+
+///|
+test "reject misplaced or malformed DOCTYPE" {
+  let cases = [
+    "<!DOCTYPE root><!DOCTYPE root><root/>", "<root><!DOCTYPE root></root>", "<root/><!DOCTYPE root>",
+    "<!DOCTYPE><root/>", "<!DOCTYPE root garbage><root/>", "<!DOCTYPE root SYSTEM><root/>",
+  ]
+  for xml in cases {
+    let reader = @xml.Reader::from_string(xml)
+    try reader.read_events_until_eof() catch {
+      At(error=InvalidSyntax(_), span=_) => ()
+      _ => fail("expected an invalid-syntax error: " + xml)
+    } noraise {
+      _ => fail("expected malformed DOCTYPE to raise: " + xml)
+    }
+  }
+}
+
+///|
+test "reject a BOM after the start of the document" {
+  let reader = @xml.Reader::from_string("<!--before-->\u{FEFF}<root/>")
+  try reader.read_events_until_eof() catch {
+    At(error=InvalidSyntax(_), span=_) => ()
+    _ => fail("expected an invalid-syntax error")
+  } noraise {
+    _ => fail("expected a BOM in the prolog to raise")
   }
 }
 

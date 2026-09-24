@@ -132,6 +132,22 @@ test "reject invalid qualified name" {
 }
 
 ///|
+test "reject qualified names with invalid NCName components" {
+  let cases = [
+    "<p:1child xmlns:p=\"urn:p\"/>", "<root xmlns:p=\"urn:p\" p:1id=\"x\"/>", "<root xmlns:1p=\"urn:p\"/>",
+  ]
+  for xml in cases {
+    let reader = @xml.NamespaceReader::from_string(xml)
+    try reader.read_events_until_eof() catch {
+      At(error=InvalidSyntax(_), span=_) => ()
+      _ => fail("expected an invalid-syntax error: " + xml)
+    } noraise {
+      _ => fail("expected an invalid qualified name to raise: " + xml)
+    }
+  }
+}
+
+///|
 test "enforce reserved xml namespace binding" {
   let reader = @xml.NamespaceReader::from_string(
     "<root xmlns:xml=\"urn:not-xml\"/>",

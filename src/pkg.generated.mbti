@@ -154,6 +154,7 @@ pub struct Reader {
   attr_types : Map[String, String]
   tag_stack : Array[(String, SourceSpan)]
   mut seen_root : Bool
+  mut seen_doctype : Bool
   mut root_closed : Bool
   mut seen_content : Bool
   mut just_saw_decl : Bool
