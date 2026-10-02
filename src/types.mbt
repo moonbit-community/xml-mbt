@@ -73,15 +73,10 @@ pub(all) suberror XmlErrorKind {
 
 ///|
 pub impl Show for XmlElement with fn output(self, logger) {
-  logger.write_string("{name: ")
-  logger.write_object(self.name)
-  logger.write_string(", attributes: ")
-  logger.write_object(
-    Repr(
-      self.attributes.map(fn(attribute) { (attribute.name, attribute.value) }),
-    ),
+  let attributes = Repr(
+    self.attributes.map(fn(attribute) { (attribute.name, attribute.value) }),
   )
-  logger.write_string("}")
+  logger <+ "{name: \{self.name}, attributes: \{attributes}}"
 }
 
 ///|

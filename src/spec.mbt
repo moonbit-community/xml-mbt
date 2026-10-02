@@ -80,6 +80,7 @@ pub struct Reader {
   attr_types : Map[String, String] // Attribute types from ATTLIST (key: "elem:attr", value: type)
   tag_stack : Array[(String, SourceSpan)] // Open element names and authored start-tag spans
   mut seen_root : Bool // Whether we've seen the root element
+  mut seen_doctype : Bool // Whether a DOCTYPE declaration appeared in the prolog
   mut root_closed : Bool // Whether the root element has been closed
   mut seen_content : Bool // Whether any content has been parsed (for XML decl position check)
   mut just_saw_decl : Bool // Skip whitespace after XML declaration (lxml behavior)

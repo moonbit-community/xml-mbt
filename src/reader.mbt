@@ -33,6 +33,7 @@ pub fn Reader::from_string(input : String) -> Reader {
     attr_types: Map([]),
     tag_stack: [],
     seen_root: false,
+    seen_doctype: false,
     root_closed: false,
     seen_content: false,
     just_saw_decl: false,
@@ -524,6 +525,9 @@ fn Reader::read_start_tag(
   start : SourcePosition,
 ) -> EventKind raise XmlErrorKind {
   let name = self.read_name()
+  if name == "" {
+    raise InvalidSyntax("empty start tag name")
+  }
   let attributes = self.read_attributes(name)
   self.skip_whitespace()
   match self.peek() {
@@ -570,54 +574,55 @@ fn Reader::read_special(self : Reader) -> EventKind raise XmlErrorKind {
     CData(content)
   } else if self.check_string("DOCTYPE") {
     // DOCTYPE
+    if self.seen_root || self.seen_doctype {
+      raise InvalidSyntax("DOCTYPE must appear once before the root element")
+    }
     let _ = self.skip_string("DOCTYPE")
-    self.skip_whitespace()
-    let name = self.read_while(fn(c) {
-      c != '>' && c != '[' && !is_whitespace(c)
-    })
+    if self.skip_whitespace_count() == 0 {
+      raise InvalidSyntax("whitespace required after DOCTYPE")
+    }
+    let name = self.read_name()
+    if name == "" {
+      raise InvalidSyntax("DOCTYPE requires a name")
+    }
     // Parse external ID if present (SYSTEM or PUBLIC)
-    self.skip_whitespace()
+    let had_whitespace = self.skip_whitespace_count() > 0
     if self.check_string("SYSTEM") {
+      if !had_whitespace {
+        raise InvalidSyntax("whitespace required before SYSTEM")
+      }
       let _ = self.skip_string("SYSTEM")
-      self.skip_whitespace()
-      // Skip system literal
+      if self.skip_whitespace_count() == 0 {
+        raise InvalidSyntax("whitespace required before system literal")
+      }
       self.skip_quoted_string()
     } else if self.check_string("PUBLIC") {
+      if !had_whitespace {
+        raise InvalidSyntax("whitespace required before PUBLIC")
+      }
       let _ = self.skip_string("PUBLIC")
-      self.skip_whitespace()
-      // Validate and skip public ID literal
+      if self.skip_whitespace_count() == 0 {
+        raise InvalidSyntax("whitespace required before public ID")
+      }
       self.read_and_validate_public_id()
-      self.skip_whitespace()
-      // Skip system literal
+      if self.skip_whitespace_count() == 0 {
+        raise InvalidSyntax("whitespace required before system literal")
+      }
       self.skip_quoted_string()
     }
-    // Skip everything else until we find '[' or '>'
-    while self.peek() is Some(c) && c != '[' && c != '>' {
-      if c == '-' && self.check_string("--") {
-        // SGML-style comments are not allowed in XML
-        raise InvalidSyntax(
-          "SGML-style comments (--) not allowed in XML declarations",
-        )
-      } else {
-        let _ = self.advance()
-      }
-    }
+    self.skip_whitespace()
     // Check for internal subset
     if self.peek() is Some('[') {
       // Parse internal subset [...] and extract entities
       let _ = self.advance() // consume '['
       self.parse_internal_subset()
+      self.skip_whitespace()
     }
-    // Skip rest until >, but reject PE references (not allowed outside internal subset)
-    while self.peek() is Some(c) && c != '>' {
-      if c == '%' {
-        raise InvalidSyntax(
-          "parameter entity reference not allowed outside internal subset",
-        )
-      }
-      let _ = self.advance()
+    if self.peek() != Some('>') {
+      raise InvalidSyntax("expected '>' at end of DOCTYPE")
     }
-    let _ = self.advance() // consume '>'
+    let _ = self.advance()
+    self.seen_doctype = true
     DocType(name)
   } else {
     raise InvalidSyntax("invalid special tag after '<!'")
@@ -1127,72 +1132,46 @@ fn normalize_line_endings(s : String) -> String {
 }
 
 ///|
-/// Check if a string contains actual XML markup (not just escaped chars)
-fn has_markup(s : String) -> Bool {
+/// Check whether an entity value needs content parsing.
+fn needs_entity_content_parse(s : String) -> Bool {
   let chars = s.to_array()
   let len = chars.length()
-  let mut i = 0
-  while i < len {
-    if chars[i] == '<' {
-      // Check if followed by name start char (element) or / (end tag)
-      // or ! (comment/CDATA) or ? (PI)
-      if i + 1 < len {
-        let next = chars[i + 1]
-        if is_name_start_char(next) || next == '/' || next == '!' || next == '?' {
-          return true
-        }
-      }
-    } else if chars[i] == '&' {
-      // Entity references also count as "markup" for text splitting purposes
+  for i = 0; i < len; i = i + 1 {
+    if chars[i] == '<' ||
+      chars[i] == '&' ||
+      (
+        chars[i] == ']' &&
+        i + 2 < len &&
+        chars[i + 1] == ']' &&
+        chars[i + 2] == '>'
+      ) {
       return true
     }
-    i += 1
   }
   false
 }
 
 ///|
-/// Check if a string forms well-formed XML content (balanced tags).
-/// This distinguishes real markup from character-reference `<` in entity values.
-fn is_well_formed_content(s : String) -> Bool {
-  // Try to parse as XML content - if it fails, it's not well-formed
-  // Wrap in root element so parser accepts CDATA, etc.
-  let test_reader = Reader::from_string("<root>" + s + "</root>")
-  for ;; {
-    try test_reader.read_event() catch {
-      _ => break false
-    } noraise {
-      { kind: Eof, .. } => break true
-      _ => continue
-    }
-  }
-}
-
-///|
-/// Parse entity content as XML markup and push events to pending queue
+/// Parse authored entity content and report malformed replacement text.
 fn Reader::parse_entity_content(
   self : Reader,
   content : String,
   entity_span : SourceSpan,
-) -> Unit {
-  // Create a temporary reader to parse the entity content
+) -> Array[Event] raise XmlErrorKind {
   let sub_reader = Reader::from_string(content)
-  // Copy entity definitions to sub-reader
   for k, v in self.entities {
     sub_reader.entities.set(k, v)
   }
-  // Disable root element checking for entity content
   sub_reader.seen_root = true
-  // Add dummy tag to stack so CDATA is allowed (we're inside element context)
   let position = sub_reader.source_position()
   sub_reader.tag_stack.push(
     ("_entity_content_", source_span(position, position)),
   )
-  // Parse all events from entity content
-  while true {
-    let event = sub_reader.read_event_internal() catch { _ => break }
+  let events : Array[Event] = []
+  while !sub_reader.is_eof() || sub_reader.pending_events.length() > 0 {
+    let event = sub_reader.read_event_internal()
     match event.kind {
-      Eof => break
+      Eof => raise InvalidSyntax("malformed entity replacement text")
       Start(element) => {
         let attributes = element.attributes.map(fn(attribute) -> XmlAttribute {
           {
@@ -1203,7 +1182,7 @@ fn Reader::parse_entity_content(
             value_span: entity_span,
           }
         })
-        self.push_pending_event({
+        events.push({
           kind: Start({ name: element.name, attributes, }),
           span: entity_span,
         })
@@ -1218,15 +1197,18 @@ fn Reader::parse_entity_content(
             value_span: entity_span,
           }
         })
-        self.push_pending_event({
+        events.push({
           kind: Empty({ name: element.name, attributes, }),
           span: entity_span,
         })
       }
-      parsed_kind =>
-        self.push_pending_event({ kind: parsed_kind, span: entity_span, })
+      parsed_kind => events.push({ kind: parsed_kind, span: entity_span, })
     }
   }
+  if sub_reader.tag_stack.length() != 1 {
+    raise InvalidSyntax("malformed entity replacement text")
+  }
+  events
 }
 
 ///|
@@ -1275,25 +1257,39 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
             match self.peek() {
               Some(';') => {
                 let _ = self.advance()
-                // Get the stored entity value (may still have &#38; etc.)
                 match self.entities.get(entity_name) {
                   Some(stored_value) => {
                     let entity_ref = "&" + entity_name + ";"
                     let expanded = self.expand_entity_value(entity_ref)
-                    // Check if stored value has markup and is well-formed
-                    // Use stored value (with &#38; intact) for well-formedness check
-                    if has_markup(stored_value) &&
-                      is_well_formed_content(stored_value) {
-                      // Parse stored entity content as XML (handles &#38; correctly)
-                      self.parse_entity_content(
+                    if needs_entity_content_parse(stored_value) {
+                      let parsed = self.parse_entity_content(
                         stored_value,
                         source_span(entity_start, self.source_position()),
                       )
+                      let has_markup = parsed
+                        .iter()
+                        .any(fn(event) {
+                          match event.kind {
+                            Text(_) => false
+                            _ => true
+                          }
+                        })
+                      if has_markup {
+                        for event in parsed {
+                          self.push_pending_event(event)
+                        }
+                      } else {
+                        self.push_pending_event({
+                          kind: Text(normalize_line_endings(expanded)),
+                          span: source_span(
+                            entity_start,
+                            self.source_position(),
+                          ),
+                        })
+                      }
                     } else {
-                      // Expand fully and return as text
-                      let normalized = normalize_line_endings(expanded)
                       self.push_pending_event({
-                        kind: Text(normalized),
+                        kind: Text(normalize_line_endings(expanded)),
                         span: source_span(entity_start, self.source_position()),
                       })
                     }
@@ -1379,21 +1375,15 @@ fn Reader::read_whitespace_only(self : Reader) -> EventKind raise XmlErrorKind {
         } else {
           raise InvalidSyntax("character reference before root element")
         }
-      Some(c) => {
-        let code = c.to_int()
+      Some(c) =>
         if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
           buf.write_char(c)
           let _ = self.advance()
-        } else if code == 0xFEFF {
-          // Skip BOM (byte order mark) - don't include in output
-          let _ = self.advance()
-          // Non-whitespace content not allowed outside root element
         } else if self.root_closed {
           raise InvalidSyntax("content after root element")
         } else {
           raise InvalidSyntax("content before root element")
         }
-      }
       None => break
     }
   }
@@ -1467,28 +1457,23 @@ fn is_valid_encoding_name(name : String) -> Bool {
 
 ///|
 /// Skip a quoted string (single or double quotes)
-fn Reader::skip_quoted_string(self : Reader) -> Unit {
-  match self.peek() {
-    Some('"') => {
-      let _ = self.advance()
-      while self.peek() is Some(c) && c != '"' {
-        let _ = self.advance()
-      }
-      if self.peek() == Some('"') {
-        let _ = self.advance()
-      }
-    }
-    Some('\'') => {
-      let _ = self.advance()
-      while self.peek() is Some(c) && c != '\'' {
-        let _ = self.advance()
-      }
-      if self.peek() == Some('\'') {
-        let _ = self.advance()
-      }
-    }
-    _ => ()
+fn Reader::skip_quoted_string(self : Reader) -> Unit raise XmlErrorKind {
+  let quote = match self.peek() {
+    Some('"') => '"'
+    Some('\'') => '\''
+    _ => raise InvalidSyntax("expected quoted literal")
   }
+  let _ = self.advance()
+  while self.peek() is Some(c) && c != quote {
+    if !is_valid_xml_content_char(c.to_int()) {
+      raise InvalidSyntax("invalid character in quoted literal")
+    }
+    let _ = self.advance()
+  }
+  if self.peek() != Some(quote) {
+    raise UnexpectedEof
+  }
+  let _ = self.advance()
 }
 
 ///|
@@ -1500,7 +1485,7 @@ fn Reader::read_and_validate_public_id(
   let quote = match self.peek() {
     Some('"') => '"'
     Some('\'') => '\''
-    _ => return
+    _ => raise InvalidSyntax("expected quoted public ID")
   }
   let _ = self.advance() // consume opening quote
   while self.peek() is Some(c) && c != quote {
@@ -1511,9 +1496,10 @@ fn Reader::read_and_validate_public_id(
     }
     let _ = self.advance()
   }
-  if self.peek() == Some(quote) {
-    let _ = self.advance()
+  if self.peek() != Some(quote) {
+    raise UnexpectedEof
   }
+  let _ = self.advance()
 }
 
 ///|
