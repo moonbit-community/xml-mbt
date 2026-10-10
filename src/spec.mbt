@@ -44,6 +44,7 @@ pub struct SourceSpan {
 ///|
 /// A parsed attribute together with its authored source ranges.
 /// `value_span` excludes the surrounding quote characters.
+/// Defaulted attributes refer to their definitions in the internal DTD subset.
 pub struct XmlAttribute {
   name : String
   value : String
@@ -78,6 +79,7 @@ pub struct Reader {
   entities : Map[String, String] // Custom entities from DTD
   mut entity_expansion_remaining : Int // Remaining expanded characters for this document
   attr_types : Map[String, String] // Attribute types from ATTLIST (key: "elem:attr", value: type)
+  default_attributes : Map[String, Array[XmlAttribute]] // Defaults from the internal DTD subset
   tag_stack : Array[(String, SourceSpan)] // Open element names and authored start-tag spans
   mut seen_root : Bool // Whether we've seen the root element
   mut seen_doctype : Bool // Whether a DOCTYPE declaration appeared in the prolog
@@ -87,7 +89,7 @@ pub struct Reader {
   pending_events : Array[Event] // Queue of events to return (for text splitting)
   internal_subset_events : Array[Event] // PIs/comments from internal subset (emit after prolog whitespace)
   mut just_saw_doctype : Bool // Track if we just returned DocType to handle internal subset events
-  had_bom : Bool // Whether input started with BOM (affects Decl emission)
+  mut in_entity_content : Bool // Internal replacement text already has normalized literal line endings
 }
 
 ///|

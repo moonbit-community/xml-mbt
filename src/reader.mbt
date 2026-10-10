@@ -31,6 +31,7 @@ pub fn Reader::from_string(input : String) -> Reader {
     entities: Map([]),
     entity_expansion_remaining: MAX_ENTITY_EXPANSION_CHARS,
     attr_types: Map([]),
+    default_attributes: Map([]),
     tag_stack: [],
     seen_root: false,
     seen_doctype: false,
@@ -40,7 +41,7 @@ pub fn Reader::from_string(input : String) -> Reader {
     pending_events: [],
     internal_subset_events: [],
     just_saw_doctype: false,
-    had_bom: start_pos > 0,
+    in_entity_content: false,
   }
 }
 
@@ -83,9 +84,35 @@ fn Reader::expand_entity_value(
     self.entities,
     seen,
     self.entity_expansion_remaining,
+    false,
   )
   self.entity_expansion_remaining = remaining
   expanded
+}
+
+///|
+fn Reader::expand_attribute_entity_value(
+  self : Reader,
+  value : String,
+) -> String raise XmlErrorKind {
+  let (expanded, remaining) = expand_entity_value_with_remaining(
+    value,
+    self.entities,
+    Map([]),
+    self.entity_expansion_remaining,
+    true,
+  )
+  self.entity_expansion_remaining = remaining
+  expanded
+}
+
+///|
+fn Reader::normalize_input_content(self : Reader, value : String) -> String {
+  if self.in_entity_content {
+    value
+  } else {
+    normalize_line_endings(value)
+  }
 }
 
 ///|
@@ -209,7 +236,7 @@ fn Reader::read_until(self : Reader, end : String) -> String raise XmlErrorKind 
       }
     }
     if found {
-      return buf.to_string()
+      return self.normalize_input_content(buf.to_string())
     }
     match self.advance() {
       Some(c) => {
@@ -317,6 +344,12 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
 
 ///|
 fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
+  if self.just_saw_doctype && !(self.peek() is Some(c) && is_whitespace(c)) {
+    self.just_saw_doctype = false
+    while self.internal_subset_events.length() > 0 {
+      self.push_pending_event(self.internal_subset_events.remove(0))
+    }
+  }
   // Return pending events first (from split text)
   if self.pending_events.length() > 0 {
     let event = self.pop_pending_event()
@@ -346,10 +379,6 @@ fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
   match self.peek() {
     Some('<') => {
       let parsed = self.read_tag(event_start)
-      if self.had_bom && parsed is Decl(_) {
-        self.just_saw_decl = true
-        return self.read_event_internal()
-      }
       // Track root element state
       match parsed {
         Start(_) => {
@@ -405,7 +434,10 @@ fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
           self.seen_content = true
           self.just_saw_decl = false
         }
-        Decl(_) => self.just_saw_decl = true // Skip next whitespace
+        Decl(_) => {
+          self.seen_content = true
+          self.just_saw_decl = true // Skip next whitespace
+        }
         Eof => ()
       }
       { kind: parsed, span: source_span(event_start, self.source_position()), }
@@ -641,7 +673,7 @@ fn Reader::read_comment_content(self : Reader) -> String raise XmlErrorKind {
       match self.peek() {
         Some('>') => {
           let _ = self.advance()
-          return buf.to_string()
+          return self.normalize_input_content(buf.to_string())
         }
         _ => raise InvalidSyntax("'--' is not allowed in comments")
       }
@@ -708,7 +740,7 @@ fn Reader::read_pi_data(self : Reader) -> String raise XmlErrorKind {
   while !self.is_eof() {
     // Check if we're at the end marker ?>
     if self.check_string("?>") {
-      return buf.to_string()
+      return self.normalize_input_content(buf.to_string())
     }
     match self.advance() {
       Some(c) => {
@@ -749,7 +781,9 @@ fn Reader::read_xml_decl(self : Reader) -> EventKind raise XmlErrorKind {
   let mut seen_encoding = false
   let mut seen_standalone = false
   let mut need_whitespace = false
-  self.skip_whitespace()
+  if self.skip_whitespace_count() == 0 {
+    raise InvalidSyntax("whitespace required before XML version")
+  }
   while !self.check_string("?>") {
     // Check for required whitespace between pseudo-attributes
     let had_whitespace = self.skip_whitespace_count() > 0
@@ -763,7 +797,7 @@ fn Reader::read_xml_decl(self : Reader) -> EventKind raise XmlErrorKind {
     }
     let attr_name = self.read_name()
     if attr_name == "" {
-      break
+      raise InvalidSyntax("expected XML declaration pseudo-attribute or '?>'")
     }
     self.skip_whitespace()
     match self.peek() {
@@ -849,7 +883,12 @@ fn Reader::read_xml_decl(self : Reader) -> EventKind raise XmlErrorKind {
     }
     need_whitespace = true
   }
-  let _ = self.skip_string("?>")
+  if !seen_version {
+    raise InvalidSyntax("XML declaration requires a version")
+  }
+  if !self.skip_string("?>") {
+    raise InvalidSyntax("expected '?>' at end of XML declaration")
+  }
 
   // Validate UTF-16 encoding - must have BOM if declared as UTF-16
   match encoding {
@@ -963,6 +1002,24 @@ fn Reader::read_attributes(
       None => break
     }
   }
+  match self.default_attributes.get(elem_name) {
+    Some(defaults) =>
+      for attribute in defaults {
+        if !attributes
+          .iter()
+          .any(fn(existing) { existing.name == attribute.name }) {
+          attributes.push({
+            ..attribute,
+            value: self.normalize_attr_by_type(
+              elem_name,
+              attribute.name,
+              attribute.value,
+            ),
+          })
+        }
+      }
+    None => ()
+  }
   attributes
 }
 
@@ -987,7 +1044,7 @@ fn Reader::normalize_attr_by_type(
     let mut in_whitespace = true // Start true to skip leading
     let mut need_space = false
     for c in value {
-      if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
+      if c == ' ' {
         if !in_whitespace {
           need_space = true
           in_whitespace = true
@@ -1073,15 +1130,8 @@ fn Reader::read_attr_value(
             } else {
               // Entity reference - expand with validation
               let entity_ref = "&" + entity_name + ";"
-              let expanded = self.expand_entity_value(entity_ref)
-              // Normalize whitespace in entity expansion (unlike char refs, which are preserved)
-              for c in expanded {
-                if c == '\t' || c == '\n' || c == '\r' {
-                  buf.write_char(' ')
-                } else {
-                  buf.write_char(c)
-                }
-              }
+              let expanded = self.expand_attribute_entity_value(entity_ref)
+              buf.write_string(expanded)
             }
           }
           _ =>
@@ -1102,6 +1152,9 @@ fn Reader::read_attr_value(
           buf.write_char(c)
         }
         let _ = self.advance()
+        if c == '\r' && self.peek() == Some('\n') && !self.in_entity_content {
+          let _ = self.advance()
+        }
       }
       None => break
     }
@@ -1159,8 +1212,15 @@ fn Reader::parse_entity_content(
   entity_span : SourceSpan,
 ) -> Array[Event] raise XmlErrorKind {
   let sub_reader = Reader::from_string(content)
+  sub_reader.in_entity_content = true
   for k, v in self.entities {
     sub_reader.entities.set(k, v)
+  }
+  for k, v in self.attr_types {
+    sub_reader.attr_types.set(k, v)
+  }
+  for k, v in self.default_attributes {
+    sub_reader.default_attributes.set(k, v)
   }
   sub_reader.seen_root = true
   let position = sub_reader.source_position()
@@ -1280,7 +1340,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
                         }
                       } else {
                         self.push_pending_event({
-                          kind: Text(normalize_line_endings(expanded)),
+                          kind: Text(expanded),
                           span: source_span(
                             entity_start,
                             self.source_position(),
@@ -1289,7 +1349,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
                       }
                     } else {
                       self.push_pending_event({
-                        kind: Text(normalize_line_endings(expanded)),
+                        kind: Text(expanded),
                         span: source_span(entity_start, self.source_position()),
                       })
                     }
@@ -1298,9 +1358,8 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
                     // Built-in entity (like &amp;) - expand and push as text
                     let entity_ref = "&" + entity_name + ";"
                     let expanded = self.expand_entity_value(entity_ref)
-                    let normalized = normalize_line_endings(expanded)
                     self.push_pending_event({
-                      kind: Text(normalized),
+                      kind: Text(expanded),
                       span: source_span(entity_start, self.source_position()),
                     })
                   }
@@ -1328,7 +1387,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
           raise InvalidSyntax("invalid character in content")
         }
         // Normalize line endings: \r\n -> \n, \r -> \n
-        if c == '\r' {
+        if c == '\r' && !self.in_entity_content {
           let _ = self.advance()
           // Check if followed by \n
           if self.peek() == Some('\n') {
@@ -1387,7 +1446,7 @@ fn Reader::read_whitespace_only(self : Reader) -> EventKind raise XmlErrorKind {
       None => break
     }
   }
-  Text(buf.to_string())
+  Text(self.normalize_input_content(buf.to_string()))
 }
 
 ///|
@@ -1547,345 +1606,147 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlErrorKind {
       Some('<') => {
         let declaration_start = self.source_position()
         let _ = self.advance()
-        if self.peek() is Some('!') {
+        if self.peek() == Some('!') {
           let _ = self.advance()
-          // Check for conditional sections and CDATA (not allowed in internal subset)
-          if self.check_string("[INCLUDE[") || self.check_string("[IGNORE[") {
-            raise InvalidSyntax(
-              "conditional sections not allowed in internal DTD subset",
-            )
-          }
-          if self.check_string("[CDATA[") {
-            raise InvalidSyntax("CDATA section not allowed in DTD")
-          }
-          if self.check_string("ENTITY") {
-            // Parse entity declaration
-            let _ = self.skip_string("ENTITY")
-            // Check that whitespace follows ENTITY keyword
-            if !(self.peek() is Some(c) && is_whitespace(c)) {
-              raise InvalidSyntax("whitespace required after ENTITY")
-            }
-            self.skip_whitespace()
-            // Check for parameter entity
-            if self.peek() is Some('%') {
-              // Parameter entity - must have whitespace after %
-              let _ = self.advance() // skip %
-              if !(self.peek() is Some(c) && is_whitespace(c)) {
-                raise InvalidSyntax(
-                  "whitespace required after % in parameter entity",
-                )
-              }
-              self.skip_whitespace()
-              let _ = self.read_name_lenient() // skip name
-              self.skip_whitespace()
-              // Parse and validate PE value (less strict than general entity)
-              match self.peek() {
-                Some('"') => {
-                  let _ = self.advance()
-                  let raw_value = self.read_entity_value('"')
-                  let _ = self.advance()
-                  validate_pe_value(raw_value)
-                  self.skip_to_char_strict('>')
-                }
-                Some('\'') => {
-                  let _ = self.advance()
-                  let raw_value = self.read_entity_value('\'')
-                  let _ = self.advance()
-                  validate_pe_value(raw_value)
-                  self.skip_to_char_strict('>')
-                }
-                _ => self.skip_to_char_strict('>')
-              }
-            } else {
-              // General entity - validate name starts with valid character
-              match self.peek() {
-                Some(c) if is_name_start_char(c) => ()
-                _ =>
-                  raise InvalidSyntax(
-                    "invalid character at start of entity name",
-                  )
-              }
-              let name = self.read_name_lenient()
-              // Require at least one whitespace after entity name
-              if !(self.peek() is Some(c) && is_whitespace(c)) {
-                raise InvalidSyntax(
-                  "whitespace required after entity name in declaration",
-                )
-              }
-              self.skip_whitespace()
-              // Check if entity already exists - if so, skip (first wins)
-              let is_duplicate = self.entities.contains(name)
-              // Check if it's an internal entity (quoted value) or external
-              match self.peek() {
-                Some('"') => {
-                  let _ = self.advance()
-                  let raw_value = self.read_entity_value('"')
-                  let _ = self.advance() // closing quote
-                  // Only validate and store if not duplicate
-                  if !is_duplicate {
-                    validate_entity_value(raw_value)
-                    // Per XML spec 4.5: expand only char refs, keep entity refs
-                    let value = expand_char_refs_only(raw_value) catch {
-                      _ => raw_value
-                    }
-                    self.entities.set(name, value)
-                  }
-                  self.skip_to_char_strict('>')
-                }
-                Some('\'') => {
-                  let _ = self.advance()
-                  let raw_value = self.read_entity_value('\'')
-                  let _ = self.advance() // closing quote
-                  // Only validate and store if not duplicate
-                  if !is_duplicate {
-                    validate_entity_value(raw_value)
-                    // Per XML spec 4.5: expand only char refs, keep entity refs
-                    let value = expand_char_refs_only(raw_value) catch {
-                      _ => raw_value
-                    }
-                    self.entities.set(name, value)
-                  }
-                  self.skip_to_char_strict('>')
-                }
-                _ => {
-                  // External entity (SYSTEM/PUBLIC)
-                  let keyword = self.read_name_lenient()
-                  self.skip_whitespace()
-                  if keyword == "SYSTEM" {
-                    // Parse the system literal without resolving it. External
-                    // entity access requires an explicit resolver API.
-                    match self.peek() {
-                      Some('"') => {
-                        let _ = self.advance()
-                        let _ = self.read_entity_value('"')
-                        let _ = self.advance()
-                      }
-                      Some('\'') => {
-                        let _ = self.advance()
-                        let _ = self.read_entity_value('\'')
-                        let _ = self.advance()
-                      }
-                      _ => ()
-                    }
-                  }
-                  self.skip_to_char_strict('>')
-                }
-              }
-            }
-          } else if self.check_string("ATTLIST") {
-            let _ = self.skip_string("ATTLIST")
+          if self.skip_string("ENTITY") {
+            self.parse_entity_declaration()
+          } else if self.skip_string("ATTLIST") {
             parse_attlist(self)
-          } else if self.check_string("ELEMENT") {
-            let _ = self.skip_string("ELEMENT")
+          } else if self.skip_string("ELEMENT") {
             parse_element_decl(self)
-          } else if self.check_string("--") {
-            // Comment in DTD: <!-- ... -->
-            let _ = self.skip_string("--")
-            let comment_buf = StringBuilder()
-            while !self.is_eof() {
-              if self.check_string("--") {
-                let _ = self.skip_string("--")
-                if self.peek() == Some('>') {
-                  let _ = self.advance()
-                  break
-                } else {
-                  // -- not followed by > is invalid in XML comments
-                  raise InvalidSyntax("'--' in comment must be followed by '>'")
-                }
-              }
-              match self.advance() {
-                Some(c) => comment_buf.write_char(c)
-                None => ()
-              }
-            }
+          } else if self.skip_string("--") {
+            let content = self.read_comment_content()
             self.internal_subset_events.push({
-              kind: Comment(comment_buf.to_string()),
+              kind: Comment(content),
               span: source_span(declaration_start, self.source_position()),
             })
-          } else if self.check_string("NOTATION") {
-            // NOTATION declaration - validate PUBLIC ID if present
-            let _ = self.skip_string("NOTATION")
-            self.skip_whitespace()
-            let _ = self.read_name() // notation name
-            self.skip_whitespace()
-            if self.check_string("PUBLIC") {
-              let _ = self.skip_string("PUBLIC")
-              self.skip_whitespace()
-              self.read_and_validate_public_id()
-              self.skip_whitespace()
-              // Optional system literal
-              if self.peek() is Some('"') || self.peek() is Some('\'') {
-                self.skip_quoted_string()
-              }
-            } else if self.check_string("SYSTEM") {
-              let _ = self.skip_string("SYSTEM")
-              self.skip_whitespace()
-              self.skip_quoted_string()
+          } else if self.skip_string("NOTATION") {
+            if self.skip_whitespace_count() == 0 {
+              raise InvalidSyntax("whitespace required after NOTATION")
             }
-            self.skip_to_char_strict('>')
+            if self.read_name() == "" {
+              raise InvalidSyntax("NOTATION requires a name")
+            }
+            if self.skip_whitespace_count() == 0 {
+              raise InvalidSyntax(
+                "whitespace required before notation identifier",
+              )
+            }
+            self.read_external_id(false)
+            self.finish_dtd_declaration()
           } else {
-            // Other declarations - skip to >
-            self.skip_declaration()
+            raise InvalidSyntax("invalid declaration in internal DTD subset")
           }
-        } else if self.peek() is Some('?') {
-          // Processing instruction in DTD - emit as event
-          let _ = self.advance() // skip ?
-          // Read target name
-          let target = self.read_name()
-          if target == "" {
-            raise InvalidSyntax("processing instruction target is required")
-          }
-          // Check if it's an XML declaration (not allowed in DTD)
-          let target_lower = target.to_lower()
-          if target_lower == "xml" {
+        } else if self.peek() == Some('?') {
+          let kind = self.read_pi()
+          if kind is Decl(_) {
             raise InvalidSyntax("XML declaration not allowed in DTD")
           }
-          // After target, must have whitespace before data, or ?>
-          match self.peek() {
-            Some(c) if is_whitespace(c) => {
-              // Skip leading whitespace
-              let _ = self.advance()
-              // Read PI data
-              let data_buf = StringBuilder()
-              while !self.is_eof() {
-                if self.check_string("?>") {
-                  let _ = self.skip_string("?>")
-                  break
-                }
-                match self.advance() {
-                  Some(ch) => data_buf.write_char(ch)
-                  None => break
-                }
-              }
-              // Push PI event to internal subset queue (will be emitted after prolog whitespace)
-              self.internal_subset_events.push({
-                kind: PI(target~, data=data_buf.to_string()),
-                span: source_span(declaration_start, self.source_position()),
-              })
-            }
-            Some('?') =>
-              // Check for ?>
-              if self.check_string("?>") {
-                let _ = self.skip_string("?>")
-                // Push PI event with empty data to internal subset queue
-                self.internal_subset_events.push({
-                  kind: PI(target~, data=""),
-                  span: source_span(declaration_start, self.source_position()),
-                })
-              } else {
-                raise InvalidSyntax(
-                  "expected whitespace or '?>' after PI target",
-                )
-              }
-            _ =>
-              raise InvalidSyntax("expected whitespace or '?>' after PI target")
-          }
+          self.internal_subset_events.push({
+            kind,
+            span: source_span(declaration_start, self.source_position()),
+          })
         } else {
-          // Unknown - skip
-          let _ = self.advance()
+          raise InvalidSyntax("expected a declaration in internal DTD subset")
         }
       }
       Some('%') => {
-        // Parameter entity reference - must be %Name; with no whitespace
-        let _ = self.advance() // consume %
-        // Name must start immediately after %
-        match self.peek() {
-          Some(c) if is_name_start_char(c) => {
-            // Read the name
-            let _ = self.read_name()
-            // Must be immediately followed by ;
-            match self.peek() {
-              Some(';') => {
-                let _ = self.advance()
-              }
-              _ =>
-                raise InvalidSyntax(
-                  "parameter entity reference must end with ';'",
-                )
-            }
-          }
-          _ => raise InvalidSyntax("invalid parameter entity reference")
+        // A non-validating processor may leave parameter entities unread.
+        let _ = self.advance()
+        if self.read_name() == "" || self.peek() != Some(';') {
+          raise InvalidSyntax("invalid parameter entity reference")
+        }
+        let _ = self.advance()
+      }
+      _ => raise InvalidSyntax("unexpected content in internal DTD subset")
+    }
+  }
+  raise UnexpectedEof
+}
+
+///|
+fn Reader::finish_dtd_declaration(self : Reader) -> Unit raise XmlErrorKind {
+  self.skip_whitespace()
+  if self.peek() != Some('>') {
+    raise InvalidSyntax("expected '>' at end of DTD declaration")
+  }
+  let _ = self.advance()
+}
+
+///|
+fn Reader::read_external_id(
+  self : Reader,
+  require_system : Bool,
+) -> Unit raise XmlErrorKind {
+  let keyword = self.read_name()
+  if self.skip_whitespace_count() == 0 {
+    raise InvalidSyntax(
+      "whitespace required before external identifier literal",
+    )
+  }
+  match keyword {
+    "SYSTEM" => self.skip_quoted_string()
+    "PUBLIC" => {
+      self.read_and_validate_public_id()
+      let had_whitespace = self.skip_whitespace_count() > 0
+      if require_system || self.peek() is Some('"' | '\'') {
+        if !had_whitespace {
+          raise InvalidSyntax("whitespace required before system literal")
+        }
+        self.skip_quoted_string()
+      }
+    }
+    _ => raise InvalidSyntax("expected SYSTEM or PUBLIC external identifier")
+  }
+}
+
+///|
+fn Reader::parse_entity_declaration(self : Reader) -> Unit raise XmlErrorKind {
+  if self.skip_whitespace_count() == 0 {
+    raise InvalidSyntax("whitespace required after ENTITY")
+  }
+  let parameter = self.peek() == Some('%')
+  if parameter {
+    let _ = self.advance()
+    if self.skip_whitespace_count() == 0 {
+      raise InvalidSyntax("whitespace required after % in parameter entity")
+    }
+  }
+  let name = self.read_name()
+  if name == "" {
+    raise InvalidSyntax("ENTITY requires a name")
+  }
+  if self.skip_whitespace_count() == 0 {
+    raise InvalidSyntax("whitespace required after entity name")
+  }
+  match self.peek() {
+    Some('"' | '\'') => {
+      let quote = self.advance().unwrap()
+      let raw_value = self.read_entity_value(quote)
+      let _ = self.advance()
+      // Parameter entities and duplicate declarations also require valid syntax.
+      validate_entity_value(raw_value)
+      if !parameter {
+        let value = expand_char_refs_only(raw_value)
+        if !self.entities.contains(name) {
+          self.entities.set(name, value)
         }
       }
-      Some(_) => {
-        let _ = self.advance()
+    }
+    _ => {
+      self.read_external_id(true)
+      let had_whitespace = self.skip_whitespace_count() > 0
+      if self.skip_string("NDATA") {
+        if parameter || !had_whitespace || self.skip_whitespace_count() == 0 {
+          raise InvalidSyntax("invalid NDATA declaration")
+        }
+        if self.read_name() == "" {
+          raise InvalidSyntax("NDATA requires a notation name")
+        }
       }
-      None => return
     }
   }
-}
-
-///|
-/// Skip to a character, consuming it, and checking for SGML comments
-fn Reader::skip_to_char_strict(
-  self : Reader,
-  target : Char,
-) -> Unit raise XmlErrorKind {
-  while self.peek() is Some(c) && c != target {
-    if c == '-' && self.check_string("--") {
-      raise InvalidSyntax(
-        "SGML-style comments (--) not allowed in XML declarations",
-      )
-    }
-    let _ = self.advance()
-  }
-  let _ = self.advance()
-}
-
-///|
-/// Skip a DTD declaration (handles quoted strings)
-/// Also checks for SGML-style comments (-- ... --) which are not valid in XML
-fn Reader::skip_declaration(self : Reader) -> Unit raise XmlErrorKind {
-  while self.peek() is Some(c) && c != '>' {
-    if c == '"' {
-      let _ = self.advance()
-      while self.peek() is Some(c2) && c2 != '"' {
-        let _ = self.advance()
-      }
-      let _ = self.advance()
-    } else if c == '\'' {
-      let _ = self.advance()
-      while self.peek() is Some(c2) && c2 != '\'' {
-        let _ = self.advance()
-      }
-      let _ = self.advance()
-    } else if c == '-' && self.check_string("--") {
-      // SGML-style comments are not allowed in XML
-      raise InvalidSyntax(
-        "SGML-style comments (--) not allowed in XML declarations",
-      )
-    } else {
-      let _ = self.advance()
-    }
-  }
-  let _ = self.advance()
-}
-
-///|
-/// Read name leniently (for DTD parsing where we don't validate strictly)
-fn Reader::read_name_lenient(self : Reader) -> String {
-  let buf = StringBuilder()
-  while self.peek() is Some(c) && is_name_char_lenient(c) {
-    buf.write_char(c)
-    let _ = self.advance()
-  }
-  buf.to_string()
-}
-
-///|
-/// Lenient name character check for DTD parsing
-fn is_name_char_lenient(c : Char) -> Bool {
-  !(c == ' ' ||
-  c == '\t' ||
-  c == '\n' ||
-  c == '\r' ||
-  c == '<' ||
-  c == '>' ||
-  c == '"' ||
-  c == '\'' ||
-  c == '=' ||
-  c == '[' ||
-  c == ']')
+  self.finish_dtd_declaration()
 }
 
 ///|
@@ -1904,7 +1765,10 @@ fn Reader::read_entity_value(
     buf.write_char(c)
     let _ = self.advance()
   }
-  buf.to_string()
+  if self.peek() != Some(quote) {
+    raise UnexpectedEof
+  }
+  self.normalize_input_content(buf.to_string())
 }
 
 ///|

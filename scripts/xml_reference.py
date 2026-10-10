@@ -3,10 +3,11 @@
 XML Reference Parser using lxml (libxml2 bindings).
 
 Outputs events in MoonBit format matching our Event enum exactly.
-Uses lxml's docinfo API instead of regex for reliable DOCTYPE/decl parsing.
+Uses lxml's docinfo API for declarations and Expat for event callbacks.
 """
 
 from lxml import etree
+from xml.parsers import expat
 from io import BytesIO
 from typing import List, Tuple
 import re
@@ -72,11 +73,15 @@ class MoonBitTarget:
 
         if '}' in tag:
             tag = tag.split('}', 1)[1]
+        tag = tag.rsplit(':', 1)[-1]
 
         attr_list = []
         for key, value in attrib.items():
+            if key == 'xmlns' or key.startswith('xmlns:'):
+                continue
             if '}' in key:
                 key = key.split('}', 1)[1]
+            key = key.rsplit(':', 1)[-1]
             value_escaped = escape_for_debug(value)
             attr_list.append(f'("{key}", "{value_escaped}")')
         attrs_str = "[" + ", ".join(attr_list) + "]"
@@ -88,6 +93,7 @@ class MoonBitTarget:
         self._flush_text()
         if '}' in tag:
             tag = tag.split('}', 1)[1]
+        tag = tag.rsplit(':', 1)[-1]
 
         if self.pending_start and self.pending_start[-1][0] == tag:
             pending_tag, attrs_str = self.pending_start.pop()
@@ -139,7 +145,9 @@ def parse_xml(xml_content: str) -> Tuple[bool, str]:
     try:
         # Parse with lxml to get docinfo
         xml_bytes = xml_content.encode('utf-8')
-        tree = etree.parse(BytesIO(xml_bytes))
+        tree = etree.parse(BytesIO(xml_bytes), etree.XMLParser(
+            attribute_defaults=True, resolve_entities=True, no_network=True,
+        ))
         docinfo = tree.docinfo
 
         # Extract XML declaration from docinfo
@@ -158,24 +166,38 @@ def parse_xml(xml_content: str) -> Tuple[bool, str]:
                 std_str = 'None'
 
             # Only emit Decl if there was an actual XML declaration in source
-            if xml_content.strip().startswith('<?xml'):
+            if xml_content.lstrip('\ufeff').startswith('<?xml'):
                 events.append(f'Decl(version="{version}", encoding={enc_str}, standalone={std_str})')
 
         # Extract DOCTYPE from docinfo (only if there's an actual DOCTYPE)
         if docinfo.doctype or docinfo.internalDTD is not None:
             events.append(f'DocType("{docinfo.root_name}")')
 
-        # Now parse with target to get element events
+        # Expat preserves character-reference CRs in internal entity values;
+        # libxml2's SAX API normalizes those CRs a second time.
         target = MoonBitTarget(xml_content)
-        parser = etree.XMLParser(target=target, recover=False)
-        etree.parse(BytesIO(xml_bytes), parser)
-        target_events = target.close()
-        events.extend(target_events)
+        parser = expat.ParserCreate()
+        parser.StartElementHandler = target.start
+        parser.EndElementHandler = target.end
+        parser.CharacterDataHandler = target.data
+        parser.CommentHandler = target.comment
+        parser.ProcessingInstructionHandler = target.pi
+        try:
+            parser.Parse(xml_bytes, True)
+        except expat.ExpatError:
+            # Some bundled Expat versions use XML 1.0's older name tables.
+            # lxml has already checked well-formedness with the current tables.
+            target = MoonBitTarget(xml_content)
+            parser = etree.XMLParser(
+                target=target, attribute_defaults=True, no_network=True,
+            )
+            etree.parse(BytesIO(xml_bytes), parser)
+        events.extend(target.close())
         events.append("Eof")
 
         return True, "[" + ", ".join(events) + "]"
 
-    except etree.XMLSyntaxError as e:
+    except (etree.XMLSyntaxError, expat.ExpatError) as e:
         return False, f"Error: {e}"
 
 

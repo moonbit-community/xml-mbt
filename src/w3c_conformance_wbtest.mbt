@@ -851,11 +851,11 @@ test "w3c/valid/valid_sa_044" {
       #|  DocType("doc"),
       #|  Start({ name: "doc", attributes: [] }),
       #|  Text("\n"),
-      #|  Empty({ name: "e", attributes: [("a3", "v3")] }),
+      #|  Empty({ name: "e", attributes: [("a3", "v3"), ("a1", "v1"), ("a2", "v2")] }),
       #|  Text("\n"),
-      #|  Empty({ name: "e", attributes: [("a1", "w1")] }),
+      #|  Empty({ name: "e", attributes: [("a1", "w1"), ("a2", "v2")] }),
       #|  Text("\n"),
-      #|  Empty({ name: "e", attributes: [("a2", "w2"), ("a3", "v3")] }),
+      #|  Empty({ name: "e", attributes: [("a2", "w2"), ("a3", "v3"), ("a1", "v1")] }),
       #|  Text("\n"),
       #|  End("doc"),
       #|  Eof,
@@ -873,7 +873,11 @@ test "w3c/valid/valid_sa_045" {
   @debug.debug_inspect(
     to_libxml_format(events),
     content=(
-      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "v1")] }),
+      #|  Eof,
+      #|]
     ),
   )
 }
@@ -887,7 +891,11 @@ test "w3c/valid/valid_sa_046" {
   @debug.debug_inspect(
     to_libxml_format(events),
     content=(
-      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "v1"), ("a2", "v2")] }),
+      #|  Eof,
+      #|]
     ),
   )
 }
@@ -1242,7 +1250,7 @@ test "w3c/valid/valid_sa_068" {
       #|[
       #|  DocType("doc"),
       #|  Start({ name: "doc", attributes: [] }),
-      #|  Text("\n"),
+      #|  Text("\r"),
       #|  End("doc"),
       #|  Eof,
       #|]
@@ -1407,7 +1415,11 @@ test "w3c/valid/valid_sa_080" {
   @debug.debug_inspect(
     to_libxml_format(events),
     content=(
-      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a", "v")] }),
+      #|  Eof,
+      #|]
     ),
   )
 }
@@ -1607,7 +1619,11 @@ test "w3c/valid/valid_sa_094" {
   @debug.debug_inspect(
     to_libxml_format(events),
     content=(
-      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "%e;")] }),
+      #|  Eof,
+      #|]
     ),
   )
 }
@@ -1639,7 +1655,11 @@ test "w3c/valid/valid_sa_096" {
   @debug.debug_inspect(
     to_libxml_format(events),
     content=(
-      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+      #|[
+      #|  DocType("doc"),
+      #|  Empty({ name: "doc", attributes: [("a1", "1 2")] }),
+      #|  Eof,
+      #|]
     ),
   )
 }
@@ -2347,7 +2367,12 @@ test "w3c/valid/v_sgml01" {
       #|[
       #|  DocType("root"),
       #|  Comment("\n\tSGML dislikes token reuse.  It's legal XML, so any\n\tXML parser must accept it, though it's discouraged\n\tin documents \"for interoperability\"\n    "),
-      #|  Empty({ name: "root", attributes: [] }),
+      #|  Empty(
+      #|    {
+      #|      name: "root",
+      #|      attributes: [("status", "initial-draft"), ("position", "first")],
+      #|    },
+      #|  ),
       #|  Eof,
       #|]
     ),
@@ -2626,7 +2651,12 @@ test "w3c/valid/rmt_e2e_22" {
   @debug.debug_inspect(
     to_libxml_format(events),
     content=(
-      #|[DocType("foo"), Empty({ name: "foo", attributes: [] }), Eof]
+      #|[
+      #|  Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no")),
+      #|  DocType("foo"),
+      #|  Empty({ name: "foo", attributes: [] }),
+      #|  Eof,
+      #|]
     ),
   )
 }

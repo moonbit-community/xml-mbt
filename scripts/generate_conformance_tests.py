@@ -62,7 +62,7 @@ def escape_moonbit_string(s: str) -> str:
     """Escape a string for MoonBit string literal."""
     s = s.replace('\\', '\\\\')
     s = s.replace('"', '\\"')
-    s = s.replace('\r', '')
+    s = s.replace('\r', '\\r')
     s = s.replace('\n', '\\n')
     s = s.replace('\t', '\\t')
     return s

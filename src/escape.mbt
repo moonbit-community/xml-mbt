@@ -14,7 +14,7 @@
 
 ///|
 /// Escape special XML characters in text
-/// Replaces: < > & " '
+/// Replaces: < > & " ' and carriage returns (to preserve text on XML readback).
 pub fn escape(text : String) -> String {
   let buf = StringBuilder()
   for c in text {
@@ -24,6 +24,7 @@ pub fn escape(text : String) -> String {
       '&' => buf.write_string("&amp;")
       '"' => buf.write_string("&quot;")
       '\'' => buf.write_string("&apos;")
+      '\r' => buf.write_string("&#13;")
       _ => buf.write_char(c)
     }
   }

@@ -68,7 +68,7 @@ guard parsed.kind is Empty(element) else { abort("expected empty element") }
 assert_eq(element.attributes[0].value, "a&b")
 ```
 
-Each `XmlAttribute` contains the whole attribute span plus separate name and unquoted value spans. Parse failures raise `XmlError::At`, which contains an `XmlErrorKind` and a relevant authored source span. Syntax failures normally cover input consumed while detecting the error, while an unclosed-element error points to the unmatched opening tag. Events produced by entity expansion point to the authored entity reference.
+Each `XmlAttribute` contains the whole attribute span plus separate name and unquoted value spans. Parse failures raise `XmlError::At`, which contains an `XmlErrorKind` and a relevant authored source span. Syntax failures normally cover input consumed while detecting the error, while an unclosed-element error points to the unmatched opening tag. Events produced by entity expansion point to the authored entity reference. Defaulted attributes point to their definitions in the internal DTD subset.
 
 ## Event Types
 
@@ -89,16 +89,16 @@ Each `XmlAttribute` contains the whole attribute span plus separate name and unq
 
 ## W3C Conformance
 
-This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using libxml2 (lxml) as the reference parser.
+This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using libxml2 (lxml) and Expat as reference parsers.
 
-**Current status: 817/817 tests passing**
+**Current status: 877/877 tests passing**
 
 | Category | Tests | Description |
 |----------|-------|-------------|
 | Valid (with events) | 448 | Parser produces correct event sequence |
 | Valid (error-only) | 6 | Parser does not error on valid XML |
 | Not-well-formed | 281 | Parser correctly rejects malformed XML |
-| Unit tests | 82 | Reader, writer, escape, namespace, source spans, conformance tests |
+| Unit tests | 142 | Reader, writer, escape, namespace, source spans, conformance tests |
 
 Coverage:
 - XML 1.0 (James Clark xmltest)

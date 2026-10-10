@@ -13,94 +13,17 @@
 // limitations under the License.
 
 ///|
-/// Validate parameter entity value (less strict than general entity)
-/// Checks for PE references, invalid characters, and bare &
-fn validate_pe_value(value : String) -> Unit raise XmlErrorKind {
-  let chars = value.to_array()
-  let len = chars.length()
-  let mut i = 0
-  while i < len {
-    let c = chars[i]
-    // Check for invalid XML characters
-    let code = c.to_int()
-    if !is_valid_xml_char(code) {
-      raise InvalidEntity("invalid character in parameter entity value")
-    }
-    // Check for PE reference
-    if c == '%' {
-      let j = i + 1
-      if j < len && is_name_start_char(chars[j]) {
-        raise InvalidEntity(
-          "parameter entity reference not allowed in entity value",
-        )
-      }
-    }
-    // Check for bare &
-    if c == '&' {
-      i += 1
-      if i >= len {
-        raise InvalidEntity("bare '&' in parameter entity value")
-      }
-      // Must be followed by # for char ref or name start for entity ref
-      let next = chars[i]
-      if next == '#' {
-        // Character reference - skip to ;
-        while i < len && chars[i] != ';' {
-          i += 1
-        }
-        if i >= len {
-          raise InvalidEntity(
-            "unterminated character reference in parameter entity value",
-          )
-        }
-      } else if is_name_start_char(next) {
-        // Entity reference - skip to ;
-        while i < len && chars[i] != ';' {
-          i += 1
-        }
-        if i >= len {
-          raise InvalidEntity(
-            "unterminated entity reference in parameter entity value",
-          )
-        }
-      } else {
-        raise InvalidEntity("bare '&' in parameter entity value")
-      }
-    }
-    i += 1
-  }
-}
-
-///|
-/// Validate entity replacement text for well-formedness
-/// Checks that entity values don't contain bare & not followed by valid reference
-/// Also validates character references when expanded
+/// Validate entity-value reference syntax at declaration time.
+/// Replacement markup is checked by the reader when the entity is used, so
+/// comments, PIs and unused replacement text keep their XML-defined semantics.
 fn validate_entity_value(value : String) -> Unit raise XmlErrorKind {
   let chars = value.to_array()
   let len = chars.length()
   let mut i = 0
-
-  // Check for text declaration (<?xml) - not allowed in internal parsed entities
-  if len >= 5 &&
-    chars[0] == '<' &&
-    chars[1] == '?' &&
-    chars[2] == 'x' &&
-    chars[3] == 'm' &&
-    chars[4] == 'l' {
-    raise InvalidEntity(
-      "text declaration not allowed in internal parsed entity",
-    )
-  }
   while i < len {
-    // Check for parameter entity reference - not allowed in entity values in internal subset
+    // Parameter references cannot occur inside internal-subset declarations.
     if chars[i] == '%' {
-      // Check if it looks like a PE reference
-      let j = i + 1
-      if j < len && is_name_start_char(chars[j]) {
-        raise InvalidEntity(
-          "parameter entity reference not allowed in entity value",
-        )
-      }
+      raise InvalidEntity("'%' is not allowed in an internal entity value")
     }
     if chars[i] == '&' {
       // Must be followed by valid reference
@@ -161,59 +84,6 @@ fn validate_entity_value(value : String) -> Unit raise XmlErrorKind {
         if !is_valid_xml_char(code_point) {
           raise InvalidEntity("invalid character reference in entity value")
         }
-        // After expanding, check if it produces a bare &
-        if code_point == 38 {
-          // &#38; decodes to '&', check what follows in the raw text
-          // The decoded & must itself be followed by valid reference syntax
-          // in the entity replacement text
-          let after_semi = i + 1
-          if after_semi >= len {
-            // & at end of entity value
-            raise InvalidEntity(
-              "character reference &#38; produces bare '&' at end of entity value",
-            )
-          }
-          let next = chars[after_semi]
-          // Must be followed by entity ref name or # for char ref
-          if next == '#' {
-            // Check for valid character reference format: must have ; before end
-            let mut j = after_semi + 1
-            // Skip x for hex
-            if j < len && chars[j] == 'x' {
-              j += 1
-            }
-            // Skip digits
-            while j < len &&
-                  (
-                    (chars[j] >= '0' && chars[j] <= '9') ||
-                    (chars[j] >= 'a' && chars[j] <= 'f') ||
-                    (chars[j] >= 'A' && chars[j] <= 'F')
-                  ) {
-              j += 1
-            }
-            // Must end with ;
-            if j >= len || chars[j] != ';' {
-              raise InvalidEntity(
-                "character reference &#38; produces incomplete character reference",
-              )
-            }
-          } else if !is_name_start_char(next) {
-            raise InvalidEntity(
-              "character reference &#38; produces bare '&' not followed by valid reference",
-            )
-          } else {
-            // Entity reference - must end with ;
-            let mut j = after_semi
-            while j < len && is_name_char(chars[j]) {
-              j += 1
-            }
-            if j >= len || chars[j] != ';' {
-              raise InvalidEntity(
-                "character reference &#38; produces incomplete entity reference",
-              )
-            }
-          }
-        }
         i += 1 // skip ';'
       } else {
         // Entity reference: &name;
@@ -236,312 +106,6 @@ fn validate_entity_value(value : String) -> Unit raise XmlErrorKind {
       i += 1
     }
   }
-
-  // Additional check: detect < (via &#60; or &#x3c;) inside attribute value contexts
-  // This is invalid as < cannot appear literally in attribute values
-  validate_no_lt_in_attr_context(chars, len)
-
-  // Check for incomplete markup from character references
-  validate_no_incomplete_markup(chars, len)
-
-  // Check for unbalanced literal markup (e.g., </foo><foo>)
-  validate_literal_markup(chars, len)
-}
-
-///|
-/// Check if entity value contains < in an attribute value context
-/// Scans for patterns like: a='&#60;' or a="&#x3C;"
-fn validate_no_lt_in_attr_context(
-  chars : Array[Char],
-  len : Int,
-) -> Unit raise XmlErrorKind {
-  let mut i = 0
-  while i < len {
-    // Look for = followed by quote (attribute value start)
-    if chars[i] == '=' {
-      i += 1
-      // Skip whitespace
-      while i < len &&
-            (
-              chars[i] == ' ' ||
-              chars[i] == '\t' ||
-              chars[i] == '\n' ||
-              chars[i] == '\r'
-            ) {
-        i += 1
-      }
-      if i < len && (chars[i] == '\'' || chars[i] == '"') {
-        let quote = chars[i]
-        i += 1
-        // Inside attribute value - check for &#60; or &#x3c;/&#x3C;
-        while i < len && chars[i] != quote {
-          if chars[i] == '&' && i + 1 < len && chars[i + 1] == '#' {
-            // Character reference - check if it's < (code point 60 or 0x3c)
-            let ref_start = i
-            i += 2 // skip &#
-            if i < len {
-              if chars[i] == 'x' || chars[i] == 'X' {
-                // Hex: check for 3c or 3C
-                i += 1
-                if i + 1 < len &&
-                  chars[i] == '3' &&
-                  (chars[i + 1] == 'c' || chars[i + 1] == 'C') {
-                  // Found &#x3c; or &#x3C; in attribute value
-                  raise InvalidEntity(
-                    "'<' not allowed in attribute value (via character reference)",
-                  )
-                }
-              } else if chars[i] == '6' && i + 1 < len && chars[i + 1] == '0' {
-                // Decimal: check for 60
-                // Make sure it's exactly 60 and followed by ;
-                if i + 2 < len && chars[i + 2] == ';' {
-                  raise InvalidEntity(
-                    "'<' not allowed in attribute value (via character reference)",
-                  )
-                }
-              }
-            }
-            i = ref_start + 1 // continue scanning from after &
-          } else {
-            i += 1
-          }
-        }
-        if i < len {
-          i += 1 // skip closing quote
-        }
-      }
-    } else {
-      i += 1
-    }
-  }
-}
-
-///|
-/// Check if entity value contains &#60; that creates incomplete markup
-/// Entity values must be self-contained well-formed content
-fn validate_no_incomplete_markup(
-  chars : Array[Char],
-  len : Int,
-) -> Unit raise XmlErrorKind {
-  let mut i = 0
-  while i < len {
-    // Look for &#60; or &#x3c; (expands to <)
-    if chars[i] == '&' && i + 1 < len && chars[i + 1] == '#' {
-      let ref_start = i
-      i += 2
-      let mut is_lt = false
-      if i < len {
-        if chars[i] == 'x' || chars[i] == 'X' {
-          // Hex reference
-          i += 1
-          if i + 2 < len &&
-            chars[i] == '3' &&
-            (chars[i + 1] == 'c' || chars[i + 1] == 'C') &&
-            chars[i + 2] == ';' {
-            is_lt = true
-            i += 3
-          }
-        } else if i + 2 < len &&
-          chars[i] == '6' &&
-          chars[i + 1] == '0' &&
-          chars[i + 2] == ';' {
-          // Decimal &#60;
-          is_lt = true
-          i += 3
-        }
-      }
-      if is_lt {
-        // Found < via char ref - check what follows
-        if i < len {
-          let next = chars[i]
-          if next == '!' {
-            // Could be <!-- or <!ENTITY etc - check for incomplete comment
-            if i + 1 < len &&
-              chars[i + 1] == '-' &&
-              i + 2 < len &&
-              chars[i + 2] == '-' {
-              // Comment start - must have --> in entity value
-              let mut found_end = false
-              let mut j = i + 3
-              while j + 2 < len {
-                if chars[j] == '-' && chars[j + 1] == '-' && chars[j + 2] == '>' {
-                  found_end = true
-                  break
-                }
-                j += 1
-              }
-              if !found_end {
-                raise InvalidEntity(
-                  "incomplete comment in entity value (missing -->)",
-                )
-              }
-            }
-          } else if is_name_start_char(next) {
-            // Element start - must have matching end tag or be empty
-            // Collect element name
-            let name_start = i
-            while i < len && is_name_char(chars[i]) {
-              i += 1
-            }
-            let name_end = i
-            // Skip to > (simplified - doesn't handle attributes properly)
-            while i < len && chars[i] != '>' {
-              if chars[i] == '/' && i + 1 < len && chars[i + 1] == '>' {
-                // Empty element - OK
-                i = len // exit loop
-                break
-              }
-              i += 1
-            }
-            if i < len && chars[i] == '>' {
-              i += 1
-              // Now we need to find </name> in the rest of entity value
-              let mut found_end = false
-              while i + 3 < len {
-                if chars[i] == '<' && chars[i + 1] == '/' {
-                  // Check name matches
-                  let mut j = i + 2
-                  let mut k = name_start
-                  let mut matches = true
-                  while k < name_end && j < len {
-                    if chars[j] != chars[k] {
-                      matches = false
-                      break
-                    }
-                    j += 1
-                    k += 1
-                  }
-                  if matches && k == name_end && j < len && chars[j] == '>' {
-                    found_end = true
-                    break
-                  }
-                }
-                i += 1
-              }
-              if !found_end {
-                raise InvalidEntity("unclosed element in entity value")
-              }
-            }
-          }
-        }
-      } else {
-        i = ref_start + 1
-      }
-    } else {
-      i += 1
-    }
-  }
-}
-
-///|
-/// Check for unbalanced markup in entity values after expanding char refs
-/// e.g., "</foo><foo>" has an end tag without matching start
-fn validate_literal_markup(
-  chars : Array[Char],
-  len : Int,
-) -> Unit raise XmlErrorKind {
-  // First expand character references to get actual markup
-  let expanded = expand_char_refs(chars, len)
-  let exp_chars = expanded.to_array()
-  let exp_len = exp_chars.length()
-
-  // Track open elements
-  let stack : Array[String] = []
-  let mut i = 0
-  while i < exp_len {
-    if exp_chars[i] == '<' {
-      i += 1
-      if i >= exp_len {
-        continue
-      }
-      if exp_chars[i] == '/' {
-        // End tag
-        i += 1
-        let name_start = i
-        while i < exp_len && is_name_char(exp_chars[i]) {
-          i += 1
-        }
-        let name = substring_from_chars(exp_chars, name_start, i)
-        // Check stack
-        if stack.length() == 0 || stack.last() != Some(name) {
-          raise InvalidEntity(
-            "unbalanced end tag </" + name + "> in entity value",
-          )
-        }
-        let _ = stack.pop()
-        // Skip to >
-        while i < exp_len && exp_chars[i] != '>' {
-          i += 1
-        }
-      } else if exp_chars[i] == '!' || exp_chars[i] == '?' {
-        // Comment, CDATA, PI - skip to end
-        while i < exp_len && exp_chars[i] != '>' {
-          i += 1
-        }
-      } else if is_name_start_char(exp_chars[i]) {
-        // Start tag
-        let name_start = i
-        while i < exp_len && is_name_char(exp_chars[i]) {
-          i += 1
-        }
-        let name = substring_from_chars(exp_chars, name_start, i)
-        // Skip attributes until > or />
-        let mut is_empty = false
-        while i < exp_len && exp_chars[i] != '>' {
-          if exp_chars[i] == '/' && i + 1 < exp_len && exp_chars[i + 1] == '>' {
-            is_empty = true
-            break
-          }
-          i += 1
-        }
-        if !is_empty {
-          stack.push(name)
-        }
-      }
-    }
-    i += 1
-  }
-  // Check for unclosed elements
-  if stack.length() > 0 {
-    let name = stack.last().unwrap()
-    raise InvalidEntity("unclosed element <" + name + "> in entity value")
-  }
-}
-
-///|
-/// Expand only character references in a string (not entity refs)
-fn expand_char_refs(chars : Array[Char], len : Int) -> String {
-  let buf = StringBuilder()
-  let mut i = 0
-  while i < len {
-    if chars[i] == '&' && i + 1 < len && chars[i + 1] == '#' {
-      // Character reference
-      i += 2
-      let is_hex = i < len && (chars[i] == 'x' || chars[i] == 'X')
-      if is_hex {
-        i += 1
-      }
-      let digit_start = i
-      while i < len && chars[i] != ';' {
-        i += 1
-      }
-      if i < len {
-        let code = if is_hex {
-          parse_hex_code(chars, digit_start, i)
-        } else {
-          parse_decimal_code(chars, digit_start, i)
-        }
-        if code > 0 && code <= 0x10FFFF {
-          buf.write_char(Int::unsafe_to_char(code))
-        }
-        i += 1 // skip ;
-      }
-    } else {
-      buf.write_char(chars[i])
-      i += 1
-    }
-  }
-  buf.to_string()
 }
 
 ///|
@@ -593,10 +157,11 @@ fn expand_entity_value_with_remaining(
   entities : Map[String, String],
   seen : Map[String, Bool],
   remaining : Int,
+  attribute_context : Bool,
 ) -> (String, Int) raise XmlErrorKind {
   let budget : EntityExpansionBudget = { remaining, }
   let expanded = expand_entity_value_with_budget(
-    value, entities, seen, budget, 0,
+    value, entities, seen, budget, 0, attribute_context,
   )
   (expanded, budget.remaining)
 }
@@ -608,6 +173,7 @@ fn expand_entity_value_with_budget(
   seen : Map[String, Bool],
   budget : EntityExpansionBudget,
   depth : Int,
+  attribute_context : Bool,
 ) -> String raise XmlErrorKind {
   if depth > MAX_ENTITY_EXPANSION_DEPTH {
     raise InvalidEntity("entity expansion depth exceeded")
@@ -617,8 +183,37 @@ fn expand_entity_value_with_budget(
   let len = chars.length()
   let mut i = 0
   while i < len {
+    // References inside replacement comments and PIs are literal content.
+    let literal_end : Array[Char]? = if !attribute_context && chars[i] == '<' {
+      if matches_chars_at(chars, i, ['<', '!', '-', '-']) {
+        Some(['-', '-', '>'])
+      } else if matches_chars_at(chars, i, ['<', '?']) {
+        Some(['?', '>'])
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+    if literal_end is Some(end) {
+      while i < len {
+        if matches_chars_at(chars, i, end) {
+          for c in end {
+            budget.consume(1)
+            buf.write_char(c)
+          }
+          i += end.length()
+          break
+        }
+        budget.consume(1)
+        buf.write_char(chars[i])
+        i += 1
+      }
+      continue
+    }
     // Check for CDATA section - copy everything inside literally
-    if i + 8 < len &&
+    if !attribute_context &&
+      i + 8 < len &&
       chars[i] == '<' &&
       chars[i + 1] == '!' &&
       chars[i + 2] == '[' &&
@@ -651,9 +246,7 @@ fn expand_entity_value_with_budget(
     if chars[i] == '&' {
       i += 1
       if i >= len {
-        budget.consume(1)
-        buf.write_char('&')
-        continue
+        raise InvalidEntity("bare '&' in entity replacement text")
       }
       if chars[i] == '#' {
         // Character reference - collect and decode
@@ -668,9 +261,16 @@ fn expand_entity_value_with_budget(
           let decoded = unescape(char_ref)
           budget.consume(decoded.length())
           buf.write_string(decoded)
+        } else {
+          raise InvalidEntity(
+            "unterminated character reference in entity replacement text",
+          )
         }
       } else {
         // Entity reference - extract name
+        if !is_name_start_char(chars[i]) {
+          raise InvalidEntity("invalid entity reference in replacement text")
+        }
         let name_start = i
         while i < len && chars[i] != ';' && is_name_char(chars[i]) {
           i += 1
@@ -706,6 +306,7 @@ fn expand_entity_value_with_budget(
                   seen,
                   budget,
                   depth + 1,
+                  attribute_context,
                 )
                 buf.write_string(expanded)
                 // Unmark after expansion (allow same entity in different branches)
@@ -714,18 +315,23 @@ fn expand_entity_value_with_budget(
             }
           }
         } else {
-          // Malformed entity ref - just write it
-          budget.consume(1)
-          buf.write_char('&')
-          for j = name_start; j < i; j = j + 1 {
-            budget.consume(1)
-            buf.write_char(chars[j])
-          }
+          raise InvalidEntity(
+            "unterminated entity reference in replacement text",
+          )
         }
       }
     } else {
+      if attribute_context && chars[i] == '<' {
+        raise InvalidEntity(
+          "'<' in entity replacement text is not allowed in attribute values",
+        )
+      }
       budget.consume(1)
-      buf.write_char(chars[i])
+      if attribute_context && is_whitespace(chars[i]) {
+        buf.write_char(' ')
+      } else {
+        buf.write_char(chars[i])
+      }
       i += 1
     }
   }
@@ -733,11 +339,30 @@ fn expand_entity_value_with_budget(
 }
 
 ///|
+fn matches_chars_at(
+  chars : Array[Char],
+  start : Int,
+  expected : Array[Char],
+) -> Bool {
+  if start + expected.length() > chars.length() {
+    return false
+  }
+  for i, c in expected {
+    if chars[start + i] != c {
+      return false
+    }
+  }
+  true
+}
+
+///|
 /// Parse ATTLIST declaration with validation
 /// ATTLIST format: <!ATTLIST element_name attr_name type default>
 fn parse_attlist(reader : Reader) -> Unit raise XmlErrorKind {
   // Skip whitespace after ATTLIST
-  skip_ws(reader)
+  if reader.skip_whitespace_count() == 0 {
+    raise InvalidSyntax("whitespace required after ATTLIST")
+  }
 
   // Read element name
   if !peek_is_name_start(reader) {
@@ -764,8 +389,10 @@ fn parse_attlist(reader : Reader) -> Unit raise XmlErrorKind {
 
 ///|
 fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlErrorKind {
+  let attribute_start = reader.source_position()
   // Read attribute name
   let attr_name = read_name(reader)
+  let name_span = source_span(attribute_start, reader.source_position())
 
   // Require whitespace between name and type
   if !peek_is_whitespace(reader) {
@@ -812,7 +439,8 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlErrorKind 
 
   // Store attribute type (first declaration wins per XML spec)
   let key = elem_name + ":" + attr_name
-  if !reader.attr_types.contains(key) {
+  let first_definition = !reader.attr_types.contains(key)
+  if first_definition {
     reader.attr_types.set(key, attr_type)
   }
 
@@ -829,28 +457,37 @@ fn parse_attdef(reader : Reader, elem_name : String) -> Unit raise XmlErrorKind 
   skip_ws(reader)
 
   // Parse default
-  match reader.peek() {
+  let default_value = match reader.peek() {
     Some('#') => {
       let _ = reader.advance()
       let keyword = read_name(reader)
       match keyword {
-        "REQUIRED" | "IMPLIED" => ()
+        "REQUIRED" | "IMPLIED" => None
         "FIXED" => {
-          skip_ws(reader)
-          let value = read_quoted_value(reader)
-          // Expand entity references to validate them (detects undefined and recursive refs)
-          let _ = reader.expand_entity_value(value)
+          if reader.skip_whitespace_count() == 0 {
+            raise InvalidSyntax("whitespace required after #FIXED")
+          }
+          Some(reader.read_attr_value())
         }
         _ =>
           raise InvalidSyntax("invalid attribute default keyword: #" + keyword)
       }
     }
-    Some('"') | Some('\'') => {
-      let value = read_quoted_value(reader)
-      // Expand entity references to validate them (detects undefined and recursive refs)
-      let _ = reader.expand_entity_value(value)
-    }
+    Some('"') | Some('\'') => Some(reader.read_attr_value())
     _ => raise InvalidSyntax("expected attribute default value or keyword")
+  }
+  if first_definition && default_value is Some((value, value_span)) {
+    let attribute : XmlAttribute = {
+      name: attr_name,
+      value,
+      span: source_span(attribute_start, reader.source_position()),
+      name_span,
+      value_span,
+    }
+    match reader.default_attributes.get(elem_name) {
+      Some(defaults) => defaults.push(attribute)
+      None => reader.default_attributes.set(elem_name, [attribute])
+    }
   }
 }
 
@@ -887,26 +524,6 @@ fn parse_enumeration(reader : Reader) -> Unit raise XmlErrorKind {
       _ => raise InvalidSyntax("expected '|' or ')' in enumeration")
     }
   }
-}
-
-///|
-fn read_quoted_value(reader : Reader) -> String raise XmlErrorKind {
-  let quote = match reader.peek() {
-    Some('"') => '"'
-    Some('\'') => '\''
-    _ => raise InvalidSyntax("expected quoted value")
-  }
-  let _ = reader.advance()
-  let buf = StringBuilder()
-  while reader.peek() is Some(c) && c != quote {
-    buf.write_char(c)
-    let _ = reader.advance()
-  }
-  if reader.peek() != Some(quote) {
-    raise InvalidSyntax("unterminated quoted value")
-  }
-  let _ = reader.advance()
-  buf.to_string()
 }
 
 ///|
@@ -1022,7 +639,9 @@ fn parse_decimal_code(chars : Array[Char], start : Int, end : Int) -> Int {
 /// ELEMENT format: <!ELEMENT name content-model>
 fn parse_element_decl(reader : Reader) -> Unit raise XmlErrorKind {
   // Skip whitespace after ELEMENT
-  skip_ws(reader)
+  if reader.skip_whitespace_count() == 0 {
+    raise InvalidSyntax("whitespace required after ELEMENT")
+  }
 
   // Read element name
   if !peek_is_name_start(reader) {
@@ -1040,7 +659,7 @@ fn parse_element_decl(reader : Reader) -> Unit raise XmlErrorKind {
 
   // Parse content model
   match reader.peek() {
-    Some('(') => parse_content_spec(reader, 0)
+    Some('(') => parse_content_spec(reader)
     Some(c) if is_name_start_char(c) => {
       // Keyword: EMPTY or ANY
       let keyword = read_name(reader)
@@ -1063,7 +682,7 @@ fn parse_element_decl(reader : Reader) -> Unit raise XmlErrorKind {
 }
 
 ///|
-fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlErrorKind {
+fn parse_content_spec(reader : Reader) -> Unit raise XmlErrorKind {
   // Skip opening (
   let _ = reader.advance()
   skip_ws(reader)
@@ -1135,73 +754,46 @@ fn parse_content_spec(reader : Reader, _depth : Int) -> Unit raise XmlErrorKind 
     return
   }
 
-  // Check for extra parentheses around #PCDATA
-  if reader.peek() == Some('(') {
-    let saved_pos = reader.pos
-    let _ = reader.advance()
+  // Each group has its own connector and operand state. Keep the stack explicit
+  // so deeply nested content models do not consume the call stack.
+  let groups : Array[(Char, Bool)] = [(' ', true)]
+  while groups.length() > 0 && !reader.is_eof() {
     skip_ws(reader)
-    if reader.peek() == Some('#') {
-      raise InvalidSyntax("extra parentheses around #PCDATA not allowed")
-    }
-    // Reset and parse normally
-    reader.pos = saved_pos
-  }
-
-  // Parse children content model
-  // First, check for element name or nested group
-  let mut need_connector = false // true if we need a connector before next element
-  let mut connector : Char = ' ' // ' ' means not set yet
-  let mut paren_depth = 1
-  while paren_depth > 0 && !reader.is_eof() {
-    skip_ws(reader)
+    let index = groups.length() - 1
+    let (connector, expect_operand) = groups[index]
     match reader.peek() {
-      Some(')') => {
+      Some(')') if !expect_operand => {
         let _ = reader.advance()
-        paren_depth -= 1
-        if paren_depth == 0 {
-          // After closing paren, check for occurrence indicator
-          skip_occurrence(reader)
+        let _ = groups.pop()
+        skip_occurrence(reader)
+        if groups.length() > 0 {
+          let parent = groups.length() - 1
+          groups[parent] = (groups[parent].0, false)
         }
-        need_connector = true
       }
-      Some('(') => {
-        if need_connector {
-          raise InvalidSyntax("expected connector (',' or '|') before '('")
-        }
+      Some('(') if expect_operand => {
         let _ = reader.advance()
-        paren_depth += 1
-        need_connector = false
+        groups.push((' ', true))
       }
-      Some('|') | Some(',') => {
+      Some('|' | ',') if !expect_operand => {
         let c = reader.peek().unwrap()
         let _ = reader.advance()
-        if connector == ' ' {
-          connector = c
-        } else if connector != c {
+        if connector != ' ' && connector != c {
           raise InvalidSyntax(
             "cannot mix ',' and '|' in content model at same level",
           )
         }
-        need_connector = false
+        groups[index] = (c, true)
       }
-      Some(c) if is_name_start_char(c) => {
-        if need_connector {
-          raise InvalidSyntax(
-            "expected connector (',' or '|') between elements",
-          )
-        }
+      Some(c) if expect_operand && is_name_start_char(c) => {
         skip_name(reader)
         skip_occurrence(reader)
-        need_connector = true
+        groups[index] = (connector, false)
       }
-      _ =>
-        // Check for mismatched parentheses
-        if paren_depth > 0 {
-          raise InvalidSyntax("unexpected character in content model")
-        }
+      _ => raise InvalidSyntax("unexpected character in content model")
     }
   }
-  if paren_depth > 0 {
+  if groups.length() > 0 {
     raise InvalidSyntax("mismatched parentheses in content model")
   }
 }
