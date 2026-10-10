@@ -77,7 +77,9 @@ pub struct Reader {
   mut line : Int
   mut column : Int
   entities : Map[String, String] // Custom entities from DTD
-  mut entity_expansion_remaining : Int // Remaining expanded characters for this document
+  entity_expansion_remaining : Ref[Int] // Shared document-wide entity output budget
+  entity_stack : Array[String] // Active entities, shared by replacement readers
+  namespace_aware : Bool // Enforce NCNames for PI, entity and notation names
   attr_types : Map[String, String] // Attribute types from ATTLIST (key: "elem:attr", value: type)
   default_attributes : Map[String, Array[XmlAttribute]] // Defaults from the internal DTD subset
   tag_stack : Array[(String, SourceSpan)] // Open element names and authored start-tag spans
@@ -86,10 +88,12 @@ pub struct Reader {
   mut root_closed : Bool // Whether the root element has been closed
   mut seen_content : Bool // Whether any content has been parsed (for XML decl position check)
   mut just_saw_decl : Bool // Skip whitespace after XML declaration (lxml behavior)
-  pending_events : Array[Event] // Queue of events to return (for text splitting)
+  pending_events : Array[Event] // Current batch of pending events
+  mut pending_index : Int // Next event in the batch
   internal_subset_events : Array[Event] // PIs/comments from internal subset (emit after prolog whitespace)
   mut just_saw_doctype : Bool // Track if we just returned DocType to handle internal subset events
-  mut in_entity_content : Bool // Internal replacement text already has normalized literal line endings
+  in_entity_content : Bool // Internal replacement text already has normalized literal line endings
+  mut in_reference : Bool // Reference syntax does not count as expanded output
 }
 
 ///|
@@ -207,7 +211,8 @@ pub struct NamespaceEvent {
 /// A namespace-aware adapter over the raw XML `Reader` event stream.
 pub struct NamespaceReader {
   reader : Reader
-  scopes : Array[Map[String, String]]
+  scope : Map[String, String]
+  scopes : Array[Array[(String, String?)]] // Bindings to restore after each element
 }
 
 ///|

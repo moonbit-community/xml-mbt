@@ -26,7 +26,7 @@
 ///|
 fn assert_malformed(reader : Reader) -> Unit raise {
   try reader.read_events_until_eof() catch {
-    _ => ()
+    XmlError::At(_) => ()
   } noraise {
     _ => fail("expected malformed XML to raise")
   }
@@ -229,9 +229,13 @@ test "w3c/valid/valid_sa_012" {
   // Uses a legal XML 1.0 name consisting of a single colon ch...
   let xml = "<!DOCTYPE doc [\n<!ELEMENT doc (#PCDATA)>\n<!ATTLIST doc : CDATA #IMPLIED>\n]>\n<doc :=\"v1\"></doc>\n"
   let reader = Reader::from_string(xml)
-  // Verify parsing succeeds
   let events = reader.read_events_until_eof()
-  assert_true(events.length() > 0)
+  let expected : Array[ConformanceEvent] = [
+    DocType("doc"),
+    Empty({ name: "doc", attributes: [("", "v1")], }),
+    Eof,
+  ]
+  @debug.assert_eq(to_conformance_events(events), expected)
 }
 
 ///|
@@ -2831,9 +2835,76 @@ test "w3c/valid/x_ibm_1_0_5_valid_P04_ibm04v01_xml" {
   // This test case covers legal NameStartChars character rang...
   let xml = "<!DOCTYPE LegalNameStartChar [\n<!ELEMENT LegalNameStartChar ANY>\n<!ELEMENT :LegalNameStartChar ANY>\n<!ELEMENT ÀLegalNameStartChar ANY>\n<!ELEMENT ÁLegalNameStartChar ANY>\n<!ELEMENT ˾LegalNameStartChar ANY>\n<!ELEMENT ˿LegalNameStartChar ANY>\n<!ELEMENT ͰLegalNameStartChar ANY>\n<!ELEMENT ͱLegalNameStartChar ANY>\n<!ELEMENT ͼLegalNameStartChar ANY>\n<!ELEMENT ͽLegalNameStartChar ANY>\n<!ELEMENT ͿLegalNameStartChar ANY>\n<!ELEMENT ΀LegalNameStartChar ANY>\n<!ELEMENT ῾LegalNameStartChar ANY>\n<!ELEMENT ῿LegalNameStartChar ANY>\n<!ELEMENT ‌LegalNameStartChar ANY>\n<!ELEMENT ‍LegalNameStartChar ANY>\n<!ELEMENT ⁰LegalNameStartChar ANY>\n<!ELEMENT ⁱLegalNameStartChar ANY>\n<!ELEMENT ↎LegalNameStartChar ANY>\n<!ELEMENT ↏LegalNameStartChar ANY>\n<!ELEMENT ⰀLegalNameStartChar ANY>\n<!ELEMENT ⰁLegalNameStartChar ANY>\n<!ELEMENT ⿮LegalNameStartChar ANY>\n<!ELEMENT ⿯LegalNameStartChar ANY>\n<!ELEMENT 、LegalNameStartChar ANY>\n<!ELEMENT 。LegalNameStartChar ANY>\n<!ELEMENT ퟾LegalNameStartChar ANY>\n<!ELEMENT ퟿LegalNameStartChar ANY>\n<!ELEMENT 豈LegalNameStartChar ANY>\n<!ELEMENT 更LegalNameStartChar ANY>\n]>\n<!-- LegalNameChar  0x3A,0xC0,,0xC1,0x2FE,0xC0,,0xC1,0x2FE,0x2FF,0x370,0x371,0x37C,0x37D,0x37F,0x380,0x1FFE,0x1FFF,0x200C,0x200D,0x2070,0x2071,0x218E,0x218F,0x2C00,0x2C01,0x2FEE,0x2FEF,0x3001,0x3002,0xD7FE,0xD7FF,0xF900,0xF901,0xEFFFF,0xFFFFF\nin p02:   -->\n<LegalNameStartChar>\t<:LegalNameStartChar/>\n\t<ÀLegalNameStartChar/>\n\t<ÁLegalNameStartChar/>\n\t<˾LegalNameStartChar/>\n\t<˿LegalNameStartChar/>\n\t<ͰLegalNameStartChar/>\n\t<ͱLegalNameStartChar/>\n\t<ͼLegalNameStartChar/>\n\t<ͽLegalNameStartChar/>\n\t<ͿLegalNameStartChar/>\n\t<΀LegalNameStartChar/>\n\t<῾LegalNameStartChar/>\n\t<῿LegalNameStartChar/>\n\t<‌LegalNameStartChar/>\n\t<‍LegalNameStartChar/>\n\t<⁰LegalNameStartChar/>\n\t<ⁱLegalNameStartChar/>\n\t<↎LegalNameStartChar/>\n\t<↏LegalNameStartChar/>\n\t<ⰀLegalNameStartChar/>\n\t<ⰁLegalNameStartChar/>\n\t<⿮LegalNameStartChar/>\n\t<⿯LegalNameStartChar/>\n\t<、LegalNameStartChar/>\n\t<。LegalNameStartChar/>\n\t<퟾LegalNameStartChar/>\n\t<퟿LegalNameStartChar/>\n\t<豈LegalNameStartChar/>\n\t<更LegalNameStartChar/>\n\n</LegalNameStartChar>"
   let reader = Reader::from_string(xml)
-  // Verify parsing succeeds
   let events = reader.read_events_until_eof()
-  assert_true(events.length() > 0)
+  let expected : Array[ConformanceEvent] = [
+    DocType("LegalNameStartChar"),
+    Comment(
+      " LegalNameChar  0x3A,0xC0,,0xC1,0x2FE,0xC0,,0xC1,0x2FE,0x2FF,0x370,0x371,0x37C,0x37D,0x37F,0x380,0x1FFE,0x1FFF,0x200C,0x200D,0x2070,0x2071,0x218E,0x218F,0x2C00,0x2C01,0x2FEE,0x2FEF,0x3001,0x3002,0xD7FE,0xD7FF,0xF900,0xF901,0xEFFFF,0xFFFFF\nin p02:   ",
+    ),
+    Start({ name: "LegalNameStartChar", attributes: [], }),
+    Text("\t"),
+    Empty({ name: "LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ÀLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ÁLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "˾LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "˿LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ͰLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ͱLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ͼLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ͽLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ͿLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "΀LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "῾LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "῿LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "‌LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "‍LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "⁰LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ⁱLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "↎LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "↏LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ⰀLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "ⰁLegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "⿮LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "⿯LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "、LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "。LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "퟾LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "퟿LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "豈LegalNameStartChar", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "更LegalNameStartChar", attributes: [], }),
+    Text("\n\n"),
+    End("LegalNameStartChar"),
+    Eof,
+  ]
+  @debug.assert_eq(to_conformance_events(events), expected)
 }
 
 ///|
@@ -2950,9 +3021,114 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v01_xml" {
   // This test case covers legal Element Names as per producti...
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n<!ELEMENT LegalName: ANY>\n<!ELEMENT LegalNameÀ ANY>\n<!ELEMENT LegalNameÁ ANY>\n<!ELEMENT LegalName˾ ANY>\n<!ELEMENT LegalNameÂ ANY>\n<!ELEMENT LegalNameÃ ANY>\n<!ELEMENT LegalName˽ ANY>\n<!ELEMENT LegalName˿ ANY>\n<!ELEMENT LegalNameͰ ANY>\n<!ELEMENT LegalNameͱ ANY>\n<!ELEMENT LegalNameͼͽ ANY>\n<!ELEMENT LegalNameͽͿ ANY>\n<!ELEMENT LegalNameͿ΀ ANY>\n<!ELEMENT LegalName΀῾ ANY>\n<!ELEMENT LegalName῾῿ ANY>\n<!ELEMENT LegalName῿‌ ANY>\n<!ELEMENT LegalName‌‍ ANY>\n<!ELEMENT LegalName‍⁰ ANY>\n<!ELEMENT LegalName⁰ⁱ ANY>\n<!ELEMENT LegalNameⁱ↎ ANY>\n<!ELEMENT LegalName↎↏Ⰰ ANY>\n<!ELEMENT LegalName↏ⰀⰁ ANY>\n<!ELEMENT LegalNameⰀⰁ⿮ ANY>\n<!ELEMENT LegalNameⰁ⿮⿯ ANY>\n<!ELEMENT LegalName⿮⿯、 ANY>\n<!ELEMENT LegalName⿯、。 ANY>\n<!ELEMENT LegalName、。퟾ ANY>\n<!ELEMENT LegalName。퟾퟿ ANY>\n<!ELEMENT LegalName퟾퟿豈 ANY>\n<!ELEMENT LegalName퟿豈更 ANY>\n<!ELEMENT LegalName豈퟿퟾。 ANY>\n<!ELEMENT LegalName更豈퟿퟾ ANY>\n<!ELEMENT LegalName�更豈퟿ ANY>\n<!ELEMENT LegalName-�更豈 ANY>\n<!ELEMENT LegalName.-�更 ANY>\n<!ELEMENT LegalNameA.-� ANY>\n<!ELEMENT LegalNamezA.- ANY>\n<!ELEMENT LegalName0zA. ANY>\n<!ELEMENT LegalName·0zA ANY>\n<!ELEMENT LegalNamè·0z ANY>\n<!ELEMENT LegalNamé̀·0 ANY>\n<!ELEMENT LegalNameͮ́̀· ANY>\n<!ELEMENT LegalNameͯͮ́̀ ANY>\n<!ELEMENT LegalName‿ͯͮ́ ANY>\n<!ELEMENT LegalName⁀‿ͯͮ ANY>\n<!ELEMENT LegalNamenull⁀‿ͯ ANY>\n<!ELEMENT LegalNamenullnull⁀‿ ANY>\n<!ELEMENT LegalNamenullnullnull⁀ ANY>\n]>\n<!-- LegalName  0x300,0x333,0x369,0x37E,0x2000,0x2001,0x2002,0x2005,0x200B,0x200E,x200F,0x2069,0x2190,0x23FF,0x280F,0x2A00,0x2EDC,0x2FED,0x2FFF,0x3000,0xD800,0xD801,0xDAFF,0xDFFF,0xEFFF,0xF1FF,0xF8FF,0xFFFFF,0x2D,0x2E, 0x41,0x7A ,0x30, 0xB7, 0x0300, 0x0301, 0xx036E, 0x036F, 0x203F, 0x203E, 0x2039, 0x2040; \nin p02:   -->\n<LegalName>\t<LegalName:/>\n\t<LegalNameÀ/>\n\t<LegalNameÁ/>\n\t<LegalName˾/>\n\t<LegalNameÂ/>\n\t<LegalNameÃ/>\n\t<LegalName˽/>\n\t<LegalName˿/>\n\t<LegalNameͰ/>\n\t<LegalNameͱ/>\n\t<LegalNameͼͽ/>\n\t<LegalNameͽͿ/>\n\t<LegalNameͿ΀/>\n\t<LegalName΀῾/>\n\t<LegalName῾῿/>\n\t<LegalName῿‌/>\n\t<LegalName‌‍/>\n\t<LegalName‍⁰/>\n\t<LegalName⁰ⁱ/>\n\t<LegalNameⁱ↎/>\n\t<LegalName↎↏Ⰰ/>\n\t<LegalName↏ⰀⰁ/>\n\t<LegalNameⰀⰁ⿮/>\n\t<LegalNameⰁ⿮⿯/>\n\t<LegalName⿮⿯、/>\n\t<LegalName⿯、。/>\n\t<LegalName、。퟾/>\n\t<LegalName。퟾퟿/>\n\t<LegalName퟾퟿豈/>\n\t<LegalName퟿豈更/>\n\t<LegalName豈퟿퟾。/>\n\t<LegalName更豈퟿퟾/>\n\t<LegalName�更豈퟿/>\n\t<LegalName-�更豈/>\n\t<LegalName.-�更/>\n\t<LegalNameA.-�/>\n\t<LegalNamezA.-/>\n\t<LegalName0zA./>\n\t<LegalName·0zA/>\n\t<LegalNamè·0z/>\n\t<LegalNamé̀·0/>\n\t<LegalNameͮ́̀·/>\n\t<LegalNameͯͮ́̀/>\n\t<LegalName‿ͯͮ́/>\n\t<LegalName⁀‿ͯͮ/>\n\t<LegalNamenull⁀‿ͯ/>\n\t<LegalNamenullnull⁀‿/>\n\t<LegalNamenullnullnull⁀/>\n</LegalName>"
   let reader = Reader::from_string(xml)
-  // Verify parsing succeeds
   let events = reader.read_events_until_eof()
-  assert_true(events.length() > 0)
+  let expected : Array[ConformanceEvent] = [
+    DocType("LegalName"),
+    Comment(
+      " LegalName  0x300,0x333,0x369,0x37E,0x2000,0x2001,0x2002,0x2005,0x200B,0x200E,x200F,0x2069,0x2190,0x23FF,0x280F,0x2A00,0x2EDC,0x2FED,0x2FFF,0x3000,0xD800,0xD801,0xDAFF,0xDFFF,0xEFFF,0xF1FF,0xF8FF,0xFFFFF,0x2D,0x2E, 0x41,0x7A ,0x30, 0xB7, 0x0300, 0x0301, 0xx036E, 0x036F, 0x203F, 0x203E, 0x2039, 0x2040; \nin p02:   ",
+    ),
+    Start({ name: "LegalName", attributes: [], }),
+    Text("\t"),
+    Empty({ name: "", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameÀ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameÁ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName˾", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameÂ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameÃ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName˽", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName˿", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameͰ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameͱ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameͼͽ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameͽͿ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameͿ΀", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName΀῾", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName῾῿", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName῿‌", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName‌‍", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName‍⁰", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName⁰ⁱ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameⁱ↎", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName↎↏Ⰰ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName↏ⰀⰁ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameⰀⰁ⿮", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameⰁ⿮⿯", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName⿮⿯、", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName⿯、。", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName、。퟾", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName。퟾퟿", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName퟾퟿豈", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName퟿豈更", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName豈퟿퟾。", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName更豈퟿퟾", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName�更豈퟿", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName-�更豈", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName.-�更", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameA.-�", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNamezA.-", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName0zA.", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName·0zA", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNamè·0z", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNamé̀·0", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameͮ́̀·", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNameͯͮ́̀", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName‿ͯͮ́", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalName⁀‿ͯͮ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNamenull⁀‿ͯ", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNamenullnull⁀‿", attributes: [], }),
+    Text("\n\t"),
+    Empty({ name: "LegalNamenullnullnull⁀", attributes: [], }),
+    Text("\n"),
+    End("LegalName"),
+    Eof,
+  ]
+  @debug.assert_eq(to_conformance_events(events), expected)
 }
 
 ///|
@@ -2960,9 +3136,114 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v02_xml" {
   // This test case covers legal PITarget (Names) as per produ...
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n]>\n<!-- Legal Names containing one to four characters in order from the list below  used in PI Target Names.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 -->\n<LegalName>\n\t<?PITarget: \tTest\t PIData?>\n\t<?PITargetÀ \tTest\t PIData?>\n\t<?PITargetÁ \tTest\t PIData?>\n\t<?PITarget˾ \tTest\t PIData?>\n\t<?PITargetÂ \tTest\t PIData?>\n\t<?PITargetÃ \tTest\t PIData?>\n\t<?PITarget˽ \tTest\t PIData?>\n\t<?PITarget˿ \tTest\t PIData?>\n\t<?PITargetͰ \tTest\t PIData?>\n\t<?PITargetͱ \tTest\t PIData?>\n\t<?PITargetͼͽ \tTest\t PIData?>\n\t<?PITargetͽͿ \tTest\t PIData?>\n\t<?PITargetͿ΀ \tTest\t PIData?>\n\t<?PITarget΀῾ \tTest\t PIData?>\n\t<?PITarget῾῿ \tTest\t PIData?>\n\t<?PITarget῿‌ \tTest\t PIData?>\n\t<?PITarget‌‍ \tTest\t PIData?>\n\t<?PITarget‍⁰ \tTest\t PIData?>\n\t<?PITarget⁰ⁱ \tTest\t PIData?>\n\t<?PITargetⁱ↎ \tTest\t PIData?>\n\t<?PITarget↎↏Ⰰ \tTest\t PIData?>\n\t<?PITarget↏ⰀⰁ \tTest\t PIData?>\n\t<?PITargetⰀⰁ⿮ \tTest\t PIData?>\n\t<?PITargetⰁ⿮⿯ \tTest\t PIData?>\n\t<?PITarget⿮⿯、 \tTest\t PIData?>\n\t<?PITarget⿯、。 \tTest\t PIData?>\n\t<?PITarget、。퟾ \tTest\t PIData?>\n\t<?PITarget。퟾퟿ \tTest\t PIData?>\n\t<?PITarget퟾퟿豈 \tTest\t PIData?>\n\t<?PITarget퟿豈更 \tTest\t PIData?>\n\t<?PITarget豈퟿퟾。 \tTest\t PIData?>\n\t<?PITarget更豈퟿퟾ \tTest\t PIData?>\n\t<?PITarget�更豈퟿ \tTest\t PIData?>\n\t<?PITarget-�更豈 \tTest\t PIData?>\n\t<?PITarget.-�更 \tTest\t PIData?>\n\t<?PITargetA.-� \tTest\t PIData?>\n\t<?PITargetzA.- \tTest\t PIData?>\n\t<?PITarget0zA. \tTest\t PIData?>\n\t<?PITarget·0zA \tTest\t PIData?>\n\t<?PITarget̀·0z \tTest\t PIData?>\n\t<?PITarget́̀·0 \tTest\t PIData?>\n\t<?PITargetͮ́̀· \tTest\t PIData?>\n\t<?PITargetͯͮ́̀ \tTest\t PIData?>\n\t<?PITarget‿ͯͮ́ \tTest\t PIData?>\n\t<?PITarget⁀‿ͯͮ \tTest\t PIData?>\n\t<?PITargetnull⁀‿ͯ \tTest\t PIData?>\n\t<?PITargetnullnull⁀‿ \tTest\t PIData?>\n\t<?PITargetnullnullnull⁀ \tTest\t PIData?>\n</LegalName>"
   let reader = Reader::from_string(xml)
-  // Verify parsing succeeds
   let events = reader.read_events_until_eof()
-  assert_true(events.length() > 0)
+  let expected : Array[ConformanceEvent] = [
+    DocType("LegalName"),
+    Comment(
+      " Legal Names containing one to four characters in order from the list below  used in PI Target Names.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 ",
+    ),
+    Start({ name: "LegalName", attributes: [], }),
+    Text("\n\t"),
+    PI(target="PITarget:", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetÀ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetÁ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget˾", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetÂ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetÃ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget˽", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget˿", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetͰ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetͱ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetͼͽ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetͽͿ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetͿ΀", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget΀῾", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget῾῿", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget῿‌", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget‌‍", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget‍⁰", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget⁰ⁱ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetⁱ↎", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget↎↏Ⰰ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget↏ⰀⰁ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetⰀⰁ⿮", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetⰁ⿮⿯", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget⿮⿯、", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget⿯、。", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget、。퟾", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget。퟾퟿", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget퟾퟿豈", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget퟿豈更", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget豈퟿퟾。", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget更豈퟿퟾", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget�更豈퟿", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget-�更豈", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget.-�更", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetA.-�", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetzA.-", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget0zA.", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget·0zA", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget̀·0z", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget́̀·0", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetͮ́̀·", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetͯͮ́̀", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget‿ͯͮ́", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITarget⁀‿ͯͮ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetnull⁀‿ͯ", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetnullnull⁀‿", data="Test\t PIData"),
+    Text("\n\t"),
+    PI(target="PITargetnullnullnull⁀", data="Test\t PIData"),
+    Text("\n"),
+    End("LegalName"),
+    Eof,
+  ]
+  @debug.assert_eq(to_conformance_events(events), expected)
 }
 
 ///|
@@ -2970,9 +3251,68 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v03_xml" {
   // This test case covers legal Attribute (Names) as per prod...
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n<!ATTLIST LegalName :attr CDATA #IMPLIED>\n<!ATTLIST LegalName Àattr CDATA #IMPLIED>\n<!ATTLIST LegalName Áattr CDATA #IMPLIED>\n<!ATTLIST LegalName ˾attr CDATA #IMPLIED>\n<!ATTLIST LegalName Âattr CDATA #IMPLIED>\n<!ATTLIST LegalName Ãattr CDATA #IMPLIED>\n<!ATTLIST LegalName ˽attr CDATA #IMPLIED>\n<!ATTLIST LegalName ˿attr CDATA #IMPLIED>\n<!ATTLIST LegalName Ͱattr CDATA #IMPLIED>\n<!ATTLIST LegalName ͱattr CDATA #IMPLIED>\n<!ATTLIST LegalName ͼͽattr CDATA #IMPLIED>\n<!ATTLIST LegalName ͽͿattr CDATA #IMPLIED>\n<!ATTLIST LegalName Ϳ΀attr CDATA #IMPLIED>\n<!ATTLIST LegalName ΀῾attr CDATA #IMPLIED>\n<!ATTLIST LegalName ῾῿attr CDATA #IMPLIED>\n<!ATTLIST LegalName ῿‌attr CDATA #IMPLIED>\n<!ATTLIST LegalName ‌‍attr CDATA #IMPLIED>\n<!ATTLIST LegalName ‍⁰attr CDATA #IMPLIED>\n<!ATTLIST LegalName ⁰ⁱattr CDATA #IMPLIED>\n<!ATTLIST LegalName ⁱ↎attr CDATA #IMPLIED>\n<!ATTLIST LegalName ↎↏Ⰰattr CDATA #IMPLIED>\n<!ATTLIST LegalName ↏ⰀⰁattr CDATA #IMPLIED>\n<!ATTLIST LegalName ⰀⰁ⿮attr CDATA #IMPLIED>\n<!ATTLIST LegalName Ⰱ⿮⿯attr CDATA #IMPLIED>\n<!ATTLIST LegalName ⿮⿯、attr CDATA #IMPLIED>\n<!ATTLIST LegalName ⿯、。attr CDATA #IMPLIED>\n<!ATTLIST LegalName 、。퟾attr CDATA #IMPLIED>\n<!ATTLIST LegalName 。퟾퟿attr CDATA #IMPLIED>\n<!ATTLIST LegalName ퟾퟿豈attr CDATA #IMPLIED>\n<!ATTLIST LegalName ퟿豈更attr CDATA #IMPLIED>\n<!ATTLIST LegalName 豈퟿퟾。attr CDATA #IMPLIED>\n<!ATTLIST LegalName 更豈퟿퟾attr CDATA #IMPLIED>\n<!ATTLIST LegalName �更豈퟿attr CDATA #IMPLIED>\n<!ATTLIST LegalName attr-�更豈 CDATA #IMPLIED>\n<!ATTLIST LegalName attr.-�更 CDATA #IMPLIED>\n<!ATTLIST LegalName A.-�attr CDATA #IMPLIED>\n<!ATTLIST LegalName zA.-attr CDATA #IMPLIED>\n<!ATTLIST LegalName attr0zA. CDATA #IMPLIED>\n<!ATTLIST LegalName attr·0zA CDATA #IMPLIED>\n<!ATTLIST LegalName attr̀·0z CDATA #IMPLIED>\n<!ATTLIST LegalName attŕ̀·0 CDATA #IMPLIED>\n<!ATTLIST LegalName attrͮ́̀· CDATA #IMPLIED>\n<!ATTLIST LegalName attrͯͮ́̀ CDATA #IMPLIED>\n<!ATTLIST LegalName attr‿ͯͮ́ CDATA #IMPLIED>\n<!ATTLIST LegalName attr⁀‿ͯͮ CDATA #IMPLIED>\n<!ATTLIST LegalName null⁀‿ͯattr CDATA #IMPLIED>\n<!ATTLIST LegalName nullnull⁀‿attr CDATA #IMPLIED>\n<!ATTLIST LegalName nullnullnull⁀attr CDATA #IMPLIED>\n]>\n<!-- Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 -->\n<LegalName \n \t:attr=\"attrValue\"\n \tÀattr=\"attrValue\"\n \tÁattr=\"attrValue\"\n \t˾attr=\"attrValue\"\n \tÂattr=\"attrValue\"\n \tÃattr=\"attrValue\"\n \t˽attr=\"attrValue\"\n \t˿attr=\"attrValue\"\n \tͰattr=\"attrValue\"\n \tͱattr=\"attrValue\"\n \tͼͽattr=\"attrValue\"\n \tͽͿattr=\"attrValue\"\n \tͿ΀attr=\"attrValue\"\n \t΀῾attr=\"attrValue\"\n \t῾῿attr=\"attrValue\"\n \t῿‌attr=\"attrValue\"\n \t‌‍attr=\"attrValue\"\n \t‍⁰attr=\"attrValue\"\n \t⁰ⁱattr=\"attrValue\"\n \tⁱ↎attr=\"attrValue\"\n \t↎↏Ⰰattr=\"attrValue\"\n \t↏ⰀⰁattr=\"attrValue\"\n \tⰀⰁ⿮attr=\"attrValue\"\n \tⰁ⿮⿯attr=\"attrValue\"\n \t⿮⿯、attr=\"attrValue\"\n \t⿯、。attr=\"attrValue\"\n \t、。퟾attr=\"attrValue\"\n \t。퟾퟿attr=\"attrValue\"\n \t퟾퟿豈attr=\"attrValue\"\n \t퟿豈更attr=\"attrValue\"\n \t豈퟿퟾。attr=\"attrValue\"\n \t更豈퟿퟾attr=\"attrValue\"\n \t�更豈퟿attr=\"attrValue\"\n \tattr-�更豈=\"attrValue\"\n \tattr.-�更=\"attrValue\"\n \tA.-�attr=\"attrValue\"\n \tzA.-attr=\"attrValue\"\n \tattr0zA.=\"attrValue\"\n \tattr·0zA=\"attrValue\"\n \tattr̀·0z=\"attrValue\"\n \tattŕ̀·0=\"attrValue\"\n \tattrͮ́̀·=\"attrValue\"\n \tattrͯͮ́̀=\"attrValue\"\n \tattr‿ͯͮ́=\"attrValue\"\n \tattr⁀‿ͯͮ=\"attrValue\"\n \tnull⁀‿ͯattr=\"attrValue\"\n \tnullnull⁀‿attr=\"attrValue\"\n \tnullnullnull⁀attr=\"attrValue\"\n />"
   let reader = Reader::from_string(xml)
-  // Verify parsing succeeds
   let events = reader.read_events_until_eof()
-  assert_true(events.length() > 0)
+  let expected : Array[ConformanceEvent] = [
+    DocType("LegalName"),
+    Comment(
+      " Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 ",
+    ),
+    Empty({
+      name: "LegalName",
+      attributes: [
+        ("attr", "attrValue"),
+        ("Àattr", "attrValue"),
+        ("Áattr", "attrValue"),
+        ("˾attr", "attrValue"),
+        ("Âattr", "attrValue"),
+        ("Ãattr", "attrValue"),
+        ("˽attr", "attrValue"),
+        ("˿attr", "attrValue"),
+        ("Ͱattr", "attrValue"),
+        ("ͱattr", "attrValue"),
+        ("ͼͽattr", "attrValue"),
+        ("ͽͿattr", "attrValue"),
+        ("Ϳ΀attr", "attrValue"),
+        ("΀῾attr", "attrValue"),
+        ("῾῿attr", "attrValue"),
+        ("῿‌attr", "attrValue"),
+        ("‌‍attr", "attrValue"),
+        ("‍⁰attr", "attrValue"),
+        ("⁰ⁱattr", "attrValue"),
+        ("ⁱ↎attr", "attrValue"),
+        ("↎↏Ⰰattr", "attrValue"),
+        ("↏ⰀⰁattr", "attrValue"),
+        ("ⰀⰁ⿮attr", "attrValue"),
+        ("Ⰱ⿮⿯attr", "attrValue"),
+        ("⿮⿯、attr", "attrValue"),
+        ("⿯、。attr", "attrValue"),
+        ("、。퟾attr", "attrValue"),
+        ("。퟾퟿attr", "attrValue"),
+        ("퟾퟿豈attr", "attrValue"),
+        ("퟿豈更attr", "attrValue"),
+        ("豈퟿퟾。attr", "attrValue"),
+        ("更豈퟿퟾attr", "attrValue"),
+        ("�更豈퟿attr", "attrValue"),
+        ("attr-�更豈", "attrValue"),
+        ("attr.-�更", "attrValue"),
+        ("A.-�attr", "attrValue"),
+        ("zA.-attr", "attrValue"),
+        ("attr0zA.", "attrValue"),
+        ("attr·0zA", "attrValue"),
+        ("attr̀·0z", "attrValue"),
+        ("attŕ̀·0", "attrValue"),
+        ("attrͮ́̀·", "attrValue"),
+        ("attrͯͮ́̀", "attrValue"),
+        ("attr‿ͯͮ́", "attrValue"),
+        ("attr⁀‿ͯͮ", "attrValue"),
+        ("null⁀‿ͯattr", "attrValue"),
+        ("nullnull⁀‿attr", "attrValue"),
+        ("nullnullnull⁀attr", "attrValue"),
+      ],
+    }),
+    Eof,
+  ]
+  @debug.assert_eq(to_conformance_events(events), expected)
 }
 
 ///|
@@ -3001,9 +3341,106 @@ test "w3c/valid/x_ibm_1_0_5_valid_P05_ibm05v05_xml" {
   // This test case covers legal ENTITY (Names) as per product...
   let xml = "<!DOCTYPE LegalName [\n<!ELEMENT LegalName ANY>\n<!ELEMENT LegalName0 ANY>\n<!ATTLIST LegalName0 attr0 CDATA #IMPLIED>\n<!ELEMENT LegalName1 ANY>\n<!ATTLIST LegalName1 attr1 CDATA #IMPLIED>\n<!ELEMENT LegalName2 ANY>\n<!ATTLIST LegalName2 attr2 CDATA #IMPLIED>\n<!ELEMENT LegalName3 ANY>\n<!ATTLIST LegalName3 attr3 CDATA #IMPLIED>\n<!ELEMENT LegalName4 ANY>\n<!ATTLIST LegalName4 attr4 CDATA #IMPLIED>\n<!ELEMENT LegalName5 ANY>\n<!ATTLIST LegalName5 attr5 CDATA #IMPLIED>\n<!ELEMENT LegalName6 ANY>\n<!ATTLIST LegalName6 attr6 CDATA #IMPLIED>\n<!ELEMENT LegalName7 ANY>\n<!ATTLIST LegalName7 attr7 CDATA #IMPLIED>\n<!ELEMENT LegalName8 ANY>\n<!ATTLIST LegalName8 attr8 CDATA #IMPLIED>\n<!ELEMENT LegalName9 ANY>\n<!ATTLIST LegalName9 attr9 CDATA #IMPLIED>\n<!ELEMENT LegalName10 ANY>\n<!ATTLIST LegalName10 attr10 CDATA #IMPLIED>\n<!ELEMENT LegalName11 ANY>\n<!ATTLIST LegalName11 attr11 CDATA #IMPLIED>\n<!ELEMENT LegalName12 ANY>\n<!ATTLIST LegalName12 attr12 CDATA #IMPLIED>\n<!ELEMENT LegalName13 ANY>\n<!ATTLIST LegalName13 attr13 CDATA #IMPLIED>\n<!ELEMENT LegalName14 ANY>\n<!ATTLIST LegalName14 attr14 CDATA #IMPLIED>\n<!ELEMENT LegalName15 ANY>\n<!ATTLIST LegalName15 attr15 CDATA #IMPLIED>\n<!ELEMENT LegalName16 ANY>\n<!ATTLIST LegalName16 attr16 CDATA #IMPLIED>\n<!ELEMENT LegalName17 ANY>\n<!ATTLIST LegalName17 attr17 CDATA #IMPLIED>\n<!ELEMENT LegalName18 ANY>\n<!ATTLIST LegalName18 attr18 CDATA #IMPLIED>\n<!ELEMENT LegalName19 ANY>\n<!ATTLIST LegalName19 attr19 CDATA #IMPLIED>\n<!ELEMENT LegalName20 ANY>\n<!ATTLIST LegalName20 attr20 CDATA #IMPLIED>\n<!ELEMENT LegalName21 ANY>\n<!ATTLIST LegalName21 attr21 CDATA #IMPLIED>\n<!ELEMENT LegalName22 ANY>\n<!ATTLIST LegalName22 attr22 CDATA #IMPLIED>\n<!ELEMENT LegalName23 ANY>\n<!ATTLIST LegalName23 attr23 CDATA #IMPLIED>\n<!ELEMENT LegalName24 ANY>\n<!ATTLIST LegalName24 attr24 CDATA #IMPLIED>\n<!ELEMENT LegalName25 ANY>\n<!ATTLIST LegalName25 attr25 CDATA #IMPLIED>\n<!ELEMENT LegalName26 ANY>\n<!ATTLIST LegalName26 attr26 CDATA #IMPLIED>\n<!ELEMENT LegalName27 ANY>\n<!ATTLIST LegalName27 attr27 CDATA #IMPLIED>\n<!ELEMENT LegalName28 ANY>\n<!ATTLIST LegalName28 attr28 CDATA #IMPLIED>\n<!ELEMENT LegalName29 ANY>\n<!ATTLIST LegalName29 attr29 CDATA #IMPLIED>\n<!ELEMENT LegalName30 ANY>\n<!ATTLIST LegalName30 attr30 CDATA #IMPLIED>\n<!ELEMENT LegalName31 ANY>\n<!ATTLIST LegalName31 attr31 CDATA #IMPLIED>\n<!ELEMENT LegalName32 ANY>\n<!ATTLIST LegalName32 attr32 CDATA #IMPLIED>\n<!ELEMENT LegalName33 ANY>\n<!ATTLIST LegalName33 attr33 CDATA #IMPLIED>\n<!ELEMENT LegalName34 ANY>\n<!ATTLIST LegalName34 attr34 CDATA #IMPLIED>\n<!ELEMENT LegalName35 ANY>\n<!ATTLIST LegalName35 attr35 CDATA #IMPLIED>\n<!ELEMENT LegalName36 ANY>\n<!ATTLIST LegalName36 attr36 CDATA #IMPLIED>\n<!ELEMENT LegalName37 ANY>\n<!ATTLIST LegalName37 attr37 CDATA #IMPLIED>\n<!ELEMENT LegalName38 ANY>\n<!ATTLIST LegalName38 attr38 CDATA #IMPLIED>\n<!ELEMENT LegalName39 ANY>\n<!ATTLIST LegalName39 attr39 CDATA #IMPLIED>\n<!ELEMENT LegalName40 ANY>\n<!ATTLIST LegalName40 attr40 CDATA #IMPLIED>\n<!ELEMENT LegalName41 ANY>\n<!ATTLIST LegalName41 attr41 CDATA #IMPLIED>\n<!ELEMENT LegalName42 ANY>\n<!ATTLIST LegalName42 attr42 CDATA #IMPLIED>\n<!ELEMENT LegalName43 ANY>\n<!ATTLIST LegalName43 attr43 CDATA #IMPLIED>\n<!ENTITY Name: \"Test\">\n<!ENTITY NameÀ \"Test\">\n<!ENTITY NameÁ \"Test\">\n<!ENTITY Name˾ \"Test\">\n<!ENTITY NameÂ \"Test\">\n<!ENTITY NameÃ \"Test\">\n<!ENTITY Name˽ \"Test\">\n<!ENTITY Name˿ \"Test\">\n<!ENTITY NameͰ \"Test\">\n<!ENTITY Nameͱ \"Test\">\n<!ENTITY Nameͼ \"Test\">\n<!ENTITY Nameͽ \"Test\">\n<!ENTITY NameͿ \"Test\">\n<!ENTITY Name΀ \"Test\">\n<!ENTITY Name῾ \"Test\">\n<!ENTITY Name῿ \"Test\">\n<!ENTITY Name‌ \"Test\">\n<!ENTITY Name‍ \"Test\">\n<!ENTITY Name⁰ \"Test\">\n<!ENTITY Nameⁱ \"Test\">\n<!ENTITY Name↎ \"Test\">\n<!ENTITY Name↏ \"Test\">\n<!ENTITY NameⰀ \"Test\">\n<!ENTITY NameⰁ \"Test\">\n<!ENTITY Name⿮ \"Test\">\n<!ENTITY Name⿯ \"Test\">\n<!ENTITY Name、 \"Test\">\n<!ENTITY Name。 \"Test\">\n<!ENTITY Name퟾ \"Test\">\n<!ENTITY Name퟿ \"Test\">\n<!ENTITY Name豈 \"Test\">\n<!ENTITY Name更 \"Test\">\n<!ENTITY Name� \"Test\">\n<!ENTITY Name- \"Test\">\n<!ENTITY Name. \"Test\">\n<!ENTITY NameA \"Test\">\n<!ENTITY Namez \"Test\">\n<!ENTITY Name0 \"Test\">\n<!ENTITY Name· \"Test\">\n<!ENTITY Namè \"Test\">\n<!ENTITY Namé \"Test\">\n<!ENTITY Nameͮ \"Test\">\n<!ENTITY Nameͯ \"Test\">\n<!ENTITY Name‿ \"Test\">\n]>\n<!-- Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 -->\n<LegalName>\n<LegalName0 attr0=\"Name:\"\t/>\n<LegalName1 attr1=\"NameÀ\"\t/>\n<LegalName2 attr2=\"NameÁ\"\t/>\n<LegalName3 attr3=\"Name˾\"\t/>\n<LegalName4 attr4=\"NameÂ\"\t/>\n<LegalName5 attr5=\"NameÃ\"\t/>\n<LegalName6 attr6=\"Name˽\"\t/>\n<LegalName7 attr7=\"Name˿\"\t/>\n<LegalName8 attr8=\"NameͰ\"\t/>\n<LegalName9 attr9=\"Nameͱ\"\t/>\n<LegalName10 attr10=\"Nameͼ\"\t/>\n<LegalName11 attr11=\"Nameͽ\"\t/>\n<LegalName12 attr12=\"NameͿ\"\t/>\n<LegalName13 attr13=\"Name΀\"\t/>\n<LegalName14 attr14=\"Name῾\"\t/>\n<LegalName15 attr15=\"Name῿\"\t/>\n<LegalName16 attr16=\"Name‌\"\t/>\n<LegalName17 attr17=\"Name‍\"\t/>\n<LegalName18 attr18=\"Name⁰\"\t/>\n<LegalName19 attr19=\"Nameⁱ\"\t/>\n<LegalName20 attr20=\"Name↎\"\t/>\n<LegalName21 attr21=\"Name↏\"\t/>\n<LegalName22 attr22=\"NameⰀ\"\t/>\n<LegalName23 attr23=\"NameⰁ\"\t/>\n<LegalName24 attr24=\"Name⿮\"\t/>\n<LegalName25 attr25=\"Name⿯\"\t/>\n<LegalName26 attr26=\"Name、\"\t/>\n<LegalName27 attr27=\"Name。\"\t/>\n<LegalName28 attr28=\"Name퟾\"\t/>\n<LegalName29 attr29=\"Name퟿\"\t/>\n<LegalName30 attr30=\"Name豈\"\t/>\n<LegalName31 attr31=\"Name更\"\t/>\n<LegalName32 attr32=\"Name�\"\t/>\n<LegalName33 attr33=\"Name-\"\t/>\n<LegalName34 attr34=\"Name.\"\t/>\n<LegalName35 attr35=\"NameA\"\t/>\n<LegalName36 attr36=\"Namez\"\t/>\n<LegalName37 attr37=\"Name0\"\t/>\n<LegalName38 attr38=\"Name·\"\t/>\n<LegalName39 attr39=\"Namè\"\t/>\n<LegalName40 attr40=\"Namé\"\t/>\n<LegalName41 attr41=\"Nameͮ\"\t/>\n<LegalName42 attr42=\"Nameͯ\"\t/>\n<LegalName43 attr43=\"Name‿\"\t/>\n</LegalName>"
   let reader = Reader::from_string(xml)
-  // Verify parsing succeeds
   let events = reader.read_events_until_eof()
-  assert_true(events.length() > 0)
+  let expected : Array[ConformanceEvent] = [
+    DocType("LegalName"),
+    Comment(
+      " Legal Names containing one to four characters in order from the list below  used in Attr delcs and attributes.  x003A, 0x00C0, 0x00C1, 0x02FE, 0x00C2, 0x00C3, 0x02FD, 0x02FF, 0x0370, 0x0371, 0x037C, 0x037D, 0x037F, 0x0380, 0x1FFE, 0x1FFF, 0x200C, 0x200D, 0x2070, 0x2071, 0x218E, 0x218F, 0x2C00, 0x2C01, 0x2FEE, 0x2FEF, 0x3001, 0x3002, 0xD7FE, 0xD7FF, 0xF900, 0xF901, 0xFFFD, 0x002D, 0x002E, 0x0041, 0x007A, 0x0030, 0x00B7, 0x0300, 0x0301, 0x036E, 0x036F, 0x203F, 0x2040 ",
+    ),
+    Start({ name: "LegalName", attributes: [], }),
+    Text("\n"),
+    Empty({ name: "LegalName0", attributes: [("attr0", "Name:")], }),
+    Text("\n"),
+    Empty({ name: "LegalName1", attributes: [("attr1", "NameÀ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName2", attributes: [("attr2", "NameÁ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName3", attributes: [("attr3", "Name˾")], }),
+    Text("\n"),
+    Empty({ name: "LegalName4", attributes: [("attr4", "NameÂ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName5", attributes: [("attr5", "NameÃ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName6", attributes: [("attr6", "Name˽")], }),
+    Text("\n"),
+    Empty({ name: "LegalName7", attributes: [("attr7", "Name˿")], }),
+    Text("\n"),
+    Empty({ name: "LegalName8", attributes: [("attr8", "NameͰ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName9", attributes: [("attr9", "Nameͱ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName10", attributes: [("attr10", "Nameͼ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName11", attributes: [("attr11", "Nameͽ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName12", attributes: [("attr12", "NameͿ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName13", attributes: [("attr13", "Name΀")], }),
+    Text("\n"),
+    Empty({ name: "LegalName14", attributes: [("attr14", "Name῾")], }),
+    Text("\n"),
+    Empty({ name: "LegalName15", attributes: [("attr15", "Name῿")], }),
+    Text("\n"),
+    Empty({ name: "LegalName16", attributes: [("attr16", "Name‌")], }),
+    Text("\n"),
+    Empty({ name: "LegalName17", attributes: [("attr17", "Name‍")], }),
+    Text("\n"),
+    Empty({ name: "LegalName18", attributes: [("attr18", "Name⁰")], }),
+    Text("\n"),
+    Empty({ name: "LegalName19", attributes: [("attr19", "Nameⁱ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName20", attributes: [("attr20", "Name↎")], }),
+    Text("\n"),
+    Empty({ name: "LegalName21", attributes: [("attr21", "Name↏")], }),
+    Text("\n"),
+    Empty({ name: "LegalName22", attributes: [("attr22", "NameⰀ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName23", attributes: [("attr23", "NameⰁ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName24", attributes: [("attr24", "Name⿮")], }),
+    Text("\n"),
+    Empty({ name: "LegalName25", attributes: [("attr25", "Name⿯")], }),
+    Text("\n"),
+    Empty({ name: "LegalName26", attributes: [("attr26", "Name、")], }),
+    Text("\n"),
+    Empty({ name: "LegalName27", attributes: [("attr27", "Name。")], }),
+    Text("\n"),
+    Empty({ name: "LegalName28", attributes: [("attr28", "Name퟾")], }),
+    Text("\n"),
+    Empty({ name: "LegalName29", attributes: [("attr29", "Name퟿")], }),
+    Text("\n"),
+    Empty({ name: "LegalName30", attributes: [("attr30", "Name豈")], }),
+    Text("\n"),
+    Empty({ name: "LegalName31", attributes: [("attr31", "Name更")], }),
+    Text("\n"),
+    Empty({ name: "LegalName32", attributes: [("attr32", "Name�")], }),
+    Text("\n"),
+    Empty({ name: "LegalName33", attributes: [("attr33", "Name-")], }),
+    Text("\n"),
+    Empty({ name: "LegalName34", attributes: [("attr34", "Name.")], }),
+    Text("\n"),
+    Empty({ name: "LegalName35", attributes: [("attr35", "NameA")], }),
+    Text("\n"),
+    Empty({ name: "LegalName36", attributes: [("attr36", "Namez")], }),
+    Text("\n"),
+    Empty({ name: "LegalName37", attributes: [("attr37", "Name0")], }),
+    Text("\n"),
+    Empty({ name: "LegalName38", attributes: [("attr38", "Name·")], }),
+    Text("\n"),
+    Empty({ name: "LegalName39", attributes: [("attr39", "Namè")], }),
+    Text("\n"),
+    Empty({ name: "LegalName40", attributes: [("attr40", "Namé")], }),
+    Text("\n"),
+    Empty({ name: "LegalName41", attributes: [("attr41", "Nameͮ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName42", attributes: [("attr42", "Nameͯ")], }),
+    Text("\n"),
+    Empty({ name: "LegalName43", attributes: [("attr43", "Name‿")], }),
+    Text("\n"),
+    End("LegalName"),
+    Eof,
+  ]
+  @debug.assert_eq(to_conformance_events(events), expected)
 }
 
 ///|
@@ -11382,14 +11819,6 @@ test "w3c/not-wf/sgml13" {
 }
 
 ///|
-test "w3c/not-wf/rmt_e2e_61" {
-  // (From John Cowan) An encoding declaration in ASCII specif...
-  let xml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root/>\n"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
-}
-
-///|
 test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n02_xml" {
   // Tests an element with an illegal NameStartChar: #0x333
   let xml = "<!DOCTYPE ̳IllegalNameStartChar [\n<!ELEMENT ̳IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar P4: #0x333 -->\n<̳IllegalNameStartChar/>"
@@ -11537,38 +11966,6 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n19_xml" {
 test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n20_xml" {
   // Tests an element with an illegal NameStartChar: #0x3000
   let xml = "<!DOCTYPE 　IllegalNameStartChar [\n<!ELEMENT 　IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0x3000 -->\n<　IllegalNameStartChar/>"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
-}
-
-///|
-test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n21_xml" {
-  // Tests an element with an illegal NameStartChar: #0xD800
-  let xml = "<!DOCTYPE í IllegalNameStartChar [\n<!ELEMENT í IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xD800 -->\n<í IllegalNameStartChar/>\n"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
-}
-
-///|
-test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n22_xml" {
-  // Tests an element with an illegal NameStartChar: #0xD801
-  let xml = "<!DOCTYPE í IllegalNameStartChar [\n<!ELEMENT í IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xD801 -->\n<í IllegalNameStartChar/>\n"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
-}
-
-///|
-test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n23_xml" {
-  // Tests an element with an illegal NameStartChar: #0xDAFF
-  let xml = "<!DOCTYPE í«¿IllegalNameStartChar [\n<!ELEMENT í«¿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xDAFF -->\n<í«¿IllegalNameStartChar/>\n"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
-}
-
-///|
-test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04_ibm04n24_xml" {
-  // Tests an element with an illegal NameStartChar: #0xDFFF
-  let xml = "<!DOCTYPE í¿¿IllegalNameStartChar [\n<!ELEMENT í¿¿IllegalNameStartChar ANY>\n]>\n<!-- IllegalNameStartChar #0xDFFF -->\n<í¿¿IllegalNameStartChar/>\n"
   let reader = Reader::from_string(xml)
   assert_malformed(reader)
 }
@@ -11766,38 +12163,6 @@ test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an20_xml" {
 }
 
 ///|
-test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an21_xml" {
-  // Tests an element with an illegal NameChar: #0xD800
-  let xml = "<!DOCTYPE IllegalNameCharí  [\n<!ELEMENT IllegalNameCharí  ANY>\n]>\n<!-- IllegalNameChar #0xD800 -->\n<IllegalNameCharí />\n"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
-}
-
-///|
-test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an22_xml" {
-  // Tests an element with an illegal NameChar: #0xD801
-  let xml = "<!DOCTYPE IllegalNameCharí  [\n<!ELEMENT IllegalNameCharí  ANY>\n]>\n<!-- IllegalNameChar #0xD801 -->\n<IllegalNameCharí />\n"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
-}
-
-///|
-test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an23_xml" {
-  // Tests an element with an illegal NameChar: #0xDAFF
-  let xml = "<!DOCTYPE IllegalNameCharí«¿ [\n<!ELEMENT IllegalNameCharí«¿ ANY>\n]>\n<!-- IllegalNameChar #0xDAFF -->\n<IllegalNameCharí«¿/>\n"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
-}
-
-///|
-test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an24_xml" {
-  // Tests an element with an illegal NameChar: #0xDFFF
-  let xml = "<!DOCTYPE IllegalNameCharí¿¿ [\n<!ELEMENT IllegalNameCharí¿¿ ANY>\n]>\n<!-- IllegalNameChar #0xDFFF -->\n<IllegalNameCharí¿¿/>\n"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
-}
-
-///|
 test "w3c/not-wf/x_ibm_1_0_5_not_wf_P04a_ibm04an25_xml" {
   // Tests an element with an illegal NameChar: #0xEFFF
   let xml = "<!DOCTYPE IllegalNameChar [\n<!ELEMENT IllegalNameChar ANY>\n]>\n<!-- IllegalNameChar #0xEFFF -->\n<IllegalNameChar/>"
@@ -11910,9 +12275,241 @@ test "w3c/not-wf/hst_bh_004" {
 }
 
 ///|
-test "w3c/not-wf/hst_lhs_009" {
-  // UTF-16 BOM plus xml decl of utf-8 (using UTF-8 coding) in...
-  let xml = "þÿ<?xml encoding='utf-8'?><x/>\n"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
+test "w3c/not-wf/rmt_ns10_009" {
+  // Namespace equality test: plain repetition
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Namespace equality test: plain repetition -->\n<!DOCTYPE foo [\n<!ELEMENT foo ANY>\n<!ATTLIST foo xmlns:a CDATA #IMPLIED\n              xmlns:b CDATA #IMPLIED\n              xmlns:c CDATA #IMPLIED>\n<!ELEMENT bar ANY>\n<!ATTLIST bar a:attr CDATA #IMPLIED\n              b:attr CDATA #IMPLIED\n              c:attr CDATA #IMPLIED>\n]>\n<foo xmlns:a=\"http://example.org/~wilbur\"\n     xmlns:b=\"http://example.org/~wilbur\">\n\n<bar a:attr=\"1\" b:attr=\"2\"/>\n\n</foo>\n\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_010" {
+  // Namespace equality test: use of character reference
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Namespace equality test: use of character reference -->\n<!DOCTYPE foo [\n<!ELEMENT foo ANY>\n<!ATTLIST foo xmlns:a CDATA #IMPLIED\n              xmlns:b CDATA #IMPLIED\n              xmlns:c CDATA #IMPLIED>\n<!ELEMENT bar ANY>\n<!ATTLIST bar a:attr CDATA #IMPLIED\n              b:attr CDATA #IMPLIED\n              c:attr CDATA #IMPLIED>\n]>\n<foo xmlns:a=\"http://example.org/~wilbur\"\n     xmlns:b=\"http://example.org/&#x7E;wilbur\">\n\n<bar a:attr=\"1\" b:attr=\"2\"/>\n\n</foo>\n\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_011" {
+  // Namespace equality test: use of entity reference
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Namespace equality test: use of entity reference -->\n<!DOCTYPE foo [\n<!ELEMENT foo ANY>\n<!ATTLIST foo xmlns:a CDATA #IMPLIED\n              xmlns:b CDATA #IMPLIED\n              xmlns:c CDATA #IMPLIED>\n<!ELEMENT bar ANY>\n<!ATTLIST bar a:attr CDATA #IMPLIED\n              b:attr CDATA #IMPLIED\n              c:attr CDATA #IMPLIED>\n<!ENTITY tilde \"~\">\n]>\n<foo xmlns:a=\"http://example.org/~wilbur\"\n     xmlns:b=\"http://example.org/&tilde;wilbur\">\n\n<bar a:attr=\"1\" b:attr=\"2\"/>\n\n</foo>\n\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_012" {
+  // Namespace inequality test: equal after attribute value no...
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Namespace inequality test: equal after attribute value normalization -->\n<!DOCTYPE foo [\n<!ELEMENT foo ANY>\n<!ATTLIST foo xmlns:a CDATA #IMPLIED\n              xmlns:b NMTOKEN #IMPLIED\n              xmlns:c CDATA #IMPLIED>\n<!ELEMENT bar ANY>\n<!ATTLIST bar a:attr CDATA #IMPLIED\n              b:attr CDATA #IMPLIED\n              c:attr CDATA #IMPLIED>\n]>\n<foo xmlns:a=\"urn:xyzzy\"\n     xmlns:b=\" urn:xyzzy \">\n\n<bar a:attr=\"1\" b:attr=\"2\"/>\n\n</foo>\n\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_013" {
+  // Bad QName syntax: multiple colons
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Bad QName syntax: multiple colons -->\n<foo>\n<bar a:b:attr=\"1\"/>\n</foo>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_014" {
+  // Bad QName syntax: colon at end
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Bad QName syntax: colon at end -->\n<foo: />\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_015" {
+  // Bad QName syntax: colon at start
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Bad QName syntax: colon at start -->\n<:foo />\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_016" {
+  // Bad QName syntax: xmlns:
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Bad QName syntax: xmlns: -->\n<foo xmlns:=\"http://example.org/namespace\" />\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_023" {
+  // Illegal use of 1.1-style prefix unbinding in 1.0 document
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Illegal use of 1.1-style prefix unbinding in 1.0 document -->\n<a:foo xmlns:a=\"http://example.org/namespace\">\n <a:foo xmlns:a=\"\"/>\n</a:foo>\n\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_025" {
+  // Unbound element prefix
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Unbound element prefix -->\n<a:foo/>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_026" {
+  // Unbound attribute prefix
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Unbound attribute prefix -->\n<foo a:attr=\"1\"/>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_029" {
+  // Reserved prefixes and namespaces: declaring the xml prefi...
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Reserved prefixes and namespaces: declaring the xml prefix incorrectly -->\n<foo xmlns:xml=\"http://example.org/namespace\"/>\n\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_030" {
+  // Reserved prefixes and namespaces: binding another prefix ...
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Reserved prefixes and namespaces: binding another prefix\n     to the xml namespace -->\n<foo xmlns:yml=\"http://www.w3.org/XML/1998/namespace\"/>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_031" {
+  // Reserved prefixes and namespaces: declaring the xmlns pre...
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Reserved prefixes and namespaces: declaring the xmlns prefix\n     with its correct URI (illegal) -->\n<foo xmlns:xmlns=\"http://www.w3.org/2000/xmlns/\"/>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_032" {
+  // Reserved prefixes and namespaces: declaring the xmlns pre...
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Reserved prefixes and namespaces: declaring the xmlns prefix\n     with an incorrect URI -->\n<foo xmlns:xmlns=\"http://example.org/namespace\"/>\n\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_033" {
+  // Reserved prefixes and namespaces: binding another prefix ...
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Reserved prefixes and namespaces: binding another prefix\n     to the xmlns namespace -->\n<foo xmlns:ymlns=\"http://www.w3.org/2000/xmlns/\"/>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_036" {
+  // Attribute uniqueness: repeated attribute with different p...
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Attribute uniqueness: repeated attribute with different prefixes -->\n<foo xmlns:a=\"http://example.org/~wilbur\"\n     xmlns:b=\"http://example.org/~wilbur\">\n\n<bar a:attr=\"1\" b:attr=\"2\"/>\n\n</foo>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_042" {
+  // Colon in PI name
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Colon in PI name -->\n<?a:b bogus?>\n<foo/>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_043" {
+  // Colon in entity name
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Colon in entity name -->\n<!DOCTYPE foo [\n<!ELEMENT foo ANY>\n<!ENTITY a:b \"bogus\">\n]>\n<foo/>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
+}
+
+///|
+test "w3c/not-wf/rmt_ns10_044" {
+  // Colon in entity name
+  let xml = "<?xml version=\"1.0\"?>\n<!-- Colon in entity name -->\n<!DOCTYPE foo [\n<!ELEMENT foo ANY>\n<!NOTATION a:b SYSTEM \"notation\">\n]>\n<foo/>\n"
+  let reader = NamespaceReader::from_string(xml)
+  try reader.read_events_until_eof() catch {
+    XmlError::At(_) => ()
+  } noraise {
+    _ => fail("expected malformed XML to raise")
+  }
 }

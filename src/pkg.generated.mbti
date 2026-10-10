@@ -3,6 +3,7 @@ package "Milky2018/xml"
 
 import {
   "moonbitlang/core/debug",
+  "moonbitlang/core/ref",
 }
 
 // Values
@@ -134,7 +135,8 @@ pub fn NamespaceEventKind::to_repr(Self) -> @debug.Repr
 
 pub struct NamespaceReader {
   reader : Reader
-  scopes : Array[Map[String, String]]
+  scope : Map[String, String]
+  scopes : Array[Array[(String, String?)]]
 }
 pub fn NamespaceReader::column(Self) -> Int
 pub fn NamespaceReader::from_string(String) -> Self
@@ -150,7 +152,9 @@ pub struct Reader {
   mut line : Int
   mut column : Int
   entities : Map[String, String]
-  mut entity_expansion_remaining : Int
+  entity_expansion_remaining : @ref.Ref[Int]
+  entity_stack : Array[String]
+  namespace_aware : Bool
   attr_types : Map[String, String]
   default_attributes : Map[String, Array[XmlAttribute]]
   tag_stack : Array[(String, SourceSpan)]
@@ -160,9 +164,11 @@ pub struct Reader {
   mut seen_content : Bool
   mut just_saw_decl : Bool
   pending_events : Array[Event]
+  mut pending_index : Int
   internal_subset_events : Array[Event]
   mut just_saw_doctype : Bool
-  mut in_entity_content : Bool
+  in_entity_content : Bool
+  mut in_reference : Bool
 }
 pub fn Reader::column(Self) -> Int
 pub fn Reader::from_string(String) -> Self

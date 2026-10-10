@@ -16,7 +16,10 @@
 /// Validate entity-value reference syntax at declaration time.
 /// Replacement markup is checked by the reader when the entity is used, so
 /// comments, PIs and unused replacement text keep their XML-defined semantics.
-fn validate_entity_value(value : String) -> Unit raise XmlErrorKind {
+fn validate_entity_value(
+  value : String,
+  namespace_aware~ : Bool,
+) -> Unit raise XmlErrorKind {
   let chars = value.to_array()
   let len = chars.length()
   let mut i = 0
@@ -92,6 +95,9 @@ fn validate_entity_value(value : String) -> Unit raise XmlErrorKind {
           raise InvalidEntity("bare '&' not followed by valid reference")
         }
         while i < len && chars[i] != ';' {
+          if namespace_aware && chars[i] == ':' {
+            raise InvalidEntity("colon is not allowed in namespace entity name")
+          }
           if !is_name_char(chars[i]) {
             raise InvalidEntity("invalid character in entity reference")
           }
@@ -134,7 +140,7 @@ const MAX_ENTITY_EXPANSION_DEPTH : Int = 32
 
 ///|
 priv struct EntityExpansionBudget {
-  mut remaining : Int
+  remaining : Ref[Int]
 }
 
 ///|
@@ -142,28 +148,10 @@ fn EntityExpansionBudget::consume(
   self : EntityExpansionBudget,
   amount : Int,
 ) -> Unit raise XmlErrorKind {
-  if amount > self.remaining {
+  if amount > self.remaining.val {
     raise InvalidEntity("entity expansion limit exceeded")
   }
-  self.remaining -= amount
-}
-
-///|
-/// Expand entity value recursively, validating all nested entity refs
-/// Returns the fully expanded string
-/// Raises error for undefined entities or recursive references
-fn expand_entity_value_with_remaining(
-  value : String,
-  entities : Map[String, String],
-  seen : Map[String, Bool],
-  remaining : Int,
-  attribute_context : Bool,
-) -> (String, Int) raise XmlErrorKind {
-  let budget : EntityExpansionBudget = { remaining, }
-  let expanded = expand_entity_value_with_budget(
-    value, entities, seen, budget, 0, attribute_context,
-  )
-  (expanded, budget.remaining)
+  self.remaining.val -= amount
 }
 
 ///|
@@ -173,7 +161,6 @@ fn expand_entity_value_with_budget(
   seen : Map[String, Bool],
   budget : EntityExpansionBudget,
   depth : Int,
-  attribute_context : Bool,
 ) -> String raise XmlErrorKind {
   if depth > MAX_ENTITY_EXPANSION_DEPTH {
     raise InvalidEntity("entity expansion depth exceeded")
@@ -183,66 +170,6 @@ fn expand_entity_value_with_budget(
   let len = chars.length()
   let mut i = 0
   while i < len {
-    // References inside replacement comments and PIs are literal content.
-    let literal_end : Array[Char]? = if !attribute_context && chars[i] == '<' {
-      if matches_chars_at(chars, i, ['<', '!', '-', '-']) {
-        Some(['-', '-', '>'])
-      } else if matches_chars_at(chars, i, ['<', '?']) {
-        Some(['?', '>'])
-      } else {
-        None
-      }
-    } else {
-      None
-    }
-    if literal_end is Some(end) {
-      while i < len {
-        if matches_chars_at(chars, i, end) {
-          for c in end {
-            budget.consume(1)
-            buf.write_char(c)
-          }
-          i += end.length()
-          break
-        }
-        budget.consume(1)
-        buf.write_char(chars[i])
-        i += 1
-      }
-      continue
-    }
-    // Check for CDATA section - copy everything inside literally
-    if !attribute_context &&
-      i + 8 < len &&
-      chars[i] == '<' &&
-      chars[i + 1] == '!' &&
-      chars[i + 2] == '[' &&
-      chars[i + 3] == 'C' &&
-      chars[i + 4] == 'D' &&
-      chars[i + 5] == 'A' &&
-      chars[i + 6] == 'T' &&
-      chars[i + 7] == 'A' &&
-      chars[i + 8] == '[' {
-      // Found <![CDATA[ - copy until ]]>
-      budget.consume(9)
-      buf.write_string("<![CDATA[")
-      i += 9
-      while i < len {
-        if i + 2 < len &&
-          chars[i] == ']' &&
-          chars[i + 1] == ']' &&
-          chars[i + 2] == '>' {
-          budget.consume(3)
-          buf.write_string("]]>")
-          i += 3
-          break
-        }
-        budget.consume(1)
-        buf.write_char(chars[i])
-        i += 1
-      }
-      continue
-    }
     if chars[i] == '&' {
       i += 1
       if i >= len {
@@ -306,7 +233,6 @@ fn expand_entity_value_with_budget(
                   seen,
                   budget,
                   depth + 1,
-                  attribute_context,
                 )
                 buf.write_string(expanded)
                 // Unmark after expansion (allow same entity in different branches)
@@ -321,13 +247,13 @@ fn expand_entity_value_with_budget(
         }
       }
     } else {
-      if attribute_context && chars[i] == '<' {
+      if chars[i] == '<' {
         raise InvalidEntity(
           "'<' in entity replacement text is not allowed in attribute values",
         )
       }
       budget.consume(1)
-      if attribute_context && is_whitespace(chars[i]) {
+      if is_whitespace(chars[i]) {
         buf.write_char(' ')
       } else {
         buf.write_char(chars[i])
@@ -336,23 +262,6 @@ fn expand_entity_value_with_budget(
     }
   }
   buf.to_string()
-}
-
-///|
-fn matches_chars_at(
-  chars : Array[Char],
-  start : Int,
-  expected : Array[Char],
-) -> Bool {
-  if start + expected.length() > chars.length() {
-    return false
-  }
-  for i, c in expected {
-    if chars[start + i] != c {
-      return false
-    }
-  }
-  true
 }
 
 ///|
@@ -527,7 +436,7 @@ fn parse_enumeration(reader : Reader) -> Unit raise XmlErrorKind {
 }
 
 ///|
-fn skip_ws(reader : Reader) -> Unit {
+fn skip_ws(reader : Reader) -> Unit raise XmlErrorKind {
   while reader.peek() is Some(c) &&
         (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
     let _ = reader.advance()
@@ -535,14 +444,14 @@ fn skip_ws(reader : Reader) -> Unit {
 }
 
 ///|
-fn skip_name(reader : Reader) -> Unit {
+fn skip_name(reader : Reader) -> Unit raise XmlErrorKind {
   while reader.peek() is Some(c) && is_name_char(c) {
     let _ = reader.advance()
   }
 }
 
 ///|
-fn read_name(reader : Reader) -> String {
+fn read_name(reader : Reader) -> String raise XmlErrorKind {
   let buf = StringBuilder()
   while reader.peek() is Some(c) && is_name_char(c) {
     buf.write_char(c)
@@ -576,7 +485,7 @@ fn peek_is_nmtoken_char(reader : Reader) -> Bool {
 }
 
 ///|
-fn skip_nmtoken(reader : Reader) -> Unit {
+fn skip_nmtoken(reader : Reader) -> Unit raise XmlErrorKind {
   while reader.peek() is Some(c) && is_name_char(c) {
     let _ = reader.advance()
   }
@@ -799,7 +708,7 @@ fn parse_content_spec(reader : Reader) -> Unit raise XmlErrorKind {
 }
 
 ///|
-fn skip_occurrence(reader : Reader) -> Unit {
+fn skip_occurrence(reader : Reader) -> Unit raise XmlErrorKind {
   match reader.peek() {
     Some('?') | Some('*') | Some('+') => {
       let _ = reader.advance()

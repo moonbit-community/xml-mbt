@@ -4,7 +4,7 @@ Generate MoonBit conformance tests from W3C XML Test Suite.
 
 Covers: XML 1.0 + Namespaces 1.0
 
-Uses xml_reference.py (lxml) to generate expected event sequences.
+Uses xml_reference.py (lxml and Expat) to generate expected event sequences.
 Tests filter events to handle known differences between our parser and lxml.
 """
 
@@ -47,17 +47,6 @@ LICENSE_HEADER = """// =========================================================
 
 """
 
-NOT_WF_HELPER = """///|
-fn assert_malformed(reader : Reader) -> Unit raise {
-  try reader.read_events_until_eof() catch {
-    _ => ()
-  } noraise {
-    _ => fail("expected malformed XML to raise")
-  }
-}
-
-"""
-
 def escape_moonbit_string(s: str) -> str:
     """Escape a string for MoonBit string literal."""
     s = s.replace('\\', '\\\\')
@@ -93,6 +82,10 @@ def parse_test_manifest(manifest_path: Path, base_dir: Path) -> List[Tuple[str, 
         type_match = re.search(r'\bTYPE="([^"]+)"', attrs_str)
         id_match = re.search(r'\bID="([^"]+)"', attrs_str)
         uri_match = re.search(r'\bURI="([^"]+)"', attrs_str)
+        edition_match = re.search(r'\bEDITION="([^"]+)"', attrs_str)
+        if edition_match and '5' not in edition_match.group(1).split():
+            continue
+
         entities_match = re.search(r'\bENTITIES="([^"]+)"', attrs_str)
 
         if not (type_match and id_match and uri_match):
@@ -111,101 +104,64 @@ def parse_test_manifest(manifest_path: Path, base_dir: Path) -> List[Tuple[str, 
 
     return tests
 
-def check_well_formed_libxml(xml_content: str) -> bool:
-    """Check if XML is well-formed using libxml2 (xmllint)."""
-    try:
-        result = subprocess.run(
-            ['xmllint', '--noout', '-'],
-            input=xml_content,
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        return result.returncode == 0
-    except Exception:
-        return False
-
 def load_test_file(file_path: str) -> Optional[str]:
-    """Load test XML file content."""
+    """Load UTF-8 text fixtures without turning invalid bytes into valid text."""
     try:
-        with open(file_path, 'rb') as f:
-            raw = f.read()
-
-        if b'\x00' in raw:
+        content = Path(file_path).read_bytes().decode('utf-8')
+        if '\x00' in content:
             return None
-
-        try:
-            return raw.decode('utf-8')
-        except:
-            pass
-
-        try:
-            return raw.decode('latin-1')
-        except:
-            return None
-    except:
+        declaration = re.match(r'\ufeff?<\?xml\s+(.*?)\?>', content, re.S)
+        if declaration:
+            encoding = re.search(r'''encoding\s*=\s*["']([^"']+)["']''', declaration[1])
+            if encoding and re.fullmatch(r'[A-Za-z][A-Za-z0-9._-]*', encoding[1]) and encoding[1].lower() not in ('utf-8', 'utf8'):
+                # The String API cannot test byte/declaration encoding mismatches.
+                # Invalid EncName syntax is still a supported malformed text test.
+                return None
+        return content
+    except (OSError, UnicodeDecodeError):
         return None
 
-def get_expected_events(content: str) -> Optional[str]:
-    """Get expected events from reference parser."""
-    try:
-        success, result = parse_xml(content)
-        if success:
-            return result
-        return None
-    except Exception as e:
-        return None
+def get_expected_events(content: str) -> str:
+    """Require a reference event sequence instead of weakening a valid test."""
+    success, result = parse_xml(content)
+    if not success:
+        raise RuntimeError(f"Reference parser failed: {result}")
+    return result
 
 def generate_valid_test_with_events(test_id: str, content: str, description: str, expected_events: str) -> str:
     """Generate a test for valid XML with expected event sequence."""
     safe_name = sanitize_test_name(test_id)
     escaped = escape_moonbit_string(content)
     desc = clean_description(description)
-    # Escape the expected events string for use inside a MoonBit string literal
-    escaped_events = escape_moonbit_string(expected_events)
-
     return f'''///|
 test "w3c/valid/{safe_name}" {{
   // {desc}
   let xml = "{escaped}"
   let reader = Reader::from_string(xml)
   let events = reader.read_events_until_eof()
-  inspect(to_libxml_format(events), content="{escaped_events}")
+  let expected : Array[ConformanceEvent] = {expected_events}
+  @debug.assert_eq(to_conformance_events(events), expected)
 }}
 
 '''
 
-def generate_valid_test_error_only(test_id: str, content: str, description: str) -> str:
-    """Generate a test for valid XML - only verify no error (fallback)."""
-    safe_name = sanitize_test_name(test_id)
-    escaped = escape_moonbit_string(content)
-    desc = clean_description(description)
-
-    return f'''///|
-test "w3c/valid/{safe_name}" {{
-  // {desc}
-  let xml = "{escaped}"
-  let reader = Reader::from_string(xml)
-  // Verify parsing succeeds
-  let events = reader.read_events_until_eof()
-  assert_true(events.length() > 0)
-}}
-
-'''
-
-def generate_not_wf_test(test_id: str, content: str, description: str, expects_error: bool) -> str:
+def generate_not_wf_test(test_id: str, content: str, description: str) -> str:
     """Generate a test for not-well-formed XML."""
     safe_name = sanitize_test_name(test_id)
     escaped = escape_moonbit_string(content)
     desc = clean_description(description)
-    suffix = "" if expects_error else " (parser is lenient)"
+    reader_type = "NamespaceReader" if safe_name.startswith(('rmt_ns10_', 'ht_ns10_')) else "Reader"
 
     return f'''///|
 test "w3c/not-wf/{safe_name}" {{
-  // {desc}{suffix}
+  // {desc}
   let xml = "{escaped}"
-  let reader = Reader::from_string(xml)
-  assert_malformed(reader)
+  let reader = {reader_type}::from_string(xml)
+  try reader.read_events_until_eof() catch {{
+    XmlError::At(_) => ()
+  }} noraise {{
+    _ => fail("expected malformed XML to raise")
+  }}
 }}
 
 '''
@@ -213,12 +169,6 @@ test "w3c/not-wf/{safe_name}" {{
 def main():
     print("Generating W3C conformance tests (XML 1.0 + Namespaces 1.0)...")
     print("Phase 1: Collecting tests...")
-
-    try:
-        subprocess.run(['xmllint', '--version'], capture_output=True, text=True)
-    except FileNotFoundError:
-        print("Error: xmllint not found. Please install libxml2.")
-        sys.exit(1)
 
     all_tests = []
 
@@ -239,6 +189,8 @@ def main():
             print(f"  {manifest.relative_to(XMLCONF_DIR)}: {len(tests)} tests")
             all_tests.extend(tests)
 
+    if not all_tests:
+        raise RuntimeError(f"No W3C tests found in {XMLCONF_DIR}")
     print(f"\nTotal tests found: {len(all_tests)}")
 
     # Collect test cases
@@ -250,8 +202,6 @@ def main():
         'large': 0,
         'external_entity': 0,
         'xml11': 0,
-        'libxml_accepts': 0,
-        'reference_failed': 0,
     }
 
     print("\nPhase 2: Processing tests and generating expected events...")
@@ -281,51 +231,37 @@ def main():
             skipped_reasons['xml11'] += 1
             continue
 
-        normalized = content.replace('\r\n', '\n').replace('\r', '\n')
-
         if test_type == "valid":
-            # Get expected events from reference parser
-            expected_events = get_expected_events(normalized)
-            if expected_events:
-                valid_tests.append((test_id, content, description, expected_events))
-            else:
-                # Fallback: reference parser failed, just check no error
-                skipped_reasons['reference_failed'] += 1
-                valid_tests.append((test_id, content, description, None))
+            try:
+                expected_events = get_expected_events(content)
+            except RuntimeError as error:
+                raise RuntimeError(f"{test_id} ({file_path}): {error}") from error
+            valid_tests.append((test_id, content, description, expected_events))
         elif test_type == "not-wf":
-            libxml_ok = check_well_formed_libxml(normalized)
-            if not libxml_ok:
-                not_wf_tests.append((test_id, content, description, True))
-            else:
-                # libxml2 accepts - skip (both are lenient)
-                skipped += 1
-                skipped_reasons['libxml_accepts'] += 1
+            # The applicable W3C classification is authoritative even when a
+            # reference parser accepts the document.
+            not_wf_tests.append((test_id, content, description))
 
     print(f"\nPhase 3: Generating test file...")
 
+    if not valid_tests and not not_wf_tests:
+        raise RuntimeError("No supported W3C tests to generate")
+
     # Generate output
-    output_lines = [LICENSE_HEADER, NOT_WF_HELPER]
+    output_lines = [LICENSE_HEADER]
 
-    valid_with_events = 0
-    valid_error_only = 0
     for test_id, content, description, expected_events in valid_tests:
-        if expected_events:
-            output_lines.append(generate_valid_test_with_events(test_id, content, description, expected_events))
-            valid_with_events += 1
-        else:
-            output_lines.append(generate_valid_test_error_only(test_id, content, description))
-            valid_error_only += 1
+        output_lines.append(generate_valid_test_with_events(test_id, content, description, expected_events))
 
-    for test_id, content, description, expects_error in not_wf_tests:
-        output_lines.append(generate_not_wf_test(test_id, content, description, expects_error))
+    for test_id, content, description in not_wf_tests:
+        output_lines.append(generate_not_wf_test(test_id, content, description))
 
     OUTPUT_FILE.write_text(''.join(output_lines), encoding='utf-8')
 
     print(f"\nGenerated:")
-    print(f"  Valid tests with expected events: {valid_with_events}")
-    print(f"  Valid tests (error-only check):   {valid_error_only}")
+    print(f"  Valid tests with expected events: {len(valid_tests)}")
     print(f"  Not-well-formed tests:            {len(not_wf_tests)}")
-    print(f"  Total:                            {valid_with_events + valid_error_only + len(not_wf_tests)}")
+    print(f"  Total:                            {len(valid_tests) + len(not_wf_tests)}")
     print(f"\nSkipped: {skipped}")
     for reason, count in skipped_reasons.items():
         if count > 0:

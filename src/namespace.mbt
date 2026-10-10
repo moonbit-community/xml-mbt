@@ -24,9 +24,20 @@ fn xmlns_namespace_uri() -> String {
 
 ///|
 fn namespace_reader_from_reader(reader : Reader) -> NamespaceReader {
+  let reader = { ..reader, namespace_aware: true, }
   let base_scope : Map[String, String] = Map([])
   base_scope.set("xml", xml_namespace_uri())
-  { reader, scopes: [base_scope], }
+  { reader, scope: base_scope, scopes: [], }
+}
+
+///|
+/// Names other than element and attribute names must be NCNames in namespace XML.
+fn Reader::read_non_element_name(self : Reader) -> String raise XmlErrorKind {
+  let name = self.read_name()
+  if self.namespace_aware && name.find(":") is Some(_) {
+    raise InvalidSyntax("colon is not allowed in namespace NCName: " + name)
+  }
+  name
 }
 
 ///|
@@ -158,15 +169,17 @@ fn apply_namespace_declaration(
 }
 
 ///|
-fn NamespaceReader::copy_current_scope(
+fn NamespaceReader::restore_bindings(
   self : NamespaceReader,
-) -> Map[String, String] {
-  let result : Map[String, String] = Map([])
-  let current = self.scopes[self.scopes.length() - 1]
-  for prefix, uri in current {
-    result.set(prefix, uri)
+  changes : Array[(String, String?)],
+) -> Unit {
+  for i = changes.length() - 1; i >= 0; i = i - 1 {
+    let (prefix, previous) = changes[i]
+    match previous {
+      Some(uri) => self.scope.set(prefix, uri)
+      None => self.scope.remove(prefix)
+    }
   }
-  result
 }
 
 ///|
@@ -194,11 +207,15 @@ fn NamespaceReader::resolve_element(
   element : XmlElement,
   push_scope : Bool,
 ) -> NamespaceElement raise XmlErrorKind {
-  let scope = self.copy_current_scope()
+  let scope = self.scope
+  let changes : Array[(String, String?)] = []
+  errdefer self.restore_bindings(changes)
   let declarations : Array[NamespaceDeclaration] = []
   for attribute in element.attributes {
     match namespace_declaration(attribute) {
       Some(declaration) => {
+        let prefix = declaration.prefix.unwrap_or("")
+        changes.push((prefix, scope.get(prefix)))
         apply_namespace_declaration(scope, declaration)
         declarations.push(declaration)
       }
@@ -234,7 +251,9 @@ fn NamespaceReader::resolve_element(
     }
   }
   if push_scope {
-    self.scopes.push(scope)
+    self.scopes.push(changes)
+  } else {
+    self.restore_bindings(changes)
   }
   { name, attributes, namespace_declarations: declarations, }
 }
@@ -251,10 +270,9 @@ pub fn NamespaceReader::read_event(
         NamespaceEventKind::Start(self.resolve_element(element, true))
       Empty(element) => Empty(self.resolve_element(element, false))
       End(qualified_name) => {
-        let scope = self.scopes[self.scopes.length() - 1]
-        let name = resolve_xml_name(qualified_name, scope, true)
-        if self.scopes.length() > 1 {
-          let _ = self.scopes.pop()
+        let name = resolve_xml_name(qualified_name, self.scope, true)
+        if self.scopes.pop() is Some(changes) {
+          self.restore_bindings(changes)
         }
         End(name)
       }

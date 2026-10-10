@@ -18,10 +18,19 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: install
+      - name: Install latest stable MoonBit
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s nightly
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Test conformance generator
+        run: |
+          python -m pip install -r scripts/requirements.txt
+          python -m unittest discover -s scripts -p 'test_*.py'
 
       - name: moon version
         run: |
@@ -30,7 +39,7 @@ jobs:
       - name: moon check
         run: |
           moon update
-          moon check --deny-warn
+          moon check --target all --deny-warn
 
       - name: moon info
         run: |
@@ -48,4 +57,4 @@ jobs:
 
       - name: moon test
         run: |
-          moon test --target all
+          moon test --target all --deny-warn

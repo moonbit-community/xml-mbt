@@ -145,9 +145,27 @@ def parse_xml(xml_content: str) -> Tuple[bool, str]:
     try:
         # Parse with lxml to get docinfo
         xml_bytes = xml_content.encode('utf-8')
-        tree = etree.parse(BytesIO(xml_bytes), etree.XMLParser(
+        document_parser = etree.XMLParser(
             attribute_defaults=True, resolve_entities=True, no_network=True,
-        ))
+        )
+        namespace_errors = False
+        try:
+            tree = etree.parse(BytesIO(xml_bytes), document_parser)
+        except etree.XMLSyntaxError:
+            # Plain XML Names may contain colons that are not namespace QNames.
+            # Recover only namespace errors; all XML syntax errors remain fatal.
+            if not document_parser.error_log or any(
+                error.domain_name != 'NAMESPACE' for error in document_parser.error_log
+            ):
+                raise
+            namespace_errors = True
+            document_parser = etree.XMLParser(
+                attribute_defaults=True, resolve_entities=True, no_network=True,
+                recover=True,
+            )
+            tree = etree.parse(BytesIO(xml_bytes), document_parser)
+            if any(error.domain_name != 'NAMESPACE' for error in document_parser.error_log):
+                raise etree.XMLSyntaxError('XML syntax error', 0, 0, 0)
         docinfo = tree.docinfo
 
         # Extract XML declaration from docinfo
@@ -190,8 +208,11 @@ def parse_xml(xml_content: str) -> Tuple[bool, str]:
             target = MoonBitTarget(xml_content)
             parser = etree.XMLParser(
                 target=target, attribute_defaults=True, no_network=True,
+                recover=namespace_errors,
             )
             etree.parse(BytesIO(xml_bytes), parser)
+            if any(error.domain_name != 'NAMESPACE' for error in parser.error_log):
+                raise etree.XMLSyntaxError('XML syntax error', 0, 0, 0)
         events.extend(target.close())
         events.append("Eof")
 

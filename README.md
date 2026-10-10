@@ -91,14 +91,17 @@ Each `XmlAttribute` contains the whole attribute span plus separate name and unq
 
 This library is tested against the [W3C XML Conformance Test Suite](https://www.w3.org/XML/Test/), using libxml2 (lxml) and Expat as reference parsers.
 
-**Current status: 877/877 tests passing**
+**Current status: 897/897 tests passing on wasm, wasm-gc, js, and native**
 
 | Category | Tests | Description |
 |----------|-------|-------------|
-| Valid (with events) | 448 | Parser produces correct event sequence |
-| Valid (error-only) | 6 | Parser does not error on valid XML |
-| Not-well-formed | 281 | Parser correctly rejects malformed XML |
-| Unit tests | 142 | Reader, writer, escape, namespace, source spans, conformance tests |
+| Valid (with events) | 454 | Parser produces the reference event sequence |
+| Not-well-formed | 291 | Reader or NamespaceReader rejects malformed XML |
+| Unit tests | 152 | Reader, writer, escape, namespaces, source spans, properties, mutation fuzzing |
+
+The W3C comparisons normalize reference-parser differences such as text callback boundaries, CDATA, empty elements, and namespace spellings. Separate raw-event regressions and public-API properties check those details directly. Every valid W3C fixture checks events; reference failures stop generation, and malformed fixtures follow the applicable W3C classification rather than reference-parser acceptance.
+
+The property tests run 1,280 generated cases with fixed seeds. Mutation fuzzing runs 3,000 mutated inputs through both readers, checking source ranges on accepted documents and errors and failing on panics. CI also runs 12 Python checks, including independent reference verification of all 454 valid expectations.
 
 Coverage:
 - XML 1.0 (James Clark xmltest)
@@ -112,16 +115,18 @@ Coverage:
 ```bash
 # Download the W3C test suite
 curl -L -o xmlts.tar.gz "https://www.w3.org/XML/Test/xmlts20130923.tar.gz"
-tar -xzf xmlts.tar.gz && mv xmlconf . && rm xmlts.tar.gz
+tar -xzf xmlts.tar.gz
+rm xmlts.tar.gz
 
 # Run tests
-moon test
+moon test --target all --deny-warn
 ```
 
 ### Regenerating Tests
 
 ```bash
-# Requires: libxml2 (xmllint), lxml (pip install lxml)
+python3 -m pip install -r scripts/requirements.txt
+python3 -m unittest discover -s scripts -p 'test_*.py'
 python3 scripts/generate_conformance_tests.py
 ```
 
@@ -131,6 +136,32 @@ The following test categories are skipped:
 - External entity references (require file I/O)
 - XML 1.1 documents (we only support XML 1.0)
 - DTD validation tests (`invalid` type)
+- Byte decoding and encoding-mismatch fixtures that cannot be exercised through the decoded `String` API
+- Tests restricted to older XML editions
+
+## Performance checks
+
+Run the benchmarks with:
+
+```bash
+moon bench --target native --release --filter 'bench *'
+```
+
+Inputs are built outside the measured closures; each run constructs a reader and collects all events. The cases cover character-reference queues, deep namespace scopes with 512 inherited bindings, nested replacement markup, and large text documents.
+
+Measurements on 2026-10-10, Apple M3 Max, MoonBit `v0.10.14+7d59c7ec9`, native release builds. The baseline is commit `19e6070`; both versions used the same benchmark cases. Values are local mean timings, not portable performance thresholds.
+
+| Case | Baseline | After optimization |
+|------|----------|--------------------|
+| 1,024 character references | 801 µs | 375 µs |
+| 4,096 character references | 11.55 ms | 1.57 ms |
+| 16,384 character references | 228.67 ms | 6.30 ms |
+| Namespace depth 256 | 7.02 ms | 916 µs |
+| Namespace depth 1,024 | 26.68 ms | 1.50 ms |
+| 4,096 children from nested entities | 345.00 ms | 8.79 ms |
+| 2 MiB of text | 11.14 ms | 10.96 ms |
+
+Pending events are consumed by index, and namespace scopes store only changed bindings. Replacement content is parsed directly while sharing DTD tables, recursion tracking, and the document expansion budget. Attribute values retain their separate XML normalization rules.
 
 ## Limitations
 

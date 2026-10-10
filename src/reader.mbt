@@ -29,7 +29,9 @@ pub fn Reader::from_string(input : String) -> Reader {
     line: 1,
     column: 1,
     entities: Map([]),
-    entity_expansion_remaining: MAX_ENTITY_EXPANSION_CHARS,
+    entity_expansion_remaining: Ref(MAX_ENTITY_EXPANSION_CHARS),
+    entity_stack: [],
+    namespace_aware: false,
     attr_types: Map([]),
     default_attributes: Map([]),
     tag_stack: [],
@@ -39,9 +41,11 @@ pub fn Reader::from_string(input : String) -> Reader {
     seen_content: false,
     just_saw_decl: false,
     pending_events: [],
+    pending_index: 0,
     internal_subset_events: [],
     just_saw_doctype: false,
     in_entity_content: false,
+    in_reference: false,
   }
 }
 
@@ -74,20 +78,14 @@ fn source_span(start : SourcePosition, end : SourcePosition) -> SourceSpan {
 }
 
 ///|
-fn Reader::expand_entity_value(
+fn Reader::consume_entity_output(
   self : Reader,
-  value : String,
-) -> String raise XmlErrorKind {
-  let seen : Map[String, Bool] = Map([])
-  let (expanded, remaining) = expand_entity_value_with_remaining(
-    value,
-    self.entities,
-    seen,
-    self.entity_expansion_remaining,
-    false,
-  )
-  self.entity_expansion_remaining = remaining
-  expanded
+  amount : Int,
+) -> Unit raise XmlErrorKind {
+  if amount > self.entity_expansion_remaining.val {
+    raise InvalidEntity("entity expansion limit exceeded")
+  }
+  self.entity_expansion_remaining.val -= amount
 }
 
 ///|
@@ -95,15 +93,17 @@ fn Reader::expand_attribute_entity_value(
   self : Reader,
   value : String,
 ) -> String raise XmlErrorKind {
-  let (expanded, remaining) = expand_entity_value_with_remaining(
+  let budget : EntityExpansionBudget = {
+    remaining: self.entity_expansion_remaining,
+  }
+  let seen = Map::from_array(self.entity_stack.map(fn(name) { (name, true) }))
+  expand_entity_value_with_budget(
     value,
     self.entities,
-    Map([]),
-    self.entity_expansion_remaining,
-    true,
+    seen,
+    budget,
+    self.entity_stack.length(),
   )
-  self.entity_expansion_remaining = remaining
-  expanded
 }
 
 ///|
@@ -122,7 +122,13 @@ fn Reader::push_pending_event(self : Reader, event : Event) -> Unit {
 
 ///|
 fn Reader::pop_pending_event(self : Reader) -> Event {
-  self.pending_events.remove(0)
+  let event = self.pending_events[self.pending_index]
+  self.pending_index += 1
+  if self.pending_index == self.pending_events.length() {
+    self.pending_events.clear()
+    self.pending_index = 0
+  }
+  event
 }
 
 ///|
@@ -165,9 +171,12 @@ fn Reader::peek_at(self : Reader, offset : Int) -> Char? {
 
 ///|
 /// Advance by one character
-fn Reader::advance(self : Reader) -> Char? {
+fn Reader::advance(self : Reader) -> Char? raise XmlErrorKind {
   if self.pos < self.input.length() {
     let c = self.input[self.pos]
+    if self.in_entity_content && !self.in_reference {
+      self.consume_entity_output(1)
+    }
     self.pos += 1
     self.offset += if c.to_int() > 0xFFFF { 2 } else { 1 }
     if c == '\r' {
@@ -189,7 +198,7 @@ fn Reader::advance(self : Reader) -> Char? {
 
 ///|
 /// Skip whitespace characters
-fn Reader::skip_whitespace(self : Reader) -> Unit {
+fn Reader::skip_whitespace(self : Reader) -> Unit raise XmlErrorKind {
   while self.peek() is Some(c) && is_whitespace(c) {
     let _ = self.advance()
   }
@@ -197,7 +206,7 @@ fn Reader::skip_whitespace(self : Reader) -> Unit {
 
 ///|
 /// Skip whitespace characters and return count of characters skipped
-fn Reader::skip_whitespace_count(self : Reader) -> Int {
+fn Reader::skip_whitespace_count(self : Reader) -> Int raise XmlErrorKind {
   let mut count = 0
   while self.peek() is Some(c) && is_whitespace(c) {
     let _ = self.advance()
@@ -208,7 +217,10 @@ fn Reader::skip_whitespace_count(self : Reader) -> Int {
 
 ///|
 /// Read characters while predicate is true
-fn Reader::read_while(self : Reader, pred : (Char) -> Bool) -> String {
+fn Reader::read_while(
+  self : Reader,
+  pred : (Char) -> Bool,
+) -> String raise XmlErrorKind {
   let buf = StringBuilder()
   while self.peek() is Some(c) && pred(c) {
     buf.write_char(c)
@@ -255,7 +267,7 @@ fn Reader::read_until(self : Reader, end : String) -> String raise XmlErrorKind 
 
 ///|
 /// Skip a specific string
-fn Reader::skip_string(self : Reader, s : String) -> Bool {
+fn Reader::skip_string(self : Reader, s : String) -> Bool raise XmlErrorKind {
   let chars = s.to_array()
   for i = 0; i < chars.length(); i = i + 1 {
     match self.peek_at(i) {
@@ -287,9 +299,7 @@ fn Reader::check_string(self : Reader, s : String) -> Bool {
 /// Reject non-markup content after the root element with a span covering the
 /// complete offending token. Whitespace in the epilog is legal and is not
 /// included in the error span.
-fn Reader::reject_trailing_content(self : Reader) -> Unit raise XmlError {
-  self.skip_whitespace()
-  let start = self.source_position()
+fn Reader::reject_trailing_content(self : Reader) -> Unit raise XmlErrorKind {
   match self.peek() {
     Some('&') => {
       let _ = self.advance()
@@ -303,19 +313,13 @@ fn Reader::reject_trailing_content(self : Reader) -> Unit raise XmlError {
       if self.peek() is Some(';') {
         let _ = self.advance()
       }
-      raise At(
-        error=InvalidSyntax("character reference after root element"),
-        span=source_span(start, self.source_position()),
-      )
+      raise InvalidSyntax("character reference after root element")
     }
     Some(c) if c != '<' => {
       while self.peek() is Some(c) && c != '<' && c != '&' {
         let _ = self.advance()
       }
-      raise At(
-        error=InvalidSyntax("content after root element"),
-        span=source_span(start, self.source_position()),
-      )
+      raise InvalidSyntax("content after root element")
     }
     _ => ()
   }
@@ -334,7 +338,17 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
     )
   }
   if self.root_closed && self.pending_events.length() == 0 {
-    self.reject_trailing_content()
+    self.skip_whitespace() catch {
+      error =>
+        raise At(
+          error~,
+          span=source_span(self.source_position(), self.source_position()),
+        )
+    }
+    let start = self.source_position()
+    self.reject_trailing_content() catch {
+      error => raise At(error~, span=source_span(start, self.source_position()))
+    }
   }
   let start = self.source_position()
   self.read_event_internal() catch {
@@ -346,9 +360,10 @@ pub fn Reader::read_event(self : Reader) -> Event raise XmlError {
 fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
   if self.just_saw_doctype && !(self.peek() is Some(c) && is_whitespace(c)) {
     self.just_saw_doctype = false
-    while self.internal_subset_events.length() > 0 {
-      self.push_pending_event(self.internal_subset_events.remove(0))
+    for event in self.internal_subset_events {
+      self.push_pending_event(event)
     }
+    self.internal_subset_events.clear()
   }
   // Return pending events first (from split text)
   if self.pending_events.length() > 0 {
@@ -469,9 +484,10 @@ fn Reader::read_event_internal(self : Reader) -> Event raise XmlErrorKind {
         // Move internal subset events to pending queue
         if self.just_saw_doctype {
           self.just_saw_doctype = false
-          while self.internal_subset_events.length() > 0 {
-            self.push_pending_event(self.internal_subset_events.remove(0))
+          for event in self.internal_subset_events {
+            self.push_pending_event(event)
           }
+          self.internal_subset_events.clear()
         }
         {
           kind: text_event,
@@ -696,7 +712,7 @@ fn Reader::read_comment_content(self : Reader) -> String raise XmlErrorKind {
 /// Read processing instruction: <?target data?>
 fn Reader::read_pi(self : Reader) -> EventKind raise XmlErrorKind {
   let _ = self.advance() // consume '?'
-  let target = self.read_name()
+  let target = self.read_non_element_name()
   // PI target is required
   if target == "" {
     raise InvalidSyntax("processing instruction target is required")
@@ -1113,6 +1129,7 @@ fn Reader::read_attr_value(
         // < is not allowed in attribute values
         raise InvalidSyntax("'<' not allowed in attribute value")
       Some('&') => {
+        self.in_reference = true
         let _ = self.advance()
         // Read entity name
         let entity_name = self.read_while(fn(c) {
@@ -1121,11 +1138,15 @@ fn Reader::read_attr_value(
         match self.peek() {
           Some(';') => {
             let _ = self.advance()
+            self.in_reference = false
             // First check if it's a character reference
             if entity_name.has_prefix("#") {
               // Character reference - decode directly
               let entity = "&" + entity_name + ";"
               let decoded = unescape(entity)
+              if self.in_entity_content {
+                self.consume_entity_output(decoded.length())
+              }
               buf.write_string(decoded)
             } else {
               // Entity reference - expand with validation
@@ -1185,42 +1206,30 @@ fn normalize_line_endings(s : String) -> String {
 }
 
 ///|
-/// Check whether an entity value needs content parsing.
-fn needs_entity_content_parse(s : String) -> Bool {
-  let chars = s.to_array()
-  let len = chars.length()
-  for i = 0; i < len; i = i + 1 {
-    if chars[i] == '<' ||
-      chars[i] == '&' ||
-      (
-        chars[i] == ']' &&
-        i + 2 < len &&
-        chars[i + 1] == ']' &&
-        chars[i + 2] == '>'
-      ) {
-      return true
-    }
-  }
-  false
-}
-
-///|
 /// Parse authored entity content and report malformed replacement text.
 fn Reader::parse_entity_content(
   self : Reader,
+  name : String,
   content : String,
   entity_span : SourceSpan,
 ) -> Array[Event] raise XmlErrorKind {
-  let sub_reader = Reader::from_string(content)
-  sub_reader.in_entity_content = true
-  for k, v in self.entities {
-    sub_reader.entities.set(k, v)
+  if self.entity_stack.contains(name) {
+    raise InvalidEntity("recursive entity reference: &" + name + ";")
   }
-  for k, v in self.attr_types {
-    sub_reader.attr_types.set(k, v)
+  if self.entity_stack.length() >= MAX_ENTITY_EXPANSION_DEPTH {
+    raise InvalidEntity("entity expansion depth exceeded")
   }
-  for k, v in self.default_attributes {
-    sub_reader.default_attributes.set(k, v)
+  let sub_reader = {
+    ..Reader::from_string(content),
+    pos: 0,
+    offset: 0,
+    in_entity_content: true,
+    entities: self.entities,
+    attr_types: self.attr_types,
+    default_attributes: self.default_attributes,
+    entity_expansion_remaining: self.entity_expansion_remaining,
+    entity_stack: self.entity_stack,
+    namespace_aware: self.namespace_aware,
   }
   sub_reader.seen_root = true
   let position = sub_reader.source_position()
@@ -1228,6 +1237,10 @@ fn Reader::parse_entity_content(
     ("_entity_content_", source_span(position, position)),
   )
   let events : Array[Event] = []
+  self.entity_stack.push(name)
+  errdefer {
+    let _ = self.entity_stack.pop()
+  }
   while !sub_reader.is_eof() || sub_reader.pending_events.length() > 0 {
     let event = sub_reader.read_event_internal()
     match event.kind {
@@ -1268,6 +1281,7 @@ fn Reader::parse_entity_content(
   if sub_reader.tag_stack.length() != 1 {
     raise InvalidSyntax("malformed entity replacement text")
   }
+  let _ = self.entity_stack.pop()
   events
 }
 
@@ -1291,6 +1305,7 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
         }
         // Read entity
         let entity_start = self.source_position()
+        self.in_reference = true
         let _ = self.advance() // consume '&'
         // Check for valid entity name start (# for char ref, or NameStartChar)
         match self.peek() {
@@ -1300,8 +1315,12 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
             match self.peek() {
               Some(';') => {
                 let _ = self.advance()
+                self.in_reference = false
                 let entity = "&" + entity_name + ";"
                 let decoded = unescape(entity)
+                if self.in_entity_content {
+                  self.consume_entity_output(decoded.length())
+                }
                 // Character references preserve literal character (no line ending normalization)
                 self.push_pending_event({
                   kind: Text(decoded),
@@ -1317,49 +1336,43 @@ fn Reader::read_text(self : Reader) -> Event raise XmlErrorKind {
             match self.peek() {
               Some(';') => {
                 let _ = self.advance()
+                self.in_reference = false
                 match self.entities.get(entity_name) {
                   Some(stored_value) => {
-                    let entity_ref = "&" + entity_name + ";"
-                    let expanded = self.expand_entity_value(entity_ref)
-                    if needs_entity_content_parse(stored_value) {
-                      let parsed = self.parse_entity_content(
-                        stored_value,
-                        source_span(entity_start, self.source_position()),
-                      )
-                      let has_markup = parsed
-                        .iter()
-                        .any(fn(event) {
-                          match event.kind {
-                            Text(_) => false
-                            _ => true
-                          }
-                        })
-                      if has_markup {
-                        for event in parsed {
-                          self.push_pending_event(event)
+                    let entity_span = source_span(
+                      entity_start,
+                      self.source_position(),
+                    )
+                    let parsed = self.parse_entity_content(
+                      entity_name, stored_value, entity_span,
+                    )
+                    if parsed.iter().all(fn(event) { event.kind is Text(_) }) {
+                      let text = StringBuilder()
+                      for event in parsed {
+                        if event.kind is Text(value) {
+                          text.write_string(value)
                         }
-                      } else {
-                        self.push_pending_event({
-                          kind: Text(expanded),
-                          span: source_span(
-                            entity_start,
-                            self.source_position(),
-                          ),
-                        })
                       }
-                    } else {
                       self.push_pending_event({
-                        kind: Text(expanded),
-                        span: source_span(entity_start, self.source_position()),
+                        kind: Text(text.to_string()),
+                        span: entity_span,
                       })
+                    } else {
+                      for event in parsed {
+                        self.push_pending_event(event)
+                      }
                     }
                   }
                   None => {
-                    // Built-in entity (like &amp;) - expand and push as text
-                    let entity_ref = "&" + entity_name + ";"
-                    let expanded = self.expand_entity_value(entity_ref)
+                    if !is_predefined_entity(entity_name) {
+                      raise InvalidEntity(
+                        "undefined entity reference: &" + entity_name + ";",
+                      )
+                    }
+                    let decoded = unescape("&" + entity_name + ";")
+                    self.consume_entity_output(decoded.length())
                     self.push_pending_event({
-                      kind: Text(expanded),
+                      kind: Text(decoded),
                       span: source_span(entity_start, self.source_position()),
                     })
                   }
@@ -1624,7 +1637,7 @@ fn Reader::parse_internal_subset(self : Reader) -> Unit raise XmlErrorKind {
             if self.skip_whitespace_count() == 0 {
               raise InvalidSyntax("whitespace required after NOTATION")
             }
-            if self.read_name() == "" {
+            if self.read_non_element_name() == "" {
               raise InvalidSyntax("NOTATION requires a name")
             }
             if self.skip_whitespace_count() == 0 {
@@ -1712,7 +1725,7 @@ fn Reader::parse_entity_declaration(self : Reader) -> Unit raise XmlErrorKind {
       raise InvalidSyntax("whitespace required after % in parameter entity")
     }
   }
-  let name = self.read_name()
+  let name = self.read_non_element_name()
   if name == "" {
     raise InvalidSyntax("ENTITY requires a name")
   }
@@ -1725,7 +1738,7 @@ fn Reader::parse_entity_declaration(self : Reader) -> Unit raise XmlErrorKind {
       let raw_value = self.read_entity_value(quote)
       let _ = self.advance()
       // Parameter entities and duplicate declarations also require valid syntax.
-      validate_entity_value(raw_value)
+      validate_entity_value(raw_value, namespace_aware=self.namespace_aware)
       if !parameter {
         let value = expand_char_refs_only(raw_value)
         if !self.entities.contains(name) {
@@ -1740,7 +1753,7 @@ fn Reader::parse_entity_declaration(self : Reader) -> Unit raise XmlErrorKind {
         if parameter || !had_whitespace || self.skip_whitespace_count() == 0 {
           raise InvalidSyntax("invalid NDATA declaration")
         }
-        if self.read_name() == "" {
+        if self.read_non_element_name() == "" {
           raise InvalidSyntax("NDATA requires a notation name")
         }
       }

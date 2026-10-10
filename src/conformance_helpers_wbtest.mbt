@@ -13,6 +13,55 @@
 // limitations under the License.
 
 ///|
+/// Reference expectations omit source spans and use tuple attributes.
+/// Typed equality keeps generated tests independent of debug formatting.
+priv struct ConformanceElement {
+  name : String
+  attributes : Array[(String, String)]
+} derive(Debug, Eq)
+
+///|
+priv enum ConformanceEvent {
+  Start(ConformanceElement)
+  End(String)
+  Empty(ConformanceElement)
+  Text(String)
+  CData(String)
+  Comment(String)
+  PI(target~ : String, data~ : String)
+  Decl(version~ : String, encoding~ : String?, standalone~ : String?)
+  DocType(String)
+  Eof
+} derive(Debug, Eq)
+
+///|
+fn to_conformance_events(events : Array[Event]) -> Array[ConformanceEvent] {
+  to_libxml_format(events).map(fn(event) {
+    match event {
+      Start(element) =>
+        Start({
+          name: element.name,
+          attributes: element.attributes.map(fn(a) { (a.name, a.value) }),
+        })
+      Empty(element) =>
+        Empty({
+          name: element.name,
+          attributes: element.attributes.map(fn(a) { (a.name, a.value) }),
+        })
+      End(name) => End(name)
+      Text(text) => Text(text)
+      CData(text) => CData(text)
+      Comment(text) => Comment(text)
+      PI(target~, data~) => PI(target~, data~)
+      Decl(version~, encoding~, standalone~) =>
+        Decl(version~, encoding~, standalone~)
+      DocType(name) => DocType(name)
+      Eof => Eof
+    }
+  })
+}
+
+///|
 /// Transform attributes to match lxml behavior:
 /// - Filter out xmlns namespace declarations
 /// - Strip namespace prefixes (a:attr -> attr)
