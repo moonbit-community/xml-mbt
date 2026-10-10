@@ -1,140 +1,131 @@
-"""Keep W3C classifications and reference expectations independent of the parser."""
+"""Protect catalog coverage, scope decisions, and the independent W3C oracle."""
 
-import contextlib
-import io
 import json
 from pathlib import Path
-import re
 import tempfile
 import unittest
-from unittest.mock import patch
 
 import generate_conformance_tests as generator
-from xml_reference import escape_for_debug, parse_xml
-
-
-def decode_literal(literal):
-    def escape(match):
-        if match[1] is not None:
-            return json.dumps(chr(int(match[1], 16)))[1:-1]
-        return match[0]
-    return json.loads(re.sub(r'\\u\{([0-9a-fA-F]+)\}|\\.', escape, literal))
-
-
-def compact_events(value):
-    # Ignore formatting, preserving every character inside string literals.
-    tokens = [token for token in re.findall(r'"(?:[^"\\]|\\.)*"|\s+|.', value)
-              if not token.isspace()]
-    return ''.join(token for index, token in enumerate(tokens)
-                   if token != ',' or index + 1 == len(tokens)
-                   or tokens[index + 1] not in [']', '}', ')'])
-
-
-class ReferenceTests(unittest.TestCase):
-    def test_line_endings_defaults_and_entity_character_references(self):
-        source = '\ufeff<?xml version="1.0"?><!DOCTYPE r [<!ENTITY e "a&#13;b"><!ATTLIST r a NMTOKENS " x  y ">]><r>&e;\r\nz</r>'
-        success, events = parse_xml(source)
-        self.assertTrue(success, events)
-        self.assertIn('Decl(version="1.0", encoding=Some("UTF-8"), standalone=Some("no"))', events)
-        self.assertIn('attributes: [("a", "x y")]', events)
-        self.assertIn('Text("a\\rb\\nz")', events)
-
-    def test_plain_xml_names_need_not_be_namespace_qnames(self):
-        success, events = parse_xml('<:r :="x"><a:b:c/></:r>')
-        self.assertTrue(success, events)
-        self.assertIn('("", "x")', events)
-
-    def test_namespace_recovery_does_not_hide_xml_syntax_errors(self):
-        for source in ['<p:r a="1" a="2"/>', '<p:r>', '<p:r>&missing;</p:r>', '<p:r>&#0;</p:r>']:
-            with self.subTest(source=source):
-                success, _ = parse_xml(source)
-                self.assertFalse(success)
-
-    def test_debug_escaping_preserves_carriage_returns(self):
-        self.assertEqual(escape_for_debug('\r\n\t\\"'), '\\r\\n\\t\\\\\\"')
-
-    def test_all_checked_in_valid_expectations_match_independent_reference(self):
-        source = generator.OUTPUT_FILE.read_text()
-        tests = re.findall(r'test "(w3c/valid/[^\"]+)" \{(.*?)\n\}', source, re.S)
-        self.assertGreater(len(tests), 0)
-        for name, body in tests:
-            with self.subTest(name=name):
-                xml = decode_literal(re.search(r'let xml = ("(?:[^"\\]|\\.)*")', body)[1])
-                success, reference = parse_xml(xml)
-                self.assertTrue(success, reference)
-                expected = re.search(r'let expected : Array\[ConformanceEvent\] = (.*?)\n  @debug.assert_eq', body, re.S)
-                if expected:
-                    expectation = expected[1]
-                else:
-                    expectation = '\n'.join(re.findall(r'^\s*#\|(.*)$', body, re.M))
-                self.assertTrue(expectation, 'valid tests must assert their events')
-                self.assertEqual(compact_events(expectation), compact_events(reference))
 
 
 class GeneratorTests(unittest.TestCase):
-    def test_byte_encoding_fixtures_cannot_be_recoded_as_valid_text(self):
-        with tempfile.TemporaryDirectory() as directory:
-            fixture = Path(directory) / 'case.xml'
-            for data in [b'<r>\xed\xa0\x80</r>', b'<r>\xf7\x80\x80\x80</r>', b'\xef\xbb\xbf<?xml version="1.0" encoding="iso-8859-1"?><r/>']:
-                fixture.write_bytes(data)
-                self.assertIsNone(generator.load_test_file(str(fixture)))
-            fixture.write_bytes(b'<r>\r\nx</r>')
-            self.assertEqual(generator.load_test_file(str(fixture)), '<r>\r\nx</r>')
-            for name in [' utf-8', 'a/b', 'just&#41;word', 'utf:8', '@import(sys-encoding)', 'XYZ+999']:
-                content = f'<?xml version="1.0" encoding="{name}"?><r/>'
-                fixture.write_text(content)
-                self.assertEqual(generator.load_test_file(str(fixture)), content)
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.root = Path(self.directory.name)
 
-    def test_reference_failure_is_fatal(self):
-        with patch.object(generator, 'parse_xml', return_value=(False, 'bad reference')):
-            with self.assertRaisesRegex(RuntimeError, 'bad reference'):
-                generator.get_expected_events('<root/>')
+    def catalog(self, entries, prefix=''):
+        (self.root / 'xmlconf.xml').write_text(prefix + '<TESTSUITE>' + entries + '</TESTSUITE>')
+        return generator.collect(self.root)
 
-    def test_valid_tests_use_typed_event_equality(self):
-        generated = generator.generate_valid_test_with_events('sample', '<root/>', '', '[Empty({name: "root", attributes: []}), Eof]')
-        self.assertIn('Array[ConformanceEvent]', generated)
-        self.assertIn('@debug.assert_eq(to_conformance_events(events), expected)', generated)
-        self.assertNotIn('assert_true', generated)
+    def test_complete_xml_manifest_syntax_and_nested_base(self):
+        (self.root / 'a/b').mkdir(parents=True)
+        (self.root / 'a/b/input.xml').write_text('<r/>')
+        cases, ledger = self.catalog("""<TESTCASES xml:base='a/'><TESTCASES xml:base='b/'>
+          <TEST TYPE='valid' ID='sample' URI='input.xml'/>
+        </TESTCASES></TESTCASES>""")
+        self.assertEqual(ledger[0]['uri'], 'a/b/input.xml')
+        self.assertEqual(len(cases), 1)
 
-    def test_namespace_not_wf_uses_namespace_reader(self):
-        for test_id in ['rmt-ns10-001', 'ht-ns10-001']:
-            self.assertIn('NamespaceReader::from_string', generator.generate_not_wf_test(test_id, '<p:r/>', ''))
-        self.assertIn('Reader::from_string', generator.generate_not_wf_test('xml-syntax', '<r>', ''))
-        self.assertIn('XmlError::At(_)', generator.generate_not_wf_test('xml-syntax', '<r>', ''))
+    def test_dtd_defaults_and_external_manifest_wrappers(self):
+        (self.root / 'fixtures').mkdir()
+        (self.root / 'fixtures/input.xml').write_text('<:r/>')
+        (self.root / 'manifest.xml').write_text("<TESTCASES><TEST TYPE='valid' ID='sample' URI='input.xml'/></TESTCASES>")
+        cases, _ = self.catalog("<TESTCASES xml:base='fixtures/'>&cases;</TESTCASES>",
+                               """<!DOCTYPE TESTSUITE [<!ENTITY cases SYSTEM 'manifest.xml'>
+                               <!ATTLIST TEST NAMESPACE CDATA 'no'>]>""")
+        self.assertFalse(cases[0][0]['namespaces'])
 
-    def test_manifest_filters_obsolete_editions(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / 'case.xml').write_text('<root/>')
-            manifest = root / 'manifest.xml'
-            manifest.write_text(''.join(
-                f'<TEST TYPE="not-wf" ID="{name}" URI="case.xml"{edition}>test</TEST>'
-                for name, edition in [('old', ' EDITION="1 2 3 4"'), ('current', ' EDITION="5"'), ('all', ' EDITION="1 2 3 4 5"'), ('unspecified', '')]
-            ))
-            tests = generator.parse_test_manifest(manifest, root)
-            self.assertEqual([test[0] for test in tests], ['current', 'all', 'unspecified'])
+    def test_invalid_is_accepted_without_dtd_validation(self):
+        (self.root / 'input.xml').write_text('<r/>')
+        cases, ledger = self.catalog("<TEST TYPE='invalid' ID='sample' URI='input.xml'/>")
+        self.assertEqual(ledger[0]['assertion'], 'accept')
+        self.assertIn('w3c_accept(', generator.generate(cases))
 
-    def test_not_wf_is_generated_even_if_reference_accepts(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / 'xmltest').mkdir()
-            (root / 'xmltest/xmltest.xml').write_text('manifest')
-            case = root / 'case.xml'
-            case.write_text('<p:r/>')
-            output = root / 'output.mbt'
-            with patch.object(generator, 'XMLCONF_DIR', root), patch.object(generator, 'OUTPUT_FILE', output), patch.object(generator, 'parse_test_manifest', return_value=[('rmt-ns10-sample', 'not-wf', str(case), '')]), patch.object(generator, 'get_expected_events', side_effect=AssertionError('not-wf must not depend on the reference')), patch.object(generator.subprocess, 'run'), contextlib.redirect_stdout(io.StringIO()):
-                generator.main()
-            self.assertIn('w3c/not-wf/rmt_ns10_sample', output.read_text())
+    def test_namespace_routing_uses_metadata_not_id_spelling(self):
+        (self.root / 'input.xml').write_text('<p:r/>')
+        cases, _ = self.catalog("""<TEST TYPE='not-wf' ID='arbitrary' URI='input.xml' RECOMMENDATION='NS1.0'/>
+          <TEST TYPE='valid' ID='rmt-ns10-looking' URI='input.xml' NAMESPACE='no'/>""")
+        source = generator.generate(cases)
+        self.assertIn('namespaces=true', source)
+        self.assertIn('namespaces=false', source)
+        self.assertIn('w3c_reject(', source)
 
-    def test_missing_suite_does_not_overwrite_existing_output(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            output = root / 'output.mbt'
-            output.write_text('keep existing tests')
-            with patch.object(generator, 'XMLCONF_DIR', root), patch.object(generator, 'OUTPUT_FILE', output), contextlib.redirect_stdout(io.StringIO()):
-                with self.assertRaisesRegex(RuntimeError, 'No W3C tests'):
-                    generator.main()
-            self.assertEqual(output.read_text(), 'keep existing tests')
+    def test_output_is_copied_verbatim_without_parsing_the_input(self):
+        (self.root / 'input.xml').write_text('<this-input-is-not-parsed>')
+        (self.root / 'out.xml').write_bytes(b'<r a="&#13;">&lt;&amp;</r>')
+        cases, ledger = self.catalog("<TEST TYPE='valid' ID='sample' URI='input.xml' OUTPUT='out.xml'/>")
+        self.assertEqual(cases[0][2], '<r a="&#13;">&lt;&amp;</r>')
+        self.assertEqual(ledger[0]['assertion'], 'canonical-output')
+        self.assertIn('expected=', generator.generate(cases))
+
+    def test_notation_output_gap_does_not_remove_acceptance_test(self):
+        (self.root / 'input.xml').write_text('<r/>')
+        (self.root / 'out.xml').write_text('<!DOCTYPE r [<!NOTATION n SYSTEM "n">]><r></r>')
+        cases, ledger = self.catalog("<TEST TYPE='valid' ID='sample' URI='input.xml' OUTPUT='out.xml'/>")
+        self.assertEqual(len(cases), 1)
+        self.assertEqual(ledger[0]['output_reason'], 'notation-events-unavailable')
+
+    def test_scope_exclusions_are_accounted_for(self):
+        (self.root / 'input.xml').write_text('<r/>')
+        _, ledger = self.catalog(''.join(
+            f'<TEST TYPE="{kind}" ID="{name}" URI="input.xml" {attributes}/>'
+            for name, kind, attributes in [
+                ('enabled', 'valid', ''), ('old', 'not-wf', 'EDITION="1 2 3 4"'),
+                ('new', 'valid', 'EDITION="5"'), ('xml11', 'valid', 'RECOMMENDATION="XML1.1"'),
+                ('external', 'not-wf', 'ENTITIES="general"'), ('optional', 'error', '')]))
+        report = generator.coverage(ledger)
+        self.assertEqual(report['catalog_entries'], 6)
+        self.assertEqual(report['included'], 2)
+        self.assertEqual(report['exclusions'], {'external-entities': 1, 'obsolete-edition': 1, 'optional-error': 1, 'xml-1.1': 1})
+
+    def test_byte_errors_are_not_recoded_and_text_controls_are_preserved(self):
+        fixture = self.root / 'input.xml'
+        fixture.write_bytes(b'<r>\xed\xa0\x80</r>')
+        self.assertEqual(generator.fixture_text(fixture), (None, 'byte-decoding'))
+        fixture.write_bytes(b'<r>\x00\r\nx</r>')
+        self.assertEqual(generator.fixture_text(fixture), ('<r>\x00\r\nx</r>', None))
+        fixture.write_text('<?xml version="1.0" encoding="iso-8859-1"?><r/>')
+        self.assertEqual(generator.fixture_text(fixture)[1], 'byte-encoding-declaration')
+        for encoding in [' utf-8', 'a/b', 'utf:8', 'XYZ+999']:
+            content = f'<?xml version="1.0" encoding="{encoding}"?><r/>'
+            fixture.write_text(content)
+            self.assertEqual(generator.fixture_text(fixture), (content, None))
+
+    def test_missing_input_output_and_duplicate_ids_are_fatal(self):
+        with self.assertRaises(FileNotFoundError):
+            self.catalog('<TEST TYPE="valid" ID="sample" URI="missing.xml"/>')
+        (self.root / 'input.xml').write_text('<r/>')
+        with self.assertRaises(FileNotFoundError):
+            self.catalog('<TEST TYPE="valid" ID="sample" URI="input.xml" OUTPUT="missing.xml"/>')
+        with self.assertRaisesRegex(ValueError, 'Duplicate'):
+            self.catalog('<TEST TYPE="valid" ID="sample" URI="input.xml"/>' * 2)
+
+    def test_known_failure_keeps_the_official_accept_expectation(self):
+        (self.root / 'input.xml').write_text('<r/>')
+        cases, ledger = self.catalog('<TEST TYPE="invalid" ID="rmt-e3e-13" URI="input.xml"/>')
+        self.assertEqual(ledger[0]['assertion'], 'accept')
+        self.assertIn('#skip(', generator.generate(cases))
+        self.assertIn('w3c_accept(', generator.generate(cases))
+        self.assertEqual(generator.coverage(ledger)['enabled'], 0)
+
+    def test_literals_preserve_controls_and_astral_characters(self):
+        self.assertEqual(generator.literal('\x00\r\n\t\\"\U00010000'), '"\\u{0}\\r\\n\\t\\\\\\"\\u{10000}"')
+
+    def test_checked_in_coverage_and_embedded_fixtures_agree(self):
+        ledger = json.loads(generator.COVERAGE_FILE.read_text())
+        source = generator.OUTPUT_FILE.read_text()
+        self.assertEqual(ledger['catalog_entries'], 2585)
+        self.assertEqual(ledger['included'], 1670)
+        self.assertEqual(ledger['enabled'], 1669)
+        self.assertEqual(sum(ledger['exclusions'].values()) + ledger['included'], 2585)
+        self.assertEqual(source.count('\ntest "w3c/'), ledger['included'])
+        self.assertEqual(source.count('    expected='), ledger['assertions']['canonical-output'])
+        self.assertEqual(source.count('#skip('), len(ledger['known_failures']))
+        for entry in ledger['cases']:
+            if entry['status'] == 'included':
+                self.assertIn(f'test "w3c/{entry["type"]}/{entry["id"]}"', source)
+                self.assertIn(f'// {entry["uri"]}\n', source)
 
 
 if __name__ == '__main__':

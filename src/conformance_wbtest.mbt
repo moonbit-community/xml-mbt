@@ -23,7 +23,6 @@
 
 ///|
 test "valid/sa/001 - empty element with DTD" {
-  // DTD is skipped by our parser, but document structure should parse
   let xml =
     #|<!DOCTYPE doc [
     #|<!ELEMENT doc (#PCDATA)>
@@ -41,12 +40,16 @@ test "valid/sa/001 - empty element with DTD" {
       _ => events.push(event)
     }
   }
-  // Use to_libxml_format to skip prolog whitespace
-  let filtered = to_libxml_format(events)
   @debug.debug_inspect(
-    filtered,
+    events,
     content=(
-      #|[DocType("doc"), Empty({ name: "doc", attributes: [] }), Eof]
+      #|[
+      #|  DocType("doc"),
+      #|  Text("\n"),
+      #|  Start({ name: "doc", attributes: [] }),
+      #|  End("doc"),
+      #|  Eof,
+      #|]
     ),
   )
 }
@@ -332,17 +335,6 @@ test "valid - CDATA with special chars" {
   @debug.debug_inspect(event, content="CData(\"a]b]]c]\")")
 }
 
-///|
-test "libxml format coalesces CDATA with adjacent text" {
-  let events = Reader::from_string("<doc>a<![CDATA[b]]>c</doc>").read_events_until_eof()
-  @debug.debug_inspect(
-    to_libxml_format(events),
-    content=(
-      #|[Start({ name: "doc", attributes: [] }), Text("abc"), End("doc"), Eof]
-    ),
-  )
-}
-
 // ============================================================================
 // Comment tests
 // ============================================================================
@@ -490,7 +482,6 @@ test "valid - attribute with entity" {
   let xml = "<doc attr=\"&lt;value&gt;\"/>"
   let reader = Reader::from_string(xml)
   let event = reader.read_event()
-  // Note: attribute values are not unescaped by our parser currently
   @debug.debug_inspect(
     event,
     content=(
