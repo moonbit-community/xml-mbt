@@ -94,6 +94,7 @@ pub struct Reader {
   mut just_saw_doctype : Bool // Track if we just returned DocType to handle internal subset events
   in_entity_content : Bool // Internal replacement text already has normalized literal line endings
   mut in_reference : Bool // Reference syntax does not count as expanded output
+  mut xml_version : String? // Document version from the XML declaration
 }
 
 ///|

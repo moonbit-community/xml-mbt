@@ -123,6 +123,7 @@ fn namespace_declaration(
 fn apply_namespace_declaration(
   scope : Map[String, String],
   declaration : NamespaceDeclaration,
+  xml_11~ : Bool,
 ) -> Unit raise XmlErrorKind {
   let uri = declaration.namespace_uri
   match declaration.prefix {
@@ -150,9 +151,15 @@ fn apply_namespace_declaration(
         }
       } else {
         if uri == "" {
-          raise InvalidSyntax(
-            "namespace prefix cannot be bound to an empty URI",
-          )
+          // Namespaces in XML 1.1 §2.2: xmlns:p="" undoes the prefix
+          // binding; XML 1.0 rejects it. The caller's binding snapshot
+          // restores the previous binding at the end tag either way.
+          if !xml_11 {
+            raise InvalidSyntax(
+              "namespace prefix cannot be bound to an empty URI",
+            )
+          }
+          scope.remove(prefix)
         }
         if uri == xml_namespace_uri() {
           raise InvalidSyntax(
@@ -163,7 +170,9 @@ fn apply_namespace_declaration(
       if uri == xmlns_namespace_uri() {
         raise InvalidSyntax("namespace URI " + uri + " is reserved")
       }
-      scope.set(prefix, uri)
+      if uri != "" {
+        scope.set(prefix, uri)
+      }
     }
   }
 }
@@ -216,7 +225,11 @@ fn NamespaceReader::resolve_element(
       Some(declaration) => {
         let prefix = declaration.prefix.unwrap_or("")
         changes.push((prefix, scope.get(prefix)))
-        apply_namespace_declaration(scope, declaration)
+        apply_namespace_declaration(
+          scope,
+          declaration,
+          xml_11=self.reader.xml_version == Some("1.1"),
+        )
         declarations.push(declaration)
       }
       None => ()

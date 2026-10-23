@@ -46,6 +46,7 @@ pub fn Reader::from_string(input : String) -> Reader {
     just_saw_doctype: false,
     in_entity_content: false,
     in_reference: false,
+    xml_version: None,
   }
 }
 
@@ -930,6 +931,7 @@ fn Reader::read_xml_decl(self : Reader) -> EventKind raise XmlErrorKind {
     }
     None => ()
   }
+  self.xml_version = Some(version)
   Decl(version~, encoding~, standalone~)
 }
 
