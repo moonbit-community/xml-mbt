@@ -906,30 +906,11 @@ fn Reader::read_xml_decl(self : Reader) -> EventKind raise XmlErrorKind {
     raise InvalidSyntax("expected '?>' at end of XML declaration")
   }
 
-  // Validate UTF-16 encoding - must have BOM if declared as UTF-16
-  match encoding {
-    Some(enc) => {
-      let enc_upper = enc.to_upper()
-      if enc_upper == "UTF-16" ||
-        enc_upper == "UTF-16LE" ||
-        enc_upper == "UTF-16BE" {
-        // UTF-16 encoded content should have BOM (U+FEFF) at start
-        // If input is ASCII/UTF-8 claiming to be UTF-16, it's invalid
-        if self.input.length() > 0 && self.input[0] != '\u{FEFF}' {
-          // Check if content looks like ASCII (no high bytes)
-          // Real UTF-16 would have null bytes in ASCII text
-          let all_ascii = self.input.length() < 100 &&
-            self.input.iter().all(fn(c) { c.to_int() < 128 })
-          if all_ascii {
-            raise InvalidSyntax(
-              "encoding declared as UTF-16 but content is ASCII/UTF-8",
-            )
-          }
-        }
-      }
-    }
-    None => ()
-  }
+  // Note (encoding consistency): the reader consumes already-transcoded
+  // text, so nothing about the original byte encoding is observable here —
+  // a leading BOM has been consumed above and UTF-16 null bytes are gone.
+  // BOM/encoding consistency belongs to the byte-decoding layer (XML 1.0
+  // §4.3.3 / Appendix F), not to a heuristic over decoded text.
   Decl(version~, encoding~, standalone~)
 }
 
