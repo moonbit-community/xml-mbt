@@ -138,21 +138,21 @@ pub struct NamespaceReader {
   scope : Map[String, String]
   scopes : Array[Array[(String, String?)]]
 }
-pub fn NamespaceReader::column(Self) -> Int
+pub fn NamespaceReader::column(Self) -> Int32
 pub fn NamespaceReader::from_string(String) -> Self
 pub fn NamespaceReader::is_eof(Self) -> Bool
-pub fn NamespaceReader::line(Self) -> Int
+pub fn NamespaceReader::line(Self) -> Int32
 pub fn NamespaceReader::read_event(Self) -> NamespaceEvent raise XmlError
 pub fn NamespaceReader::read_events_until_eof(Self) -> Array[NamespaceEvent] raise XmlError
 
 pub struct Reader {
   input : Array[Char]
-  mut pos : Int
-  mut offset : Int
-  mut line : Int
-  mut column : Int
+  mut pos : Int32
+  mut offset : Int32
+  mut line : Int32
+  mut column : Int32
   entities : Map[String, String]
-  entity_expansion_remaining : @ref.Ref[Int]
+  entity_expansion_remaining : @ref.Ref[Int32]
   entity_stack : Array[String]
   namespace_aware : Bool
   attr_types : Map[String, String]
@@ -164,23 +164,23 @@ pub struct Reader {
   mut seen_content : Bool
   mut just_saw_decl : Bool
   pending_events : Array[Event]
-  mut pending_index : Int
+  mut pending_index : Int32
   internal_subset_events : Array[Event]
   mut just_saw_doctype : Bool
   in_entity_content : Bool
   mut in_reference : Bool
 }
-pub fn Reader::column(Self) -> Int
+pub fn Reader::column(Self) -> Int32
 pub fn Reader::from_string(String) -> Self
 pub fn Reader::is_eof(Self) -> Bool
-pub fn Reader::line(Self) -> Int
+pub fn Reader::line(Self) -> Int32
 pub fn Reader::read_event(Self) -> Event raise XmlError
 pub fn Reader::read_events_until_eof(Self) -> Array[Event] raise XmlError
 
 pub struct SourcePosition {
-  offset : Int
-  line : Int
-  column : Int
+  offset : Int32
+  line : Int32
+  column : Int32
 } derive(Eq, @debug.Debug)
 pub fn SourcePosition::equal(Self, Self) -> Bool
 pub fn SourcePosition::not_equal(Self, Self) -> Bool
